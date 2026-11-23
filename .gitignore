@@ -35,3 +35,6 @@ android/keystore.properties
 
 # Qo'lda yaratilgan rasmlar (import qilingach public/assets/art ga ko'chadi)
 art-inbox/
+
+# Qo'lda topilgan ovozlar (import qilingach public/assets ga ko'chadi)
+audio-inbox/

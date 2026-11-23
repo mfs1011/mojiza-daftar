@@ -68,6 +68,7 @@ export function emptyProgress(profileId: string): Progress {
     stationsDone: [],
     dayDone: false,
     levels: {},
+    levelScale: 15,
   }
 }
 
@@ -77,6 +78,11 @@ export async function getProgress(profileId: string): Promise<Progress> {
   const p: Progress = { ...emptyProgress(profileId), ...saved }
   p.village = (p.village as unknown[]).filter((v): v is PlacedDecor => typeof v === 'object' && v !== null)
   p.levels ??= {}
+  // Eski 5 darajali shkala (0..4) → yangi 15 darajali: 0,3,6,9,12
+  if (saved && !saved.levelScale) {
+    p.levels = Object.fromEntries(Object.entries(p.levels).map(([k, v]) => [k, (v ?? 0) * 3]))
+    p.levelScale = 15
+  }
   if (p.day !== today()) return { ...p, day: today(), stationsDone: [], dayDone: false }
   return p
 }

@@ -105,16 +105,16 @@ avvaliga kutubxonadan, keyin asta-sekin almashtiriladi. Pipeline ikkalasini ham 
 
 ### Kodda nima o'zgaradi (`src/lib/audio.ts`)
 
-- [ ] `setMusic(on)` o'rniga **`playMusic(id)`**: har ekran o'z trekini so'raydi (`useMusic('bozor')` hook)
-- [ ] Musiqa `AudioBufferSourceNode` (`loop = true`) orqali chalinadi: **uzluksiz loop**,
+- [x] `setMusic(on)` o'rniga **`playMusic(id)`**: har ekran o'z trekini so'raydi (`useMusic('bozor')` hook)
+- [x] Musiqa `AudioBufferSourceNode` (`loop = true`) orqali chalinadi: **uzluksiz loop**,
       HTMLAudio'dagi bo'shliq yo'qoladi. Kerak bo'lsa `loopStart/loopEnd`
-- [ ] Ekranlar orasida **1.2 s crossfade**. Bir xil trek bo'lsa, qayta boshlanmaydi
-- [ ] Ducking saqlanadi: ko'rsatma gapirganda musiqa −14 dB, so'ng 0.4 s ichida qaytadi
-- [ ] `jingle(id)`: musiqani qisqa pasaytirib, jingle chaladi
-- [ ] Trek fayli bo'lmasa, hozirgi sintezga emas, **jimlikka** qaytiladi. Sintez musiqa olib
+- [x] Ekranlar orasida **1.2 s crossfade**. Bir xil trek bo'lsa, qayta boshlanmaydi
+- [x] Ducking saqlanadi: ko'rsatma gapirganda musiqa −14 dB, so'ng 0.4 s ichida qaytadi
+- [x] `jingle(id)`: musiqani qisqa pasaytirib, jingle chaladi
+- [x] Trek fayli bo'lmasa, hozirgi sintezga emas, **jimlikka** qaytiladi. Sintez musiqa olib
       tashlanadi: tasodifiy kuy fayl yo'qligidan yomonroq
-- [ ] Uyqu ekranida musiqa oxirida so'nadi va qaytib yoqilmaydi
-- [ ] Treklar ekranga kirishdan oldin yuklanadi (preload). Birinchi ekran tez ochilishi uchun
+- [x] Uyqu ekranida musiqa oxirida so'nadi va qaytib yoqilmaydi
+- [x] Treklar ekranga kirishdan oldin yuklanadi (preload). Birinchi ekran tez ochilishi uchun
       faqat `map` oldindan yuklanadi
 
 ---
@@ -160,9 +160,9 @@ Har fayl manbasi `docs/AUDIO_CREDITS.md` ga yoziladi (pastda qarang).
 
 ### Kodda nima o'zgaradi
 
-- [ ] `sayAnimal(id)` variantlardan tasodifiy tanlaydi. **"Eshit va takrorla"** o'yinida esa doim
+- [x] `sayAnimal(id)` variantlardan tasodifiy tanlaydi. **"Eshit va takrorla"** o'yinida esa doim
       bitta asosiy variant chalinadi (xotira o'yini barqaror tovush talab qiladi)
-- [ ] **Tartib o'zgaradi:** haqiqiy yozuv → ota-ona taqlidi → TTS. Ferma o'yini haqiqiy hayvonni
+- [x] **Tartib o'zgaradi:** haqiqiy yozuv → ota-ona taqlidi → TTS. Ferma o'yini haqiqiy hayvonni
       tanitishi kerak. Ota-onaning "mo'-o'" taqlidi yoqimli, lekin o'yinning maqsadini buzadi.
       Ota-ona panelida bu bo'lim "Hayvon taqlidingiz (ixtiyoriy)" deb qayta nomlanadi
 - [ ] `synthAnimal()` olib tashlanadi (8 ta fayl kafolatlangach)
@@ -259,8 +259,8 @@ Ovozli ko'rsatma eng aniq eshitilishi kerak, qolganlari uning ostida:
 
 ### Ota-ona paneli
 
-- [ ] Uchta slayder: **Musiqa**, **Effektlar va muhit**, **Ko'rsatmalar**. Saqlanadi (`settings`)
-- [ ] "Tungi rejim" (uyqu ekranidan keyin): hammasi 50%
+- [x] Uchta slayder: **Musiqa**, **Effektlar va muhit**, **Ko'rsatmalar**. Saqlanadi (`settings`)
+- [x] "Tungi rejim" (uyqu ekranidan keyin): hammasi 50%
 
 ### Texnik
 
@@ -317,8 +317,8 @@ bu jurnal to'liq bo'lishi shart.
 
 ## Ish tartibi
 
-1. [ ] `scripts/audio-import.mjs` + `.gitignore` + `AUDIO_CREDITS.md` shabloni
-2. [ ] **P1:** `playMusic(id)`, uzluksiz loop, crossfade, sintez musiqani olib tashlash
+1. [x] `scripts/audio-import.mjs` + `.gitignore` + `AUDIO_CREDITS.md` shabloni
+2. [x] **P1:** `playMusic(id)`, uzluksiz loop, crossfade, sintez musiqani olib tashlash
 3. [ ] **P1:** 9 trek + 3 jingle topiladi yoki yaratiladi, import, ekranlarga ulanadi
 4. [ ] **P2:** 8 hayvon × 2–3 variant topiladi, import, `sayAnimal` variantlar va tartib
 5. [ ] **P3:** effektlar almashtiriladi, yangi effektlar ulanadi

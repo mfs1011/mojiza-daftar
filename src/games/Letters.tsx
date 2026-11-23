@@ -10,6 +10,7 @@ import { say, sfx } from '../lib/audio'
 import { EASY_LETTERS, initialOf, LETTERS, WORDS, type Word } from '../lib/letters'
 import { drawLetter, makeMask, maskPoints, scoreTrace, type TraceMask } from '../lib/trace'
 import { pick, shuffle } from '../lib/util'
+import { levelRow } from '../lib/stations'
 import type { GameProps, Profile } from '../types'
 import { Icon } from '../art/Icon'
 
@@ -21,20 +22,53 @@ type LRound =
   | { type: 'chiz'; letter: string; word?: Word }
   | { type: 'top'; word: Word; options: string[] }
 
-function lettersRounds(level: number, name: string): LRound[] {
-  const pool = level <= 2 ? WORDS.filter((w) => EASY_LETTERS.includes(w.letter)) : WORDS
+interface LettersCfg {
+  /** Faqat oson harflar (O, U, T, N, A, M) */
+  easy: boolean
+  /** "Top" raundidagi variantlar soni (ekranga 4 tagacha sig'adi) */
+  options: number
+  /** 3-raund: so'z harfini chizish, o'z ismining bosh harfini chizish yoki yana bir "top" */
+  third: 'word' | 'name' | 'top'
+  /** Chizish qanchalik aniq bo'lishi kerak (harf yuzasining ulushi) */
+  threshold: number
+}
+
+const L = (easy: boolean, options: number, third: LettersCfg['third'], threshold: number): LettersCfg => ({ easy, options, third, threshold })
+const LETTERS_LEVELS: LettersCfg[] = [
+  L(true, 2, 'word', 0.6),
+  L(true, 2, 'word', 0.62),
+  L(true, 3, 'word', 0.62),
+  L(true, 3, 'name', 0.62),
+  L(true, 3, 'name', 0.64),
+  L(false, 3, 'word', 0.64),
+  L(false, 3, 'name', 0.66),
+  L(false, 3, 'top', 0.66),
+  L(false, 4, 'name', 0.68),
+  L(false, 4, 'top', 0.68),
+  L(false, 4, 'word', 0.7),
+  L(false, 4, 'top', 0.7),
+  L(false, 4, 'name', 0.72),
+  L(false, 4, 'top', 0.73),
+  L(false, 4, 'word', 0.75),
+]
+
+function topRound(word: Word, n: number): LRound {
+  const options = shuffle([word.letter, ...shuffle(LETTERS.filter((l) => l !== word.letter)).slice(0, n - 1)])
+  return { type: 'top', word, options }
+}
+
+function lettersRounds(cfg: LettersCfg, name: string): LRound[] {
+  const pool = cfg.easy ? WORDS.filter((w) => EASY_LETTERS.includes(w.letter)) : WORDS
   const w1 = pick(pool)
   const w2 = pick(WORDS.filter((w) => w.letter !== w1.letter))
-  const nOpt = level <= 1 ? 2 : level <= 3 ? 3 : 4
-  const options = shuffle([w2.letter, ...shuffle(LETTERS.filter((l) => l !== w2.letter)).slice(0, nOpt - 1)])
+  const w3 = pick(pool.filter((w) => w.letter !== w1.letter && w.letter !== w2.letter))
   const third: LRound =
-    level >= 2
+    cfg.third === 'name'
       ? { type: 'chiz', letter: initialOf(name) }
-      : (() => {
-          const w3 = pick(pool.filter((w) => w.letter !== w1.letter))
-          return { type: 'chiz' as const, letter: w3.letter, word: w3 }
-        })()
-  return [{ type: 'chiz', letter: w1.letter, word: w1 }, { type: 'top', word: w2, options }, third]
+      : cfg.third === 'top'
+        ? topRound(w3, cfg.options)
+        : { type: 'chiz', letter: w3.letter, word: w3 }
+  return [{ type: 'chiz', letter: w1.letter, word: w1 }, topRound(w2, cfg.options), third]
 }
 
 function WordPicture({ word, profile }: { word?: Word; profile: Profile }) {
@@ -44,7 +78,7 @@ function WordPicture({ word, profile }: { word?: Word; profile: Profile }) {
 
 // ---------------- Chizish raundi ----------------
 
-function TraceBoard({ letter, level, onDone, onMistake }: { letter: string; level: number; onDone: () => void; onMistake: () => void }) {
+function TraceBoard({ letter, threshold, onDone, onMistake }: { letter: string; threshold: number; onDone: () => void; onMistake: () => void }) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const guideRef = useRef<HTMLCanvasElement>(null)
   const drawRef = useRef<HTMLCanvasElement>(null)
@@ -53,7 +87,6 @@ function TraceBoard({ letter, level, onDone, onMistake }: { letter: string; leve
   const last = useRef<{ x: number; y: number } | null>(null)
   const [done, setDone] = useState(false)
   const doneRef = useRef(false)
-  const threshold = level >= 3 ? 0.7 : 0.62
 
   // Taxtani tayyorlash
   useEffect(() => {
@@ -179,7 +212,8 @@ function TraceBoard({ letter, level, onDone, onMistake }: { letter: string; leve
 // ---------------- O'yin ----------------
 
 export function Letters({ profile, level, onComplete, onExit }: GameProps) {
-  const rounds = useMemo(() => lettersRounds(level, profile.name), [level, profile.name])
+  const cfg = useMemo(() => levelRow(LETTERS_LEVELS, level), [level])
+  const rounds = useMemo(() => lettersRounds(cfg, profile.name), [cfg, profile.name])
   const [idx, setIdx] = useState(0)
   const [wrong, setWrong] = useState<string | null>(null)
   const [solved, setSolved] = useState(false)
@@ -268,7 +302,7 @@ export function Letters({ profile, level, onComplete, onExit }: GameProps) {
       </motion.div>
 
       {r.type === 'chiz' ? (
-        <TraceBoard key={`board-${idx}`} letter={r.letter} level={level} onDone={traced} onMistake={() => (mistakes.current++, react('oops'))} />
+        <TraceBoard key={`board-${idx}`} letter={r.letter} threshold={cfg.threshold} onDone={traced} onMistake={() => (mistakes.current++, react('oops'))} />
       ) : (
         <div className="letter-options">
           {r.options.map((l) => (

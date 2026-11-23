@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { invalidateHero } from '../components/Hero'
-import { forgetVoice, say, setMusic, stopVoice } from '../lib/audio'
+import { applyMix, forgetVoice, say, setAmbience, setMusic, stopVoice } from '../lib/audio'
 import { deleteHero, deleteVoice, getProgress, saveProfile, saveProgress, saveVoice, voiceKeys } from '../lib/db'
-import { getSettings, saveSettings } from '../lib/settings'
-import { dailyFor, MAX_LEVEL, startLevel } from '../lib/stations'
+import { getSettings, saveSettings, type Settings } from '../lib/settings'
+import { dailyFor, levelLabel, startLevel } from '../lib/stations'
 import { voicePrompts } from '../lib/voices'
 import type { Age, Profile, Progress, StationId } from '../types'
 
@@ -22,6 +22,15 @@ export function ParentPanel({ profiles, onBack }: Props) {
   const [recording, setRecording] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [settings, setSettingsState] = useState(getSettings)
+
+  function changeSettings(patch: Partial<Settings>) {
+    const s = { ...settings, ...patch }
+    setSettingsState(s)
+    saveSettings(s)
+    setMusic(s.music)
+    setAmbience(s.ambience)
+    applyMix(s)
+  }
   const recRef = useRef<MediaRecorder | null>(null)
 
   useEffect(() => {
@@ -53,7 +62,7 @@ export function ParentPanel({ profiles, onBack }: Props) {
   function setLevel(p: Profile, station: StationId, delta: number) {
     void patchProgress(p.id, (pr) => {
       const cur = pr.levels[station] ?? startLevel(p.age)
-      return { ...pr, levels: { ...pr.levels, [station]: Math.max(0, Math.min(MAX_LEVEL, cur + delta)) } }
+      return { ...pr, levels: { ...pr.levels, [station]: Math.max(0, cur + delta) } }
     })
   }
 
@@ -115,18 +124,37 @@ export function ParentPanel({ profiles, onBack }: Props) {
       <section>
         <h3>Sozlamalar</h3>
         <label className="p-toggle">
-          <input
-            type="checkbox"
-            checked={settings.music}
-            onChange={(e) => {
-              const s = { ...settings, music: e.target.checked }
-              setSettingsState(s)
-              saveSettings(s)
-              setMusic(s.music)
-            }}
-          />
-          Fon musiqasi (doira va kuy)
+          <input type="checkbox" checked={settings.music} onChange={(e) => changeSettings({ music: e.target.checked })} />
+          Fon musiqasi
         </label>
+        <label className="p-toggle">
+          <input type="checkbox" checked={settings.ambience} onChange={(e) => changeSettings({ ambience: e.target.checked })} />
+          Muhit ovozlari (qushlar, bozor shovqini...)
+        </label>
+        <label className="p-toggle">
+          <input type="checkbox" checked={settings.night} onChange={(e) => changeSettings({ night: e.target.checked })} />
+          Tungi rejim (hamma ovoz 50%)
+        </label>
+        {(
+          [
+            ['musicVol', 'Musiqa'],
+            ['fxVol', 'Effektlar va muhit'],
+            ['voiceVol', "Ko'rsatmalar"],
+          ] as const
+        ).map(([k, label]) => (
+          <label key={k} className="p-slider">
+            <span>{label}</span>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={5}
+              value={Math.round(settings[k] * 100)}
+              onChange={(e) => changeSettings({ [k]: Number(e.target.value) / 100 })}
+            />
+            <b>{Math.round(settings[k] * 100)}%</b>
+          </label>
+        ))}
       </section>
 
       <section>
@@ -165,7 +193,7 @@ export function ParentPanel({ profiles, onBack }: Props) {
                     <button className="p-icon" onClick={() => setLevel(p, s.id, -1)}>
                       −
                     </button>
-                    <b>{(pr?.levels[s.id] ?? startLevel(p.age)) + 1}</b>
+                    <b>{levelLabel(pr?.levels[s.id] ?? startLevel(p.age))}</b>
                     <button className="p-icon" onClick={() => setLevel(p, s.id, +1)}>
                       +
                     </button>

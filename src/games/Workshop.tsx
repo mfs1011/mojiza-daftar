@@ -6,6 +6,7 @@ import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
 import { say, sfx } from '../lib/audio'
 import { pick, shuffle } from '../lib/util'
+import { levelRow } from '../lib/stations'
 import type { GameProps } from '../types'
 
 // 🏺 Ustaxona — naqshni davom ettirish (#4).
@@ -18,15 +19,27 @@ interface WorkshopCfg {
   blanks: number
 }
 
-function workshopCfg(level: number): WorkshopCfg {
-  return [
-    { units: ['AB'], options: 2, blanks: 1 },
-    { units: ['AB', 'AAB'], options: 3, blanks: 1 },
-    { units: ['AAB', 'ABB', 'ABC'], options: 3, blanks: 1 },
-    { units: ['ABC', 'AABB', 'ABB'], options: 3, blanks: 2 },
-    { units: ['AABB', 'ABCC', 'ABAC'], options: 4, blanks: 2 },
-  ][Math.min(level, 4)]
-}
+// Naqsh birligi (AB, AAB, ABC...), tanlov plitkalari soni va bo'sh joylar.
+// Birlik 4 harfdan oshmaydi va bo'sh joylar 3 tagacha: taxta 11 katakka sig'adi.
+const WORKSHOP_LEVELS: WorkshopCfg[] = [
+  { units: ['AB'], options: 2, blanks: 1 },
+  { units: ['AB'], options: 3, blanks: 1 },
+  { units: ['AB', 'AAB'], options: 3, blanks: 1 },
+  { units: ['AAB', 'ABB'], options: 3, blanks: 1 },
+  { units: ['AAB', 'ABB', 'ABC'], options: 3, blanks: 1 },
+  { units: ['ABC', 'ABB'], options: 4, blanks: 1 },
+  { units: ['ABC', 'AABB'], options: 3, blanks: 2 },
+  { units: ['ABC', 'AABB', 'ABB'], options: 4, blanks: 2 },
+  { units: ['AABB', 'ABCC'], options: 4, blanks: 2 },
+  { units: ['AABB', 'ABCC', 'ABAC'], options: 4, blanks: 2 },
+  { units: ['ABCD', 'ABAC'], options: 4, blanks: 2 },
+  { units: ['ABCD', 'AABB', 'ABCC'], options: 5, blanks: 2 },
+  { units: ['ABCD', 'ABAC', 'AABC'], options: 5, blanks: 3 },
+  { units: ['ABCD', 'AABC', 'ABCB'], options: 5, blanks: 3 },
+  { units: ['ABCD', 'AABC', 'ABCB', 'ABBC'], options: 5, blanks: 3 },
+]
+
+const workshopCfg = (level: number) => levelRow(WORKSHOP_LEVELS, level)
 
 const ROUNDS = 4
 

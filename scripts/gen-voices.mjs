@@ -10,7 +10,7 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { voicePrompts } from '../src/lib/voices.ts'
-import { apiKey, ASSETS_DIR, gemini, inlineData, writeManifest } from './lib.mjs'
+import { ASSETS_DIR, gemini, inlineData, isDailyLimit, keyPool, writeManifest } from './lib.mjs'
 
 const MODEL = process.env.GEN_TTS_MODEL ?? 'gemini-2.5-flash-preview-tts'
 const VOICE = process.env.GEN_TTS_VOICE ?? 'Leda'
@@ -20,7 +20,7 @@ const test = args.includes('--test')
 const only = args.includes('--only') ? args[args.indexOf('--only') + 1].split(',') : null
 const want = (k) => !only || only.includes(k)
 const force = args.includes('--force')
-const key = apiKey()
+const pool = keyPool()
 const dir = join(ASSETS_DIR, 'voices')
 mkdirSync(dir, { recursive: true })
 
@@ -49,16 +49,35 @@ const TEACHER =
   'Speak like a warm, cheerful kindergarten teacher talking to a 4-year-old: unhurried, clear, smiling.'
 
 async function speak(text, file, style = TEACHER, voice = VOICE) {
+  // Gemini 3.x TTS uslub ko'rsatmasini ham ovoz chiqarib o'qib yuboradi (systemInstruction ham yo'q):
+  // ularga faqat toza matn beriladi
+  const plain = /gemini-3/.test(MODEL)
   const body = {
-    contents: [{ parts: [{ text: `${style} Say only this: "${text}"` }] }],
+    contents: [{ parts: [{ text: plain ? text : `${style} Say only this: "${text}"` }] }],
     generationConfig: {
       responseModalities: ['AUDIO'],
       speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } },
     },
   }
-  const data = inlineData(await gemini(MODEL, body, key))
+  let json
+  for (;;) {
+    try {
+      json = await gemini(MODEL, body, pool.key)
+      break
+    } catch (e) {
+      // Bu kalitning kunlik limiti tugadi → keyingi kalit
+      if (!isDailyLimit(e) || !pool.next()) throw e
+      console.log(`  ↻ kunlik limit tugadi, kalit ${pool.label} ga o'tildi`)
+    }
+  }
+  const data = inlineData(json)
   const rate = Number(/rate=(\d+)/.exec(data.mimeType ?? '')?.[1] ?? 24000)
-  writeFileSync(file, wav(Buffer.from(data.data, 'base64'), rate))
+  const pcm = Buffer.from(data.data, 'base64')
+  // Sog'lomlik tekshiruvi: model ko'rsatmani o'qib yuborsa, ovoz matndan ancha uzun chiqadi
+  const secs = pcm.length / 2 / rate
+  const limit = 3 + text.length * 0.15
+  if (secs > limit) throw new Error(`ovoz juda uzun (${secs.toFixed(1)} s > ${limit.toFixed(1)} s): model ko'rsatmani o'qigan bo'lishi mumkin`)
+  writeFileSync(file, wav(pcm, rate))
 }
 
 if (test) {
@@ -102,7 +121,7 @@ for (const [k, text] of charTodo) {
   } catch (e) {
     console.error(`✗ voice-${k}: ${e.message.slice(0, 120)}`)
     if (/429/.test(e.message)) {
-      console.error('Kunlik limit tugadi — ertaga davom ettiring (borlari o\'tkazib yuboriladi).')
+      console.error('Hamma kalitlarning kunlik limiti tugadi — ertaga davom ettiring (borlari o\'tkazib yuboriladi).')
       writeManifest()
       process.exit(2)
     }
@@ -128,7 +147,7 @@ for (const p of prompts) {
   } catch (e) {
     console.error(`✗ ${p.key}: ${e.message.slice(0, 120)}`)
     if (/429/.test(e.message)) {
-      console.error('Kunlik limit tugadi — ertaga davom ettiring (borlari o\'tkazib yuboriladi).')
+      console.error('Hamma kalitlarning kunlik limiti tugadi — ertaga davom ettiring (borlari o\'tkazib yuboriladi).')
       break
     }
   }

@@ -31,8 +31,10 @@ export interface Progress {
   stationsDone: StationId[]
   /** Bugungi kun tugadimi (qahramon uxladimi) */
   dayDone: boolean
-  /** Har bir o'yin uchun moslashuvchan qiyinlik darajasi (0..MAX_LEVEL) */
+  /** Har bir o'yin uchun moslashuvchan qiyinlik darajasi: 0..14 qo'lda yozilgan, 15+ cheksiz */
   levels: Partial<Record<StationId, number>>
+  /** Darajalar shkalasi: yo'q bo'lsa eski 0..4 (5 daraja), 15 — yangi */
+  levelScale?: number
 }
 
 export interface GameResult {

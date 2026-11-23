@@ -16,7 +16,8 @@
     "gen:voices": "node scripts/gen-voices.mjs",
     "assets:manifest": "node -e \"import('./scripts/lib.mjs').then(m=>console.log(m.writeManifest()+' ta fayl'))\"",
     "art:prompts": "node scripts/art-prompts.mjs",
-    "art:import": "node scripts/art-import.mjs"
+    "art:import": "node scripts/art-import.mjs",
+    "audio:import": "node scripts/audio-import.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.6.2",

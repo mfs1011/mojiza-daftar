@@ -9,7 +9,7 @@ import { Letters } from './games/Letters'
 import { Market } from './games/Market'
 import { Shadows } from './games/Shadows'
 import { Workshop } from './games/Workshop'
-import { setMusic, stopVoice } from './lib/audio'
+import { applyMix, jingle, playAmbience, playMusic, preloadMusic, setAmbience, setMusic, stopVoice, type AmbienceId, type MusicId } from './lib/audio'
 import { getProfiles, getProgress, saveProgress } from './lib/db'
 import { getSettings } from './lib/settings'
 import { dailyFor, nextLevel, startLevel } from './lib/stations'
@@ -49,7 +49,33 @@ export default function App() {
 
   useEffect(() => {
     void getProfiles().then(setProfiles)
+    const s = getSettings()
+    applyMix(s)
+    setMusic(s.music)
+    setAmbience(s.ambience)
+    // Birinchi ekran tez ochilishi uchun faqat xarita musiqasi oldindan yuklanadi
+    preloadMusic('map')
   }, [])
+
+  // Har ekran o'z musiqasi va muhit ovozi bilan
+  const musicId: MusicId | null =
+    screen.name === 'profiles' || screen.name === 'map'
+      ? 'map'
+      : screen.name === 'game'
+        ? screen.station
+        : screen.name === 'studio'
+          ? 'rasm'
+          : screen.name === 'sleep'
+            ? 'uyqu'
+            : null
+  const ambienceId: AmbienceId | null = screen.name === 'game' ? screen.station : null
+  useEffect(() => {
+    playMusic(musicId)
+    playAmbience(ambienceId)
+    // Xaritada bo'lganda bekat treklarini oldindan yuklab qo'yamiz
+    if (ambienceId) jingle('start')
+    if (musicId === 'map') preloadMusic('bog', 'bozor', 'ferma', 'ustaxona', 'qora', 'harflar', 'rasm', 'uyqu')
+  }, [musicId, ambienceId])
 
   const goHome = useCallback(() => {
     stopVoice()
@@ -81,7 +107,6 @@ export default function App() {
   }, [backToMap, goHome])
 
   async function choose(p: Profile) {
-    setMusic(getSettings().music)
     const pr = await getProgress(p.id)
     setProfile(p)
     setProgress(pr)
@@ -112,6 +137,7 @@ export default function App() {
   async function placeDecor(d: PlacedDecor) {
     if (!progress) return
     const next = { ...progress, village: [...progress.village, d] }
+    jingle('sticker')
     await saveProgress(next)
     setProgress(next)
     setReward(null)

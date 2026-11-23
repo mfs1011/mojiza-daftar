@@ -7,6 +7,7 @@ import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
 import { say, sfx } from '../lib/audio'
 import { pick, shuffle } from '../lib/util'
+import { levelRow } from '../lib/stations'
 import type { GameProps } from '../types'
 
 // 🍎 Bog' — saralash (#2).
@@ -52,39 +53,30 @@ const KIND_SETS_3: FruitKind[][] = [
 ]
 const SIZES: Record<number, number[]> = { 2: [1.3, 0.72], 3: [1.35, 1, 0.68] }
 
+// Har daraja — 3 raund. Daraxtga 12 tagacha meva sig'adi (rang ≤4 guruh, kattalik va tur ≤3).
+const R = (type: RoundType, groups: number, perGroup: number): RoundCfg => ({ type, groups, perGroup })
+const GARDEN_LEVELS: RoundCfg[][] = [
+  [R('rang', 2, 2), R('kattalik', 2, 2), R('rang', 2, 3)],
+  [R('rang', 2, 3), R('kattalik', 2, 2), R('rang', 2, 3)],
+  [R('rang', 2, 3), R('kattalik', 2, 3), R('rang', 3, 2)],
+  [R('rang', 3, 2), R('kattalik', 2, 3), R('tur', 2, 2)],
+  [R('rang', 3, 3), R('kattalik', 2, 3), R('tur', 2, 3)],
+  [R('rang', 3, 3), R('kattalik', 3, 2), R('tur', 2, 3)],
+  [R('rang', 3, 3), R('kattalik', 3, 2), R('tur', 3, 2)],
+  [R('rang', 4, 2), R('kattalik', 3, 2), R('tur', 3, 3)],
+  [R('rang', 4, 2), R('kattalik', 3, 3), R('tur', 3, 3)],
+  [R('rang', 4, 3), R('kattalik', 3, 3), R('tur', 3, 3)],
+  [R('tur', 3, 3), R('rang', 4, 3), R('kattalik', 3, 3)],
+  [R('rang', 3, 4), R('kattalik', 3, 3), R('tur', 3, 4)],
+  [R('rang', 4, 3), R('kattalik', 3, 4), R('tur', 3, 4)],
+  [R('tur', 3, 4), R('rang', 4, 3), R('kattalik', 3, 4)],
+  [R('rang', 4, 3), R('tur', 3, 4), R('kattalik', 3, 4)],
+]
+
+/** Endless'da har raund yuqori darajalardan alohida tanlanadi */
 function gardenRounds(level: number): RoundCfg[] {
-  switch (level) {
-    case 0:
-      return [
-        { type: 'rang', groups: 2, perGroup: 2 },
-        { type: 'kattalik', groups: 2, perGroup: 2 },
-        { type: 'rang', groups: 2, perGroup: 3 },
-      ]
-    case 1:
-      return [
-        { type: 'rang', groups: 2, perGroup: 3 },
-        { type: 'kattalik', groups: 2, perGroup: 3 },
-        { type: 'rang', groups: 3, perGroup: 2 },
-      ]
-    case 2:
-      return [
-        { type: 'rang', groups: 3, perGroup: 3 },
-        { type: 'kattalik', groups: 2, perGroup: 3 },
-        { type: 'tur', groups: 2, perGroup: 3 },
-      ]
-    case 3:
-      return [
-        { type: 'rang', groups: 3, perGroup: 3 },
-        { type: 'kattalik', groups: 3, perGroup: 2 },
-        { type: 'tur', groups: 3, perGroup: 3 },
-      ]
-    default:
-      return [
-        { type: 'rang', groups: 4, perGroup: 3 },
-        { type: 'kattalik', groups: 3, perGroup: 3 },
-        { type: 'tur', groups: 3, perGroup: 3 },
-      ]
-  }
+  if (level < GARDEN_LEVELS.length) return GARDEN_LEVELS[level]
+  return shuffle([0, 1, 2].map((i) => levelRow(GARDEN_LEVELS, level)[i]))
 }
 
 function makeRound(cfg: RoundCfg): { groups: Group[]; items: Item[] } {

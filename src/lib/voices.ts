@@ -77,7 +77,7 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     ...ALL_ANIMALS.map((a) => ({
       key: `tovush_${a}`,
       text: `${ANIMAL_NAMES[a]}: "${ANIMAL_SOUNDS[a]}"`,
-      group: 'Hayvon tovushlari (yozmasangiz, sintez ovoz chiqadi)',
+      group: "Hayvon taqlidingiz (ixtiyoriy: haqiqiy yozuv bo'lmasa chalinadi)",
     })),
 
     { key: 'ustaxona_intro', text: 'Naqshni davom ettir! Keyingisi qaysi?', group: 'Ustaxona' },

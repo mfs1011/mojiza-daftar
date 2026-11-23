@@ -911,8 +911,10 @@ button {
 }
 
 .farm-animals.takrorla .farm-animal {
-  width: 30vmin;
-  height: 30vmin;
+  /* 5–6 ta hayvon bo'lsa kichrayadi: ekran eniga sig'sin */
+  width: min(30vmin, calc((94vw - (var(--n, 4) - 1) * 3vmin) / var(--n, 4)));
+  height: auto;
+  aspect-ratio: 1;
   padding: 3vmin;
   border-radius: 50%;
   background: #ffffff55;
@@ -1131,7 +1133,8 @@ button {
 }
 
 .tray-animal {
-  width: 22vmin;
+  /* 7 tagacha hayvon: ekran eniga sig'sin */
+  width: min(22vmin, calc((94vw - 6 * 2.5vmin) / 7));
   height: 18vmin;
   touch-action: none;
 }
@@ -2026,6 +2029,31 @@ button {
 .p-toggle input {
   width: 22px;
   height: 22px;
+}
+
+.p-toggle + .p-toggle,
+.p-toggle + .p-slider,
+.p-slider + .p-slider {
+  margin-top: 8px;
+}
+
+.p-slider {
+  display: grid;
+  grid-template-columns: 11em 1fr 3.5em;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.p-slider input {
+  width: 100%;
+}
+
+.p-slider b {
+  text-align: right;
+  font-weight: 600;
 }
 
 .p-profile {

@@ -27,14 +27,38 @@ export const stationsFor = (age: Age) => STATIONS.filter((s) => !s.minAge || age
 
 export const dailyFor = (age: Age) => stationsFor(age).filter((s) => s.daily)
 
-export const MAX_LEVEL = 4
+/** Har bekatda qo'lda yozilgan darajalar: 0..14. Undan keyin — cheksiz (endless) */
+export const AUTHORED_LEVELS = 15
 
 /** Yosh faqat boshlang'ich nuqta; keyin daraja bolaning natijasiga qarab o'zgaradi */
-export const startLevel = (age: Age) => (age === 3 ? 0 : 2)
+export const startLevel = (age: Age) => (age === 3 ? 0 : 5)
 
-/** Xatosiz o'tsa qiyinlashadi, ko'p xato qilsa osonlashadi */
+/** Xatosiz o'tsa qiyinlashadi, ko'p xato qilsa osonlashadi. Yuqori chegara yo'q (endless) */
 export function nextLevel(level: number, mistakes: number): number {
-  if (mistakes === 0) return Math.min(MAX_LEVEL, level + 1)
+  if (mistakes === 0) return level + 1
   if (mistakes >= 5) return Math.max(0, level - 1)
   return level
+}
+
+/** Daraja bolaga ko'rinadigan raqami: 15 dan keyin "∞" belgisi bilan */
+export const levelLabel = (level: number) => `${level + 1}${level >= AUTHORED_LEVELS ? ' ∞' : ''}`
+
+/**
+ * O'yin jadvalidan daraja sozlamasini olish.
+ * 0..14 — aniq jadval qatori. 15+ (endless) — eng qiyin 5 qatordan tasodifiy tanlov:
+ * daraja oshgan sari eng qiyinlari ko'proq tushadi, lekin har safar yangi kombinatsiya chiqadi.
+ * Har raund uchun alohida chaqirilsa, bitta o'yin ichida ham raundlar har xil bo'ladi.
+ */
+export function levelRow<T>(table: readonly T[], level: number): T {
+  if (level < table.length) return table[Math.max(0, level)]
+  const band = table.slice(-5)
+  const extra = Math.min(level - table.length + 1, 20)
+  // Og'irlik: i-qator (qiyinroq) uchun 1 + i * extra/4
+  const weights = band.map((_, i) => 1 + (i * extra) / 4)
+  let r = Math.random() * weights.reduce((a, b) => a + b, 0)
+  for (let i = 0; i < band.length; i++) {
+    r -= weights[i]
+    if (r <= 0) return band[i]
+  }
+  return band[band.length - 1]
 }

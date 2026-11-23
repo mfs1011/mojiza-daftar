@@ -7,6 +7,7 @@ import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
 import { say, sfx } from '../lib/audio'
 import { pick, randInt } from '../lib/util'
+import { levelRow } from '../lib/stations'
 import type { GameProps } from '../types'
 import { Icon } from '../art/Icon'
 
@@ -19,17 +20,32 @@ interface MarketCfg {
   min: number
   max: number
   auto: boolean
+  /** Necha xatodan keyin 10 lik ramkada rasmli yordam paydo bo'ladi (auto bo'lmasa) */
+  hintAfter: number
 }
 
-function marketCfg(level: number): MarketCfg {
-  return [
-    { min: 1, max: 3, auto: true },
-    { min: 1, max: 5, auto: true },
-    { min: 2, max: 6, auto: false },
-    { min: 3, max: 8, auto: false },
-    { min: 4, max: 10, auto: false },
-  ][Math.min(level, 4)]
-}
+const NEVER = 99
+// 0–3: avtomatik (savatga solgan zahoti tekshiradi), 4+: bola o'zi "tayyor" deydi.
+// Yuqorida son oralig'i kengayadi va rasmli yordam kechroq chiqadi.
+const MARKET_LEVELS: MarketCfg[] = [
+  { min: 1, max: 3, auto: true, hintAfter: 0 },
+  { min: 1, max: 4, auto: true, hintAfter: 0 },
+  { min: 1, max: 5, auto: true, hintAfter: 0 },
+  { min: 2, max: 5, auto: true, hintAfter: 0 },
+  { min: 1, max: 5, auto: false, hintAfter: 1 },
+  { min: 2, max: 6, auto: false, hintAfter: 1 },
+  { min: 2, max: 6, auto: false, hintAfter: 2 },
+  { min: 3, max: 7, auto: false, hintAfter: 2 },
+  { min: 3, max: 8, auto: false, hintAfter: 2 },
+  { min: 4, max: 8, auto: false, hintAfter: 2 },
+  { min: 4, max: 9, auto: false, hintAfter: 3 },
+  { min: 5, max: 9, auto: false, hintAfter: 3 },
+  { min: 5, max: 10, auto: false, hintAfter: 3 },
+  { min: 6, max: 10, auto: false, hintAfter: 3 },
+  { min: 6, max: 10, auto: false, hintAfter: NEVER },
+]
+
+const marketCfg = (level: number) => levelRow(MARKET_LEVELS, level)
 
 const ROUNDS = 3
 const MARKET_FRUITS: FruitKind[] = ['olma', 'anor', 'orik', 'nok', 'behi', 'uzum']
@@ -49,7 +65,8 @@ function newCustomer(cfg: MarketCfg, prev?: Customer): Customer {
 }
 
 export function Market({ level, onComplete, onExit }: GameProps) {
-  const cfg = marketCfg(level)
+  // Endless'da tasodifiy tanlanadi: bitta o'yin davomida o'zgarmasin
+  const [cfg] = useState(() => marketCfg(level))
   const [round, setRound] = useState(0)
   const [customer, setCustomer] = useState(() => newCustomer(cfg))
   const [given, setGiven] = useState(0)
@@ -60,7 +77,7 @@ export function Market({ level, onComplete, onExit }: GameProps) {
   const [mascot, react] = useMascot()
   const mistakes = useRef(0)
   const bagRef = useRef<HTMLDivElement>(null)
-  const showPictures = cfg.auto || tries >= 2
+  const showPictures = cfg.auto || tries >= cfg.hintAfter
   const { want, fruit } = customer
 
   useEffect(() => {

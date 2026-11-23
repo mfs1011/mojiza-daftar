@@ -32,8 +32,6 @@ export const artUrl = (path: string): string | null => asset(`art/${path}.png`) 
 export const audioUrl = (path: string): string | null =>
   asset(`${path}.m4a`) ?? asset(`${path}.mp3`) ?? asset(`${path}.ogg`) ?? asset(`${path}.wav`)
 
-export const musicTracks = (): string[] => [...files].filter((f) => f.startsWith('music/')).map((f) => BASE + f)
-
 /** Animatsiya (sprite sheet): art/<yo'l>@<kadr>f<fps>a<eni/bo'yi*100>.png */
 export interface Anim {
   url: string

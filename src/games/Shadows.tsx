@@ -6,6 +6,7 @@ import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
 import { say, sfx } from '../lib/audio'
 import { shuffle } from '../lib/util'
+import { levelRow } from '../lib/stations'
 import type { GameProps } from '../types'
 
 // 🌙 Kechki qo'ra — soya topish (#3).
@@ -16,18 +17,31 @@ import type { GameProps } from '../types'
 interface ShadowCfg {
   count: number
   similar: boolean
-  flips: boolean
+  /** Soyaning teskari qarash ehtimoli (0..1) */
+  flips: number
 }
 
-function shadowCfg(level: number): ShadowCfg {
-  return [
-    { count: 3, similar: false, flips: false },
-    { count: 4, similar: false, flips: false },
-    { count: 4, similar: true, flips: false },
-    { count: 5, similar: true, flips: true },
-    { count: 6, similar: true, flips: true },
-  ][Math.min(level, 4)]
-}
+// Hayvonlar soni (7 tagacha sig'adi), o'xshash juftlik (qo'y/echki) va teskari soyalar
+// navbat bilan qo'shiladi: bola bir vaqtda faqat bitta yangi qiyinchilikka duch keladi.
+const SHADOW_LEVELS: ShadowCfg[] = [
+  { count: 3, similar: false, flips: 0 },
+  { count: 4, similar: false, flips: 0 },
+  { count: 4, similar: true, flips: 0 },
+  { count: 5, similar: false, flips: 0 },
+  { count: 5, similar: true, flips: 0 },
+  { count: 4, similar: false, flips: 0.3 },
+  { count: 5, similar: true, flips: 0.3 },
+  { count: 6, similar: false, flips: 0.3 },
+  { count: 6, similar: true, flips: 0.3 },
+  { count: 6, similar: true, flips: 0.5 },
+  { count: 7, similar: false, flips: 0.5 },
+  { count: 7, similar: true, flips: 0.5 },
+  { count: 7, similar: true, flips: 0.6 },
+  { count: 7, similar: true, flips: 0.7 },
+  { count: 7, similar: true, flips: 0.8 },
+]
+
+const shadowCfg = (level: number) => levelRow(SHADOW_LEVELS, level)
 
 const ROUNDS = 2
 const DISTINCT: AnimalId[] = ['sigir', 'xoroz', 'ordak', 'eshak', 'mushuk', 'it']
@@ -52,7 +66,7 @@ function makeRound(cfg: ShadowCfg): { spots: Spot[]; tray: AnimalId[] } {
       id,
       x: 22 + (col + 0.5) * (58 / n) + (row ? 3 : -3),
       y: ids.length <= 3 ? 38 : 26 + row * 24,
-      flip: cfg.flips && Math.random() < 0.5,
+      flip: Math.random() < cfg.flips,
     }
   })
   return { spots, tray: shuffle(ids) }
