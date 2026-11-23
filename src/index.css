@@ -1,0 +1,2002 @@
+/* O'lchamlar vmin da: telefon ham, planshet ham bir xil ko'rinadi (landshaft). */
+
+:root {
+  --ink: #3d2c1e;
+  font-family: ui-rounded, 'SF Pro Rounded', Nunito, Roboto, system-ui, sans-serif;
+  color: var(--ink);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: #bde0fe;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.silhouette-art {
+  filter: brightness(0);
+  opacity: 0.55;
+}
+
+.screen {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* ---------- Umumiy tugmalar ---------- */
+
+.back-btn,
+.home-btn {
+  position: absolute;
+  top: 3vmin;
+  left: 3vmin;
+  z-index: 40;
+  width: 12vmin;
+  height: 12vmin;
+  padding: 2.6vmin;
+  border-radius: 50%;
+  background: #fffe;
+  box-shadow: 0 1vmin 0 #0002;
+}
+
+.hud {
+  position: absolute;
+  top: 3vmin;
+  right: 3vmin;
+  display: flex;
+  gap: 2vmin;
+  z-index: 40;
+}
+
+.hud > span,
+.earned,
+.sleep-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.4vmin;
+  background: #fffe;
+  border-radius: 6vmin;
+  padding: 1.2vmin 3vmin 1.2vmin 1.4vmin;
+  font-size: 5.5vmin;
+  font-weight: 900;
+  box-shadow: 0 0.8vmin 0 #0002;
+}
+
+.hud-icon {
+  display: inline-block;
+  width: 6vmin;
+  height: 6vmin;
+}
+
+.pips {
+  position: absolute;
+  top: 5vmin;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 1.6vmin;
+  z-index: 30;
+}
+
+.pip {
+  width: 3vmin;
+  height: 3vmin;
+  border-radius: 50%;
+  background: #fff9;
+  box-shadow: 0 0.4vmin 0 #0002;
+  transition: all 0.3s;
+}
+
+.pip.done {
+  background: #06d6a0;
+}
+
+.pip.now {
+  background: #ffd166;
+  transform: scale(1.35);
+}
+
+.mascot-corner {
+  position: absolute;
+  top: 1vmin;
+  right: 2vmin;
+  width: 19vmin;
+  height: 19vmin;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.hold-btn {
+  position: relative;
+  overflow: hidden;
+  width: 11vmin;
+  height: 11vmin;
+  padding: 2.2vmin;
+  border-radius: 50%;
+  background: #fffc;
+  box-shadow: 0 0.8vmin 0 #0002;
+}
+
+.hold-fill {
+  position: absolute;
+  inset: 0;
+  background: #ffc43d;
+  transform-origin: bottom;
+}
+
+.hold-label {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Effektlar ---------- */
+
+.fx-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 300;
+}
+
+.fx-bit {
+  position: absolute;
+  width: 2.6vmin;
+  height: 2.6vmin;
+  margin: -1.3vmin 0 0 -1.3vmin;
+  border-radius: 50%;
+}
+
+.fx-bit.star {
+  width: 4vmin;
+  height: 4vmin;
+  margin: -2vmin 0 0 -2vmin;
+  border-radius: 0;
+  clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.celebration {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #fff5;
+}
+
+.confetti {
+  position: absolute;
+  top: 0;
+}
+
+.celebration-mascot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46vmin;
+  height: 46vmin;
+  margin: -23vmin 0 0 -23vmin;
+}
+
+/* ---------- Qahramon (bolaning chizmasi) ---------- */
+
+.hero-art {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  container-type: size;
+}
+
+.hero-shadow {
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  bottom: 0;
+  height: 10%;
+  border-radius: 50%;
+  background: #0002;
+}
+
+.hero-body {
+  position: absolute;
+  inset: 0 0 4% 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.hero-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: url(#boil) drop-shadow(0 0.6vmin 0 #0003);
+  pointer-events: none;
+}
+
+.hero-emoji {
+  font-size: 78cqh;
+  line-height: 1;
+}
+
+/* ---------- Profil tanlash ---------- */
+
+.profiles {
+  background: linear-gradient(#8ecae6, #d8f3dc 62%, #95d5b2 62%, #74c69d);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5vmin;
+}
+
+.profiles-deco > div {
+  position: absolute;
+  pointer-events: none;
+}
+
+.deco-dome {
+  right: 5%;
+  bottom: 36%;
+  width: 30vmin;
+  height: 22vmin;
+}
+
+.deco-poplar {
+  width: 7vmin;
+  height: 22vmin;
+  bottom: 36%;
+}
+
+.deco-poplar.p1 {
+  left: 6%;
+}
+.deco-poplar.p2 {
+  left: 11%;
+  height: 18vmin;
+}
+.deco-poplar.p3 {
+  right: 2%;
+  height: 16vmin;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 2vmin;
+  z-index: 1;
+}
+
+.title-mascot {
+  width: 16vmin;
+  height: 16vmin;
+}
+
+.title {
+  margin: 0;
+  font-size: 9vmin;
+  font-weight: 900;
+  color: #2d6a4f;
+  text-shadow:
+    0 0.7vmin 0 #fff,
+    0 1.4vmin 0 #0001;
+}
+
+.profile-row {
+  display: flex;
+  gap: 8vmin;
+  z-index: 1;
+}
+
+.profile-card {
+  width: 38vmin;
+  height: 48vmin;
+  border-radius: 8vmin;
+  border: 1.4vmin solid #fff;
+  box-shadow: 0 2vmin 0 #0002;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2vmin;
+  padding: 2vmin;
+}
+
+.card-hero {
+  width: 28vmin;
+  height: 28vmin;
+}
+
+.pname {
+  font-size: 6vmin;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0.5vmin 0 #0003;
+  max-width: 34vmin;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.parent-corner {
+  position: absolute;
+  right: 3vmin;
+  bottom: 3vmin;
+  display: flex;
+  align-items: center;
+  gap: 2vmin;
+}
+
+.parent-corner small {
+  font-size: 2.6vmin;
+  color: #1b4332;
+  opacity: 0.6;
+}
+
+/* ---------- Qishloq xaritasi (16:9 sahna, ekranni to'ldiradi) ---------- */
+
+.map {
+  background: #8cc084;
+}
+
+/* Sahna butun ekranni egallaydi: fon cho'ziladi, bekatlar % da — har qanday
+   tomonlar nisbatida (telefon 19.5:9, planshet 4:3) hech narsa kesilmaydi */
+.stage {
+  position: absolute;
+  inset: 0;
+}
+
+.map-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cloud {
+  position: absolute;
+  top: 5%;
+  left: -12%;
+  width: 13%;
+  height: 6%;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.decor {
+  position: absolute;
+  width: 6.5%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -88%);
+  pointer-events: none;
+}
+
+.decor.animal {
+  width: 5.5%;
+  aspect-ratio: 1.2;
+}
+
+.decor-inner {
+  width: 100%;
+  height: 100%;
+}
+
+.station {
+  position: absolute;
+  width: 8.5%;
+  aspect-ratio: 1;
+  padding: 1.2%;
+  border-radius: 50%;
+  background: #fff;
+  border: 0.5vmin solid #fff;
+  box-shadow: 0 1.2vmin 0 #0002;
+  z-index: 100;
+}
+
+.station.next {
+  border-color: #ffd166;
+  box-shadow:
+    0 0 0 1vmin #ffd16688,
+    0 1.2vmin 0 #0002;
+}
+
+.station.done {
+  background: #d8f3dc;
+}
+
+.station.later {
+  filter: saturate(0.5);
+  opacity: 0.8;
+}
+
+.st-badge {
+  position: absolute;
+  right: -8%;
+  bottom: -8%;
+  width: 40%;
+  height: 40%;
+}
+
+.next-arrow {
+  position: absolute;
+  left: 30%;
+  top: -55%;
+  width: 40%;
+  height: 40%;
+}
+
+.map-hero {
+  position: absolute;
+  width: 10%;
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+.reward-picker {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4vmin;
+  background: #1d355788;
+}
+
+.reward-mascot {
+  width: 24vmin;
+  height: 24vmin;
+}
+
+.reward-options {
+  display: flex;
+  gap: 4vmin;
+}
+
+.reward-option {
+  width: 26vmin;
+  height: 26vmin;
+  padding: 3vmin;
+  border-radius: 6vmin;
+  background: #fff;
+  border: 1vmin solid #ffd166;
+  box-shadow: 0 1.6vmin 0 #0003;
+}
+
+.placing-hint {
+  position: fixed;
+  top: 2vmin;
+  left: 50%;
+  margin-left: -9vmin;
+  width: 18vmin;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.placing-item {
+  width: 15vmin;
+  height: 15vmin;
+  padding: 1.5vmin;
+  border-radius: 4vmin;
+  background: #fffe;
+  box-shadow: 0 1vmin 0 #0002;
+}
+
+.placing-finger {
+  width: 7vmin;
+  height: 7vmin;
+  margin-top: 1vmin;
+}
+
+/* ---------- O'yinlar: umumiy ---------- */
+
+.game {
+  background: #bde0fe;
+}
+
+/* ---------- 🍎 Bog' ---------- */
+
+.garden {
+  background: linear-gradient(#a2d2ff, #e9f5db 58%);
+}
+
+.garden-hills {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: 0;
+  height: 40%;
+  background: linear-gradient(#95d5b2, #74c69d);
+  border-radius: 50% 50% 0 0 / 22% 22% 0 0;
+}
+
+.garden-fence {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 37%;
+  height: 7vmin;
+  background:
+    linear-gradient(#d4a373, #d4a373) 0 30% / 100% 0.8vmin no-repeat,
+    linear-gradient(#d4a373, #d4a373) 0 75% / 100% 0.8vmin no-repeat,
+    repeating-linear-gradient(90deg, #e9c79b 0 2.2vmin, transparent 2.2vmin 6vmin);
+  opacity: 0.85;
+}
+
+.tree-hit {
+  position: absolute;
+  left: 2%;
+  top: 4%;
+  width: 52%;
+  height: 64%;
+  z-index: 2;
+}
+
+.tap-hint {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  width: 14vmin;
+  height: 14vmin;
+  margin: -7vmin 0 0 -7vmin;
+  border-radius: 50%;
+  border: 1.2vmin solid #fff;
+  box-shadow: 0 0 0 1vmin #ffd16688;
+  pointer-events: none;
+}
+
+.fruit {
+  position: absolute;
+  z-index: 5;
+  touch-action: none;
+  filter: drop-shadow(0 0.8vmin 0 #0003);
+}
+
+.baskets {
+  position: absolute;
+  right: 3vw;
+  bottom: 3vmin;
+  display: flex;
+  align-items: flex-end;
+  gap: 2.5vmin;
+  z-index: 4;
+}
+
+.basket {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.basket-glow {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: 0;
+  height: 76%;
+  border-radius: 4vmin;
+  opacity: 0.35;
+  filter: blur(1.6vmin);
+}
+
+.basket-hint {
+  position: absolute;
+  top: -1vmin;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0.55;
+}
+
+.basket-fill {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 4%;
+  display: flex;
+  flex-wrap: wrap-reverse;
+  justify-content: center;
+  z-index: 1;
+}
+
+.basket-fill > span {
+  width: 5.5vmin;
+  height: 5.5vmin;
+  margin: -0.6vmin;
+}
+
+/* ---------- 🛒 Bozor ---------- */
+
+.market {
+  background: linear-gradient(#ffe8c2, #ffd6a5 64%);
+  display: grid;
+  grid-template-columns: 31% 38% 31%;
+  align-items: center;
+  padding: 12vmin 2vmin 2vmin;
+}
+
+.stall-roof {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10vmin;
+  background: repeating-linear-gradient(90deg, #e63946 0 10vmin, #fff 10vmin 20vmin);
+  border-radius: 0 0 4vmin 4vmin;
+  box-shadow: 0 1vmin 0 #0002;
+  z-index: 1;
+}
+
+.stall-counter {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 32%;
+  background: repeating-linear-gradient(90deg, #b5835a 0 14vmin, #a9744d 14vmin 15vmin);
+  border-top: 1.4vmin solid #8d5524;
+}
+
+.market-col {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  z-index: 2;
+}
+
+.customer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.person {
+  width: 24vmin;
+  height: 34vmin;
+}
+
+.bubble {
+  position: relative;
+  background: #fff;
+  border-radius: 5vmin;
+  padding: 1.6vmin 3.5vmin;
+  margin-bottom: 2vmin;
+  box-shadow: 0 1vmin 0 #0002;
+  display: flex;
+  align-items: center;
+  gap: 2vmin;
+}
+
+.bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -2.4vmin;
+  left: 45%;
+  border: 1.4vmin solid transparent;
+  border-top: 1.6vmin solid #fff;
+}
+
+.bubble-num {
+  font-size: 12vmin;
+  font-weight: 900;
+  line-height: 1;
+  color: #e63946;
+}
+
+.bubble-fruits {
+  display: grid;
+  grid-template-columns: repeat(1, 8vmin);
+}
+
+.bubble-fruits.many {
+  grid-template-columns: repeat(5, 4.6vmin);
+}
+
+.bubble-fruit {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.bag {
+  gap: 3vmin;
+}
+
+.tenframe {
+  display: grid;
+  grid-auto-rows: 11vmin;
+  gap: 1.2vmin;
+  padding: 1.6vmin;
+  border-radius: 3vmin;
+  background: #fff8;
+  border: 0.8vmin dashed #c68b59;
+}
+
+.cell {
+  background: #fff;
+  border-radius: 2.5vmin;
+  padding: 1vmin;
+}
+
+.cell-fruit {
+  width: 100%;
+  height: 100%;
+}
+
+.give-btn {
+  width: 17vmin;
+  height: 17vmin;
+  padding: 3vmin;
+  border-radius: 50%;
+  background: #06d6a0;
+  box-shadow: 0 1.4vmin 0 #0003;
+}
+
+.give-btn:disabled {
+  opacity: 0.4;
+}
+
+.crate {
+  display: grid;
+  grid-template-columns: repeat(3, 10.5vmin);
+  gap: 1vmin;
+  padding: 2.4vmin;
+  border-radius: 3vmin;
+  background: #a0522d;
+  border: 1.4vmin solid #7f3f1f;
+  box-shadow: 0 1.6vmin 0 #0003;
+}
+
+.crate-fruit {
+  width: 10.5vmin;
+  height: 10.5vmin;
+}
+
+.earned {
+  position: absolute;
+  top: 12vmin;
+  right: 23vmin;
+  z-index: 3;
+}
+
+.coins-rain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+}
+
+.coin-fly {
+  position: absolute;
+  width: 7vmin;
+  height: 7vmin;
+}
+
+/* ---------- 🐑 Ferma ---------- */
+
+.farm {
+  background: linear-gradient(#a2d2ff, #e0f4ff 50%, #95d5b2 50%, #74c69d);
+}
+
+.farm-barn {
+  position: absolute;
+  left: 6%;
+  bottom: 50%;
+  width: 26vmin;
+  height: 22vmin;
+  background: #d4a373;
+  border: 0.6vmin solid var(--ink);
+  clip-path: polygon(0 35%, 50% 0, 100% 35%, 100% 100%, 0 100%);
+}
+
+.farm-fence {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 44%;
+  height: 8vmin;
+  background:
+    linear-gradient(#a0522d, #a0522d) 0 30% / 100% 0.9vmin no-repeat,
+    linear-gradient(#a0522d, #a0522d) 0 75% / 100% 0.9vmin no-repeat,
+    repeating-linear-gradient(90deg, #c68b59 0 2.4vmin, transparent 2.4vmin 7vmin);
+}
+
+.haystack {
+  position: absolute;
+  left: 50%;
+  top: 15%;
+  width: 34vmin;
+  height: 26vmin;
+  margin-left: -17vmin;
+  z-index: 3;
+}
+
+.haystack-animal {
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  top: 0;
+  height: 80%;
+}
+
+.ear-hint {
+  position: absolute;
+  right: -3vmin;
+  top: -2vmin;
+  width: 9vmin;
+  height: 9vmin;
+  border-radius: 50%;
+  background: #fff;
+  font-size: 6vmin;
+  font-weight: 900;
+  line-height: 9vmin;
+  box-shadow: 0 0.8vmin 0 #0002;
+}
+
+.farm-animals {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 4vmin;
+  z-index: 4;
+}
+
+.farm-animals.kim {
+  bottom: 4vmin;
+}
+
+.farm-animals.takrorla {
+  top: 36%;
+  gap: 3vmin;
+}
+
+.farm-sun {
+  position: absolute;
+  right: 26vmin;
+  top: 4vmin;
+  width: 14vmin;
+  height: 14vmin;
+  border-radius: 50%;
+  background: #ffd166;
+  box-shadow: 0 0 0 3vmin #ffd16644;
+}
+
+.farm-animal {
+  position: relative;
+  width: 26vmin;
+  height: 22vmin;
+  padding: 1.5vmin;
+}
+
+.farm-animals.kim .farm-animal {
+  background: #fff;
+  border-radius: 5vmin;
+  border: 1vmin solid #fff;
+  box-shadow: 0 1.4vmin 0 #0002;
+}
+
+.farm-animals.takrorla .farm-animal {
+  width: 30vmin;
+  height: 30vmin;
+  padding: 3vmin;
+  border-radius: 50%;
+  background: #ffffff55;
+}
+
+.farm-animal.lit {
+  background: #ffd166 !important;
+  box-shadow:
+    0 0 0 1.4vmin #ffd16677,
+    0 1.4vmin 0 #0002;
+}
+
+.sound-waves {
+  position: absolute;
+  inset: -2vmin;
+  border-radius: 50%;
+  border: 0.8vmin dashed #fff;
+}
+
+.seq-dots {
+  position: absolute;
+  bottom: 6vmin;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2vmin;
+}
+
+.seq-dot {
+  width: 5vmin;
+  height: 5vmin;
+  border-radius: 50%;
+  background: #fff8;
+  border: 0.6vmin solid #fff;
+}
+
+.seq-dot.on {
+  background: #ffd166;
+}
+
+/* ---------- 🏺 Ustaxona ---------- */
+
+.workshop {
+  background:
+    linear-gradient(#0000 70%, #b5835a 70%, #a9744d),
+    repeating-linear-gradient(45deg, #f4d6b0 0 4vmin, #f0cda3 4vmin 8vmin);
+}
+
+.workshop-shelf {
+  position: absolute;
+  left: 0;
+  width: 30vw;
+  bottom: 30%;
+  height: 2.4vmin;
+  background: #8d5524;
+  border-radius: 1vmin;
+}
+
+.pot {
+  position: absolute;
+  left: 4vw;
+  bottom: 30%;
+  width: 22vmin;
+  height: 27vmin;
+}
+
+.pot-bands {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 38%;
+  bottom: 12%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6vmin;
+  overflow: hidden;
+  border-radius: 0 0 40% 40%;
+}
+
+.pot-band {
+  display: flex;
+  justify-content: center;
+  gap: 0.3vmin;
+  height: 3.2vmin;
+}
+
+.pot-tile {
+  width: 3.2vmin;
+  height: 3.2vmin;
+}
+
+.pattern-board {
+  position: absolute;
+  top: 17vmin;
+  left: 28vw;
+  right: 22vmin;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 1.4vmin;
+  padding: 2.4vmin;
+  background: #8d5524;
+  border-radius: 3vmin;
+  border: 1vmin solid #6b4226;
+  box-shadow: 0 1.4vmin 0 #0003;
+}
+
+.slot {
+  position: relative;
+  flex: 0 1 11vmin;
+  min-width: 0;
+  aspect-ratio: 1;
+  border-radius: 2vmin;
+}
+
+.slot.blank {
+  border: 0.6vmin dashed #fff8;
+}
+
+.slot.next {
+  border-color: #ffd166;
+  background: #ffd16633;
+}
+
+.slot-tile {
+  width: 100%;
+  height: 100%;
+}
+
+.slot-q {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 7vmin;
+  font-weight: 900;
+  color: #ffd166;
+}
+
+.tile-options {
+  position: absolute;
+  left: 30vw;
+  right: 4vw;
+  bottom: 5vmin;
+  display: flex;
+  justify-content: center;
+  gap: 4vmin;
+}
+
+.tile-option {
+  width: 17vmin;
+  height: 17vmin;
+  border-radius: 3.4vmin;
+  box-shadow: 0 1.4vmin 0 #0003;
+}
+
+/* ---------- 🌙 Kechki qo'ra ---------- */
+
+.shadows {
+  background: linear-gradient(#1b2a6b, #3a3f8f 55%, #2d4a3e 55%, #1f3a30);
+}
+
+.night-moon {
+  position: absolute;
+  left: 18vmin;
+  top: 2vmin;
+  width: 14vmin;
+  height: 14vmin;
+}
+
+.pen {
+  position: absolute;
+  left: 14%;
+  right: 12%;
+  top: 12%;
+  height: 58%;
+  border-radius: 4vmin;
+  background: #c9a227;
+  border: 1.4vmin solid #8d5524;
+  box-shadow: inset 0 0 0 1vmin #a47148;
+  opacity: 0.9;
+}
+
+.silhouette {
+  position: absolute;
+  width: 21vmin;
+  height: 17.5vmin;
+  margin: -8.75vmin 0 0 -10.5vmin;
+  z-index: 3;
+}
+
+.sleeping {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.zz {
+  position: absolute;
+  right: 0;
+  top: -2vmin;
+  font-size: 5vmin;
+  font-weight: 900;
+  color: #fff;
+}
+
+.tray {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1.5vmin;
+  display: flex;
+  justify-content: center;
+  gap: 2.5vmin;
+  z-index: 5;
+}
+
+.tray-animal {
+  width: 22vmin;
+  height: 18vmin;
+  touch-action: none;
+}
+
+/* ---------- 🔤 Harflar uyi ---------- */
+
+.letters {
+  background: linear-gradient(#fefae0 76%, #b5835a 76%);
+}
+
+.word-card {
+  position: absolute;
+  left: 3vw;
+  top: 18vmin;
+  width: 28vmin;
+  padding: 2vmin;
+  border-radius: 4vmin;
+  background: #fff;
+  box-shadow: 0 1.4vmin 0 #0002;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1vmin;
+  z-index: 3;
+}
+
+.word-pic {
+  width: 22vmin;
+  height: 20vmin;
+}
+
+.word-hero {
+  width: 100%;
+  height: 100%;
+}
+
+.word-name {
+  font-size: 6vmin;
+  font-weight: 800;
+}
+
+.word-name b {
+  color: #e63946;
+  font-size: 7.5vmin;
+}
+
+.hidden-letter {
+  display: inline-block;
+  min-width: 5vmin;
+  color: transparent !important;
+  border-bottom: 0.8vmin solid #e63946;
+}
+
+.chalkboard {
+  position: absolute;
+  left: 50%;
+  top: 13vh;
+  width: 76vh;
+  height: 76vh;
+  margin-left: -32vh;
+  border-radius: 3vmin;
+  background: #2d6a4f;
+  border: 1.6vmin solid #8d5524;
+  box-shadow: 0 1.4vmin 0 #0003;
+}
+
+.trace-canvas {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+}
+
+.sponge {
+  position: absolute;
+  right: -5vmin;
+  bottom: -4vmin;
+  width: 13vmin;
+  height: 9vmin;
+}
+
+.letter-options {
+  position: absolute;
+  left: 36vw;
+  right: 5vw;
+  top: 30%;
+  display: flex;
+  justify-content: center;
+  gap: 4vmin;
+}
+
+.letter-option {
+  width: 21vmin;
+  height: 21vmin;
+  border-radius: 4vmin;
+  background: #2d6a4f;
+  border: 1.2vmin solid #8d5524;
+  box-shadow: 0 1.4vmin 0 #0003;
+  color: #fff;
+  font-size: 14vmin;
+  font-weight: 900;
+}
+
+.letter-option.right {
+  background: #06d6a0;
+}
+
+/* ---------- 🎨 Rasm uyi ---------- */
+
+.studio {
+  background: linear-gradient(#ffe5d9 80%, #d4a373 80%);
+}
+
+.palette {
+  position: absolute;
+  left: 3vmin;
+  top: 18vmin;
+  display: grid;
+  grid-template-columns: repeat(2, 8.5vmin);
+  gap: 1.8vmin;
+  z-index: 3;
+}
+
+.swatch,
+.thick-btn {
+  width: 8.5vmin;
+  height: 8.5vmin;
+  border-radius: 50%;
+  border: 0.8vmin solid #fff;
+  box-shadow: 0 0.8vmin 0 #0002;
+}
+
+.swatch.on,
+.thick-btn.on {
+  box-shadow:
+    0 0 0 0.8vmin #3d2c1e,
+    0 0.8vmin 0 #0002;
+}
+
+.thick-btn {
+  background: #fff;
+  display: grid;
+  place-items: center;
+}
+
+.thick-btn span {
+  display: block;
+  border-radius: 50%;
+  background: #3d2c1e;
+}
+
+.paper {
+  position: absolute;
+  left: 50%;
+  top: 15vmin;
+  bottom: 3vmin;
+  width: min(60vw, 118vmin);
+  transform: translateX(-50%);
+  border-radius: 3vmin;
+  background: #fff;
+  box-shadow:
+    0 1.6vmin 0 #0002,
+    inset 0 0 0 0.6vmin #f1e3d3;
+  overflow: hidden;
+}
+
+.draw-canvas {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+}
+
+.tools {
+  position: absolute;
+  right: 3vmin;
+  top: 21vmin;
+  display: flex;
+  flex-direction: column;
+  gap: 2vmin;
+  z-index: 3;
+}
+
+.tool {
+  width: 11vmin;
+  height: 11vmin;
+  padding: 2vmin;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0.8vmin 0 #0002;
+}
+
+.tool.on {
+  box-shadow:
+    0 0 0 0.8vmin #3d2c1e,
+    0 0.8vmin 0 #0002;
+}
+
+.tool.done {
+  width: 13vmin;
+  height: 13vmin;
+  background: #06d6a0;
+}
+
+.alive-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: radial-gradient(circle, #5a189a, #240046);
+}
+
+.alive-rays {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 200vmax;
+  height: 200vmax;
+  margin: -100vmax 0 0 -100vmax;
+  background: repeating-conic-gradient(#ffffff14 0 10deg, transparent 10deg 20deg);
+}
+
+.alive-hero-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.alive-hero {
+  max-width: 60vw;
+  max-height: 64vh;
+  filter: url(#boil) drop-shadow(0 2vmin 0 #0004);
+}
+
+/* ---------- 📷 Rasm tanlash, albom ---------- */
+
+.studio-top {
+  position: absolute;
+  top: 2vmin;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2.5vmin;
+  z-index: 3;
+}
+
+.choice-overlay,
+.album-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6vmin;
+  background: #1d3557aa;
+}
+
+.choice-card {
+  width: 34vmin;
+  height: 40vmin;
+  padding: 3vmin;
+  border-radius: 6vmin;
+  background: #fff;
+  border: 1vmin solid #ffd166;
+  box-shadow: 0 1.6vmin 0 #0003;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2vmin;
+  font-size: 4.2vmin;
+  font-weight: 900;
+}
+
+.choice-card .art {
+  height: 26vmin;
+}
+
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 24vmin);
+  gap: 3vmin;
+  max-height: 86vh;
+  overflow-y: auto;
+  touch-action: pan-y;
+  padding: 2vmin;
+}
+
+.album-item {
+  width: 24vmin;
+  height: 24vmin;
+  padding: 1vmin;
+  border-radius: 3vmin;
+  background: #fff;
+  box-shadow: 0 1vmin 0 #0003;
+}
+
+.album-item img,
+.album-big {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.album-big {
+  width: auto;
+  height: auto;
+  max-width: 86vw;
+  max-height: 86vh;
+  border-radius: 3vmin;
+  background: #fff;
+  border: 1.4vmin solid #fff;
+}
+
+.album-empty {
+  width: 30vmin;
+  height: 30vmin;
+}
+
+/* ---------- 📒 Bo'yash daftari ---------- */
+
+.coloring {
+  z-index: 60;
+}
+
+.cb-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4vmin;
+}
+
+.cb-loading-mascot {
+  width: 30vmin;
+  height: 30vmin;
+}
+
+.cb-dots {
+  display: flex;
+  gap: 2vmin;
+}
+
+.cb-dots span {
+  width: 3.4vmin;
+  height: 3.4vmin;
+  border-radius: 50%;
+  background: #ef476f;
+}
+
+.cb-pick {
+  position: absolute;
+  top: 16vmin;
+  bottom: 6vmin;
+  left: 4vw;
+  right: 4vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3vmin;
+}
+
+.cb-variant {
+  flex: 1;
+  max-width: 30vw;
+  height: 100%;
+  padding: 2vmin;
+  border-radius: 4vmin;
+  background: #fff;
+  border: 0.8vmin solid #fff;
+  box-shadow: 0 1.4vmin 0 #0002;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5vmin;
+}
+
+.preview-canvas {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  object-fit: contain;
+}
+
+.cb-wait {
+  flex: 1;
+  width: 100%;
+  border-radius: 2vmin;
+  background: repeating-linear-gradient(45deg, #f1f3f5 0 2vmin, #fff 2vmin 4vmin);
+}
+
+.cb-level {
+  display: flex;
+  gap: 1vmin;
+}
+
+.cb-level i {
+  width: 2.6vmin;
+  height: 2.6vmin;
+  border-radius: 50%;
+  background: #ffd166;
+  border: 0.4vmin solid #3d2c1e;
+}
+
+.trace-progress {
+  position: absolute;
+  top: 4.5vmin;
+  left: 30vw;
+  right: 30vw;
+  height: 4vmin;
+  border-radius: 2vmin;
+  background: #fff;
+  box-shadow: 0 0.6vmin 0 #0002;
+  z-index: 3;
+}
+
+.trace-fill {
+  height: 100%;
+  border-radius: 2vmin;
+  background: linear-gradient(90deg, #ffd166, #06d6a0);
+}
+
+.trace-pencil {
+  position: absolute;
+  top: -3vmin;
+  width: 8vmin !important;
+  height: 8vmin !important;
+  margin-left: -4vmin;
+  transition: left 0.3s;
+}
+
+.cb-palette {
+  grid-template-columns: repeat(2, 7.5vmin);
+  gap: 1.4vmin;
+}
+
+.cb-palette .swatch {
+  width: 7.5vmin;
+  height: 7.5vmin;
+}
+
+.sheet-area {
+  position: absolute;
+  left: 22vmin;
+  right: 17vmin;
+  top: 12vmin;
+  bottom: 3vmin;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sheet {
+  position: relative;
+  border-radius: 1.5vmin;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1.4vmin 0 #0002;
+}
+
+.sheet-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.sheet-layer.touch {
+  touch-action: none;
+}
+
+/* ---------- 🎭 Sahna ---------- */
+
+.stage-screen {
+  z-index: 80;
+  background: radial-gradient(ellipse at 50% 30%, #5a2a5f, #200a24 75%);
+}
+
+.stage-canvas {
+  position: absolute;
+  inset: 6vmin 12vw 0;
+  z-index: 3;
+}
+
+.stage-canvas canvas {
+  display: block;
+}
+
+.stage-floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30%;
+  background: repeating-linear-gradient(90deg, #9c6644 0 9vmin, #8d5a3b 9vmin 9.4vmin);
+  border-top: 1.4vmin solid #6b4226;
+}
+
+.stage-spot {
+  position: absolute;
+  left: 50%;
+  top: -10%;
+  width: 70vmin;
+  height: 120%;
+  margin-left: -35vmin;
+  background: radial-gradient(ellipse at 50% 85%, #fff6c855, transparent 60%), linear-gradient(#fff6c822, #fff6c800);
+  clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.stage-curtain {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 14vw;
+  z-index: 4;
+  background: repeating-linear-gradient(90deg, #9d0208 0 2.5vw, #c1121f 2.5vw 4vw, #9d0208 4vw 5vw);
+  box-shadow: 0 0 4vmin #0008;
+  pointer-events: none;
+}
+
+.stage-curtain.left {
+  left: 0;
+  border-radius: 0 0 60% 0;
+}
+
+.stage-curtain.right {
+  right: 0;
+  border-radius: 0 0 0 60%;
+}
+
+.stage-valance {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 7vmin;
+  z-index: 5;
+  background: radial-gradient(circle at 50% 0, #c1121f 70%, transparent 71%) 0 0 / 10vmin 9vmin repeat-x, #9d0208;
+  border-bottom: 0.8vmin solid #ffd166;
+  pointer-events: none;
+}
+
+.mic-badge {
+  position: absolute;
+  left: 3vmin;
+  bottom: 4vmin;
+  width: 14vmin;
+  height: 14vmin;
+  padding: 2.4vmin;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1vmin 0 #0004;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.mic-badge.hearing {
+  box-shadow:
+    0 0 0 1.6vmin #ef476f66,
+    0 1vmin 0 #0004;
+}
+
+.mic-badge.denied {
+  opacity: 0.6;
+}
+
+.stage-tools {
+  position: absolute;
+  right: 3vmin;
+  bottom: 4vmin;
+  display: flex;
+  flex-direction: column;
+  gap: 2vmin;
+  z-index: 6;
+}
+
+.album-big-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4vmin;
+}
+
+.album-big-wrap .album-big {
+  max-width: 70vw;
+}
+
+.album-stage {
+  width: 16vmin !important;
+  height: 16vmin !important;
+  flex: none;
+}
+
+/* ---------- 🌙 Uxlash ---------- */
+
+.sleep {
+  background: linear-gradient(#0b1d51, #1b2a6b 60%);
+  color: #fff;
+}
+
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff6b0;
+  box-shadow: 0 0 1vmin #fff6b0;
+}
+
+.moon {
+  position: absolute !important;
+  right: 10%;
+  top: 6%;
+  width: 18vmin !important;
+  height: 18vmin !important;
+}
+
+.sleep-hills {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 42%;
+}
+
+.sleep-scene {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 6vmin;
+}
+
+.sleep-hero {
+  position: relative;
+  width: 36vmin;
+  height: 36vmin;
+}
+
+.zzz {
+  position: absolute;
+  right: -6vmin;
+  top: 0;
+  font-size: 6vmin;
+  font-weight: 900;
+  color: #fff6b0;
+}
+
+.sleep-mascot {
+  width: 20vmin;
+  height: 20vmin;
+}
+
+.sleep-stats {
+  position: absolute;
+  top: 3vmin;
+  right: 3vmin;
+  color: var(--ink);
+}
+
+/* ---------- Ota-ona paneli (oddiy, kattalar uchun) ---------- */
+
+.parent {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  background: #f6f7f9;
+  padding: 16px 20px 80px;
+  font-size: 16px;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.parent-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.parent h2 {
+  margin: 0;
+}
+
+.parent h3 {
+  margin: 24px 0 8px;
+}
+
+.p-btn {
+  background: #fff;
+  border: 1px solid #ccd;
+  border-radius: 10px;
+  padding: 8px 14px;
+}
+
+.p-msg {
+  background: #fff3cd;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.p-note {
+  color: #6c757d;
+  margin: 0 0 8px;
+}
+
+.p-count {
+  font-weight: 400;
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.p-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.p-toggle input {
+  width: 22px;
+  height: 22px;
+}
+
+.p-profile {
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.p-input {
+  font: inherit;
+  font-size: 18px;
+  padding: 8px 12px;
+  border: 1px solid #ccd;
+  border-radius: 10px;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.p-label {
+  color: #6c757d;
+  font-size: 14px;
+  align-self: center;
+}
+
+.p-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.p-chip {
+  border: 2px solid #dde;
+  border-radius: 999px;
+  padding: 4px 12px;
+  background: #fff;
+}
+
+.p-chip.emoji {
+  font-size: 22px;
+  padding: 2px 8px;
+}
+
+.p-chip.on {
+  border-color: #2d6a4f;
+  background: #d8f3dc;
+}
+
+.p-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 1px #ccd;
+}
+
+.p-swatch.on {
+  box-shadow: 0 0 0 3px #2d6a4f;
+}
+
+.p-levels summary,
+.p-group summary {
+  cursor: pointer;
+  padding: 6px 0;
+  font-weight: 700;
+}
+
+.p-level-row {
+  display: grid;
+  grid-template-columns: 1fr 40px 40px 40px;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.p-level-row b {
+  text-align: center;
+}
+
+.p-group {
+  background: #eef1f4;
+  border-radius: 12px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+}
+
+.p-voice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+}
+
+.p-voice.rec {
+  background: #ffe3e3;
+}
+
+.p-text {
+  flex: 1;
+}
+
+.p-icon {
+  font-size: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #f1f3f5;
+}
+
+.p-icon:disabled {
+  opacity: 0.3;
+}
+
+/* ---------- Telefon tik turganda ---------- */
+
+.rotate-hint {
+  display: none;
+}
+
+@media (orientation: portrait) {
+  .rotate-hint {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    background: #bde0fe;
+    font-size: 9vmin;
+    font-weight: 900;
+    color: #2d6a4f;
+  }
+}

@@ -1,0 +1,229 @@
+import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { FruitArt, type FruitKind } from '../art/Fruit'
+import { ALL_PEOPLE, CoinArt, PersonArt, type PersonId } from '../art/Scenery'
+import { Celebration } from '../components/Celebration'
+import { burstAt } from '../components/Fx'
+import { GameShell, useMascot } from '../components/GameShell'
+import { say, sfx } from '../lib/audio'
+import { pick, randInt } from '../lib/util'
+import type { GameProps } from '../types'
+
+// 🛒 Bozor — sanash (#6).
+// Mijoz "N ta meva" so'raydi. Bola qutidan olib, 10 lik ramkaga soladi.
+// Past darajada son rasm bilan ko'rinadi va kerakli songa yetganda o'zi tugaydi;
+// yuqori darajada faqat raqam ko'rinadi va bola 🤝 bilan o'zi tekshiradi.
+
+interface MarketCfg {
+  min: number
+  max: number
+  auto: boolean
+}
+
+function marketCfg(level: number): MarketCfg {
+  return [
+    { min: 1, max: 3, auto: true },
+    { min: 1, max: 5, auto: true },
+    { min: 2, max: 6, auto: false },
+    { min: 3, max: 8, auto: false },
+    { min: 4, max: 10, auto: false },
+  ][Math.min(level, 4)]
+}
+
+const ROUNDS = 3
+const MARKET_FRUITS: FruitKind[] = ['olma', 'anor', 'orik', 'nok', 'behi', 'uzum']
+
+interface Customer {
+  person: PersonId
+  fruit: FruitKind
+  want: number
+}
+
+function newCustomer(cfg: MarketCfg, prev?: Customer): Customer {
+  return {
+    person: pick(ALL_PEOPLE.filter((p) => p !== prev?.person)),
+    fruit: pick(MARKET_FRUITS.filter((f) => f !== prev?.fruit)),
+    want: randInt(cfg.min, cfg.max),
+  }
+}
+
+export function Market({ level, onComplete, onExit }: GameProps) {
+  const cfg = marketCfg(level)
+  const [round, setRound] = useState(0)
+  const [customer, setCustomer] = useState(() => newCustomer(cfg))
+  const [given, setGiven] = useState(0)
+  const [tries, setTries] = useState(0)
+  const [happy, setHappy] = useState(false)
+  const [earned, setEarned] = useState(0)
+  const [finished, setFinished] = useState(false)
+  const [mascot, react] = useMascot()
+  const mistakes = useRef(0)
+  const bagRef = useRef<HTMLDivElement>(null)
+  const showPictures = cfg.auto || tries >= 2
+  const { want, fruit } = customer
+
+  useEffect(() => {
+    void say(...(round === 0 ? ['bozor_intro'] : []), `son_${want}`, `meva_${fruit}`)
+    // Har yangi mijoz kelganda
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [round])
+
+  function complete() {
+    setHappy(true)
+    sfx.coin()
+    react('happy', 2000)
+    burstAt(bagRef.current, ['#f6bd60', '#ffd166', '#fff'], 18)
+    setEarned((e) => e + want)
+    void say('bozor_rahmat')
+    setTimeout(() => {
+      if (round + 1 >= ROUNDS) {
+        setFinished(true)
+        return
+      }
+      sfx.whoosh()
+      setRound(round + 1)
+      setCustomer(newCustomer(cfg, customer))
+      setGiven(0)
+      setTries(0)
+      setHappy(false)
+    }, 2300)
+  }
+
+  function give() {
+    if (happy || finished) return
+    if (given >= (cfg.auto ? want : 10)) return
+    const n = given + 1
+    setGiven(n)
+    sfx.pop()
+    void say(`son_${n}`)
+    if (cfg.auto && n === want) setTimeout(complete, 800)
+  }
+
+  function takeBack() {
+    if (happy || given === 0) return
+    setGiven(given - 1)
+    sfx.tap()
+  }
+
+  function check() {
+    if (happy) return
+    if (given === want) return complete()
+    mistakes.current++
+    sfx.wrong()
+    react('oops')
+    setTries((t) => t + 1)
+    void say(given > want ? 'bozor_kop' : 'bozor_kam')
+  }
+
+  const cells = cfg.max <= 5 ? 5 : 10
+
+  return (
+    <GameShell className="market" mascot={mascot} round={round} rounds={ROUNDS} onExit={onExit} data={{ 'data-want': want }}>
+      <div className="stall-roof" />
+      <div className="stall-counter" />
+
+      <div className="market-col customer-col">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={round}
+            className="customer"
+            initial={{ x: '-40vw', opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '-40vw', opacity: 0 }}
+            transition={{ type: 'spring', damping: 18 }}
+          >
+            <motion.button
+              className="bubble"
+              whileTap={{ scale: 0.95 }}
+              onClick={() => void say(`son_${want}`, `meva_${fruit}`)}
+              animate={{ y: [0, -4, 0] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+            >
+              <span className="bubble-num">{want}</span>
+              <span className={`bubble-fruits ${showPictures ? 'many' : ''}`}>
+                {Array.from({ length: showPictures ? want : 1 }, (_, i) => (
+                  <span key={i} className="bubble-fruit">
+                    <FruitArt kind={fruit} />
+                  </span>
+                ))}
+              </span>
+            </motion.button>
+            <motion.div
+              className="person"
+              animate={happy ? { y: [0, -24, 0, -12, 0] } : { y: [0, -3, 0] }}
+              transition={happy ? { duration: 0.8 } : { repeat: Infinity, duration: 2.2 }}
+            >
+              <PersonArt id={customer.person} happy={happy} />
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <div className="market-col bag" ref={bagRef}>
+        <div className="tenframe" style={{ gridTemplateColumns: `repeat(5, 11vmin)` }}>
+          {Array.from({ length: cells }, (_, i) => (
+            <div key={i} className="cell">
+              <AnimatePresence>
+                {i < given && (
+                  <motion.button
+                    className="cell-fruit"
+                    initial={{ scale: 0, y: -40 }}
+                    animate={{ scale: 1, y: 0 }}
+                    exit={{ scale: 0 }}
+                    onClick={takeBack}
+                  >
+                    <FruitArt kind={fruit} />
+                  </motion.button>
+                )}
+              </AnimatePresence>
+            </div>
+          ))}
+        </div>
+        {!cfg.auto && (
+          <motion.button className="give-btn" whileTap={{ scale: 0.88 }} onClick={check} disabled={given === 0 || happy} aria-label="Berish">
+            <svg viewBox="0 0 100 100" className="art">
+              <path d="M22 52L42 72L80 30" fill="none" stroke="#fff" strokeWidth={12} strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </motion.button>
+        )}
+      </div>
+
+      <div className="market-col">
+        <div className="crate">
+          {Array.from({ length: 9 }, (_, i) => (
+            <motion.button key={`${round}-${i}`} className="crate-fruit" whileTap={{ scale: 0.7 }} onClick={give}>
+              <FruitArt kind={fruit} />
+            </motion.button>
+          ))}
+        </div>
+      </div>
+
+      <div className="earned">
+        <span className="hud-icon">
+          <CoinArt />
+        </span>
+        <motion.span key={earned} initial={{ scale: 1.6 }} animate={{ scale: 1 }}>
+          {earned}
+        </motion.span>
+      </div>
+
+      {happy && (
+        <div className="coins-rain">
+          {Array.from({ length: Math.min(want, 6) }, (_, i) => (
+            <motion.span
+              key={i}
+              className="coin-fly"
+              initial={{ left: '18%', top: '55%', scale: 0 }}
+              animate={{ left: '90%', top: '8%', scale: [0, 1.2, 0.8] }}
+              transition={{ duration: 0.9, delay: 0.3 + i * 0.12, ease: 'easeInOut' }}
+            >
+              <CoinArt />
+            </motion.span>
+          ))}
+        </div>
+      )}
+
+      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, coins: earned })} />}
+    </GameShell>
+  )
+}

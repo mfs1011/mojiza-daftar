@@ -1,0 +1,47 @@
+import { ANIMAL_NAMES, type AnimalId } from '../art/Animal'
+import { FRUIT_NAMES, type FruitKind } from '../art/Fruit'
+
+// Harflar uyi uchun so'zlar: faqat bitta harf bilan boshlanadiganlari
+// (O', G', Sh, Ch alohida harflar, ularni hozircha chetlab o'tamiz).
+
+export type WordPic = { type: 'fruit'; id: FruitKind } | { type: 'animal'; id: AnimalId }
+
+export interface Word {
+  pic: WordPic
+  name: string
+  letter: string
+  voice: string
+}
+
+const FRUIT_WORDS: FruitKind[] = ['olma', 'anor', 'uzum', 'qovun', 'tarvuz', 'nok', 'behi', 'gilos', 'anjir']
+const ANIMAL_WORDS: AnimalId[] = ['sigir', 'echki', 'mushuk', 'it', 'xoroz', 'eshak']
+
+export const WORDS: Word[] = [
+  ...FRUIT_WORDS.map((id) => ({
+    pic: { type: 'fruit' as const, id },
+    name: FRUIT_NAMES[id],
+    letter: FRUIT_NAMES[id][0],
+    voice: `meva_${id}`,
+  })),
+  ...ANIMAL_WORDS.map((id) => ({
+    pic: { type: 'animal' as const, id },
+    name: ANIMAL_NAMES[id],
+    letter: ANIMAL_NAMES[id][0],
+    voice: `hayvon_${id}`,
+  })),
+]
+
+export const LETTERS = [...new Set(WORDS.map((w) => w.letter))].sort()
+
+/** Chizish oson harflar (to'g'ri chiziq va doira) — boshlang'ich darajalar uchun */
+export const EASY_LETTERS = ['O', 'U', 'T', 'N', 'A', 'M']
+
+/** Ismning bosh harfi, o'zbek qo'sh harflarini hisobga olib (Sh, Ch, O', G') */
+export function initialOf(name: string): string {
+  const n = name.trim()
+  if (!n) return 'A'
+  const two = n.slice(0, 2)
+  if (/^(Sh|Ch|SH|CH|sh|ch)$/.test(two)) return two[0].toUpperCase() + 'h'
+  if (/^[OoGg]['ʻ‘’`]/.test(n)) return n[0].toUpperCase() + "'"
+  return n[0].toUpperCase()
+}

@@ -1,0 +1,181 @@
+import { motion, type PanInfo } from 'framer-motion'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { AnimalArt, type AnimalId } from '../art/Animal'
+import { Celebration } from '../components/Celebration'
+import { burstAt } from '../components/Fx'
+import { GameShell, useMascot } from '../components/GameShell'
+import { say, sfx } from '../lib/audio'
+import { shuffle } from '../lib/util'
+import type { GameProps } from '../types'
+
+// 🌙 Kechki qo'ra — soya topish (#3).
+// Qorong'i tushdi: qo'rada hayvonlarning soyalari bor. Bola har bir hayvonni
+// o'z soyasiga olib borib yotqizadi. Yuqori darajada o'xshash hayvonlar (qo'y/echki)
+// va teskari qaragan soyalar paydo bo'ladi — fazoviy tasavvur uchun.
+
+interface ShadowCfg {
+  count: number
+  similar: boolean
+  flips: boolean
+}
+
+function shadowCfg(level: number): ShadowCfg {
+  return [
+    { count: 3, similar: false, flips: false },
+    { count: 4, similar: false, flips: false },
+    { count: 4, similar: true, flips: false },
+    { count: 5, similar: true, flips: true },
+    { count: 6, similar: true, flips: true },
+  ][Math.min(level, 4)]
+}
+
+const ROUNDS = 2
+const DISTINCT: AnimalId[] = ['sigir', 'xoroz', 'ordak', 'eshak', 'mushuk', 'it']
+const SIMILAR: AnimalId[] = ['qoy', 'echki']
+
+interface Spot {
+  id: AnimalId
+  x: number
+  y: number
+  flip: boolean
+}
+
+function makeRound(cfg: ShadowCfg): { spots: Spot[]; tray: AnimalId[] } {
+  const pool = cfg.similar ? [...SIMILAR, ...shuffle(DISTINCT)] : shuffle(DISTINCT)
+  const ids = shuffle(pool.slice(0, cfg.count))
+  const cols = Math.ceil(ids.length / 2)
+  const spots = ids.map((id, i) => {
+    const row = ids.length <= 3 ? 0 : i % 2
+    const col = ids.length <= 3 ? i : Math.floor(i / 2)
+    const n = ids.length <= 3 ? ids.length : cols
+    return {
+      id,
+      x: 22 + (col + 0.5) * (58 / n) + (row ? 3 : -3),
+      y: ids.length <= 3 ? 38 : 26 + row * 24,
+      flip: cfg.flips && Math.random() < 0.5,
+    }
+  })
+  return { spots, tray: shuffle(ids) }
+}
+
+export function Shadows({ level, onComplete, onExit }: GameProps) {
+  const [roundIdx, setRoundIdx] = useState(0)
+  const rounds = useMemo(() => Array.from({ length: ROUNDS }, () => makeRound(shadowCfg(level))), [level])
+  const round = rounds[roundIdx]
+  const [placed, setPlaced] = useState<Set<AnimalId>>(new Set())
+  const [wrongSpot, setWrongSpot] = useState<AnimalId | null>(null)
+  const [finished, setFinished] = useState(false)
+  const [mascot, react] = useMascot()
+  const mistakes = useRef(0)
+  const spotRefs = useRef<Partial<Record<AnimalId, HTMLDivElement | null>>>({})
+
+  useEffect(() => {
+    if (roundIdx === 0) void say('qora_intro')
+  }, [roundIdx])
+
+  function handleDrop(id: AnimalId, info: PanInfo) {
+    const { x, y } = info.point
+    let best: { id: AnimalId; d: number } | null = null
+    for (const s of round.spots) {
+      if (placed.has(s.id)) continue
+      const r = spotRefs.current[s.id]?.getBoundingClientRect()
+      if (!r) continue
+      const d = Math.hypot(x - (r.left + r.width / 2), y - (r.top + r.height / 2))
+      if (d < Math.max(r.width, r.height) * 0.75 && (!best || d < best.d)) best = { id: s.id, d }
+    }
+    if (!best) return
+
+    if (best.id === id) {
+      sfx.pop()
+      react('happy')
+      burstAt(spotRefs.current[id], ['#ffd166', '#fff6b0', '#a2d2ff'])
+      const next = new Set(placed).add(id)
+      setPlaced(next)
+      void say(`hayvon_${id}`)
+      if (next.size === round.spots.length) {
+        setTimeout(() => void say('qora_tun'), 700)
+        setTimeout(() => {
+          if (roundIdx + 1 >= ROUNDS) setFinished(true)
+          else {
+            sfx.whoosh()
+            setPlaced(new Set())
+            setRoundIdx((i) => i + 1)
+          }
+        }, 2400)
+      }
+    } else {
+      mistakes.current++
+      sfx.wrong()
+      react('oops')
+      setWrongSpot(best.id)
+      setTimeout(() => setWrongSpot(null), 450)
+      void say('yana')
+    }
+  }
+
+  const allPlaced = placed.size === round.spots.length
+
+  return (
+    <GameShell className="shadows" mascot={mascot} round={roundIdx} rounds={ROUNDS} onExit={onExit}>
+      <motion.div className="night-moon" animate={allPlaced ? { scale: [1, 1.2, 1] } : {}} transition={{ duration: 1 }}>
+        <svg viewBox="0 0 100 100" className="art">
+          <circle cx={50} cy={50} r={40} fill="#fff3b0" />
+          <circle cx={38} cy={42} r={6} fill="#f2e394" />
+          <circle cx={62} cy={60} r={9} fill="#f2e394" />
+          <path d={allPlaced ? 'M36 62Q50 74 64 62' : 'M38 64Q50 68 62 64'} fill="none" stroke="#c9a227" strokeWidth={3} strokeLinecap="round" />
+        </svg>
+      </motion.div>
+      <div className="pen" />
+
+      {round.spots.map((s) => (
+        <motion.div
+          key={`${roundIdx}-${s.id}`}
+          ref={(el) => {
+            spotRefs.current[s.id] = el
+          }}
+          className="silhouette"
+          data-id={s.id}
+          style={{ left: `${s.x}%`, top: `${s.y}%` }}
+          animate={wrongSpot === s.id ? { x: [0, -10, 10, -6, 6, 0] } : { x: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          {placed.has(s.id) ? (
+            <motion.div initial={{ scale: 1.3 }} animate={{ scale: 1 }} className="sleeping">
+              <AnimalArt id={s.id} flip={s.flip} />
+              <motion.span className="zz" animate={{ opacity: [0, 1, 0], y: [0, -16] }} transition={{ repeat: Infinity, duration: 2 }}>
+                z
+              </motion.span>
+            </motion.div>
+          ) : (
+            <AnimalArt id={s.id} shadow flip={s.flip} />
+          )}
+        </motion.div>
+      ))}
+
+      <div className="tray">
+        {round.tray
+          .filter((id) => !placed.has(id))
+          .map((id) => (
+            <motion.div
+              key={`${roundIdx}-${id}`}
+              className="tray-animal"
+              data-id={id}
+              drag
+              dragSnapToOrigin
+              dragMomentum={false}
+              dragElastic={1}
+              initial={{ y: 60, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              whileDrag={{ scale: 1.2, zIndex: 50 }}
+              onDragStart={() => sfx.tap()}
+              onDragEnd={(_, info) => handleDrop(id, info)}
+            >
+              <AnimalArt id={id} />
+            </motion.div>
+          ))}
+      </div>
+
+      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current })} />}
+    </GameShell>
+  )
+}
