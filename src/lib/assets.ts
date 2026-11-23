@@ -33,3 +33,21 @@ export const audioUrl = (path: string): string | null =>
   asset(`${path}.m4a`) ?? asset(`${path}.mp3`) ?? asset(`${path}.ogg`) ?? asset(`${path}.wav`)
 
 export const musicTracks = (): string[] => [...files].filter((f) => f.startsWith('music/')).map((f) => BASE + f)
+
+/** Animatsiya (sprite sheet): art/<yo'l>@<kadr>f<fps>a<eni/bo'yi*100>.png */
+export interface Anim {
+  url: string
+  frames: number
+  fps: number
+  aspect: number
+}
+
+export function animOf(path: string): Anim | null {
+  const prefix = `art/${path}@`
+  for (const f of files) {
+    if (!f.startsWith(prefix)) continue
+    const m = /@(\d+)f(\d+)a(\d+)\.png$/.exec(f)
+    if (m) return { url: BASE + f, frames: Number(m[1]), fps: Number(m[2]), aspect: Number(m[3]) / 100 }
+  }
+  return null
+}

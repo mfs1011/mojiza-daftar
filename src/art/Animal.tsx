@@ -3,8 +3,8 @@
 // shuning uchun har birining siluyeti ajralib turishi muhim.
 
 import { ALL_ANIMALS, ANIMAL_NAMES, ANIMAL_SOUNDS, type AnimalId } from '../lib/names.ts'
-import { ArtImg } from './ArtImg'
-import { artUrl } from '../lib/assets'
+import { ArtImg, ArtSprite } from './ArtImg'
+import { animOf, artUrl } from '../lib/assets'
 
 export { ALL_ANIMALS, ANIMAL_NAMES, ANIMAL_SOUNDS }
 export type { AnimalId }
@@ -174,6 +174,15 @@ interface Props {
 }
 
 export function AnimalArt({ id, className, shadow, flip }: Props) {
+  const anim = animOf(`animal/${id}`)
+  if (anim)
+    return (
+      <ArtSprite
+        anim={anim}
+        className={`${shadow ? 'silhouette-art' : ''} ${className ?? ''}`}
+        style={flip ? { transform: 'scaleX(-1)' } : undefined}
+      />
+    )
   const img = artUrl(`animal/${id}`)
   if (img)
     return (

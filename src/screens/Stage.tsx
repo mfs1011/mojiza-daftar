@@ -9,6 +9,7 @@ import { Particles } from '../lib/particles'
 import { buildRig, clipPose, type Clip, type ClipCtx, type Rig } from '../lib/rig'
 import { getSettings } from '../lib/settings'
 import { startEcho, type EchoHandle, type EchoState } from '../lib/voiceEcho'
+import { Icon } from '../art/Icon'
 
 // 🎭 Sahna: bolaning rasmi suyakli 3D multfilm qahramoniga aylanadi.
 //
@@ -66,6 +67,15 @@ export function Stage({ image, marks, onExit, onEdit }: Props) {
   const [mic, setMic] = useState<Mic>('off')
   const [dance, setDance] = useState(false)
   const [ready, setReady] = useState(false)
+  // 3D (WebGL) bu qurilmada bormi — bir marta tekshiriladi
+  const [noGl] = useState(() => {
+    try {
+      const c = document.createElement('canvas')
+      return !(c.getContext('webgl2') || c.getContext('webgl'))
+    } catch {
+      return true
+    }
+  })
 
   // Sahnada fon musiqasi o'chadi: bola ovozi aniq eshitilsin
   useEffect(() => {
@@ -81,7 +91,14 @@ export function Stage({ image, marks, onExit, onEdit }: Props) {
     let face: FaceRig | null = null
     let rig: Rig | null = null
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+    let renderer: THREE.WebGLRenderer
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+    } catch (e) {
+      // 3D ishlamasa — xabar ko'rsatiladi (noGl), bu yerda faqat to'xtaymiz
+      console.error('[stage] WebGL yaratilmadi', e)
+      return
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
     renderer.setSize(host.clientWidth, host.clientHeight)
     renderer.outputColorSpace = THREE.SRGBColorSpace
@@ -668,6 +685,14 @@ export function Stage({ image, marks, onExit, onEdit }: Props) {
         onPointerCancel={() => api.current?.up()}
       />
 
+      {noGl && (
+        <div className="stage-nogl">
+          3D ko'rinish bu qurilmada ishlamadi.
+          <br />
+          Brauzerni yangilang yoki "Android System WebView"ni Play Market'dan yangilang.
+        </div>
+      )}
+
       <motion.div
         className={`mic-badge ${mic}`}
         data-mic={mic}
@@ -690,11 +715,11 @@ export function Stage({ image, marks, onExit, onEdit }: Props) {
 
       <div className="stage-tools">
         <motion.button className="tool" whileTap={{ scale: 0.85 }} aria-label="Belgilarni tuzatish" onClick={() => (sfx.tap(), onEdit())}>
-          <svg viewBox="0 0 100 100" className="art">
+          <Icon name="bones"><svg viewBox="0 0 100 100" className="art">
             <circle cx={30} cy={30} r={12} fill="#fff" stroke="#3d2c1e" strokeWidth={5} />
             <circle cx={70} cy={70} r={12} fill="#fff" stroke="#3d2c1e" strokeWidth={5} />
             <path d="M38 38L62 62" stroke="#3d2c1e" strokeWidth={10} strokeLinecap="round" />
-          </svg>
+          </svg></Icon>
         </motion.button>
         <motion.button
           className={`tool ${dance ? 'on' : ''}`}
@@ -708,18 +733,18 @@ export function Stage({ image, marks, onExit, onEdit }: Props) {
             sfx.tap()
           }}
         >
-          <svg viewBox="0 0 100 100" className="art">
+          <Icon name="music"><svg viewBox="0 0 100 100" className="art">
             <path d="M40 74V20L80 12V66" fill="none" stroke="#3d2c1e" strokeWidth={7} strokeLinejoin="round" />
             <ellipse cx={30} cy={76} rx={12} ry={9} fill="#8e5bd6" stroke="#3d2c1e" strokeWidth={5} />
             <ellipse cx={70} cy={68} rx={12} ry={9} fill="#8e5bd6" stroke="#3d2c1e" strokeWidth={5} />
-          </svg>
+          </svg></Icon>
         </motion.button>
       </div>
 
       <button className="back-btn" onClick={onExit} aria-label="Orqaga">
-        <svg viewBox="0 0 40 40" className="art">
+        <Icon name="back"><svg viewBox="0 0 40 40" className="art">
           <path d="M24 10L12 20L24 30" fill="none" stroke="#3d2c1e" strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        </svg></Icon>
       </button>
     </div>
   )

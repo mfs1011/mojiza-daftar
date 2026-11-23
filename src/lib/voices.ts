@@ -42,6 +42,22 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     { key: 'rig_belgila', text: "Ko'zlari, og'zi, qo'l-oyoqlari qayerda? To'g'ri joyga qo'y!", group: 'Rasm uyi' },
     { key: 'boyash_tayyor', text: 'Qanday chiroyli rasm! Albomga qo\'ydik.', group: 'Rasm uyi' },
 
+    // Sahnadagi qahramon: ota-onaning o'z ovozi — eng tabiiy (AI ovozidan ustun turadi)
+    ...([
+      ['bonk', 'Voy! (boshiga urilganda)'],
+      ['ouch', "Oy-oy-oy! (oyog'i og'riganda)"],
+      ['giggle', 'Hi-hi-hi-hi! (qitiqlanganda)'],
+      ['purr', 'Mmmm... (boshi silanganda, huzur)'],
+      ['yay', 'Uraaa! (quvonganda)'],
+      ['hmm', 'Hmm? (hayron bo\'lganda)'],
+      ['woo', 'Vuuuuy! (boshi aylanganda)'],
+      ['yawn', 'Aaaa-uuuf... (esnaganda)'],
+      ['snore', 'Xrrr... pshhh... (xurrak)'],
+      ['grr', 'Grrr! Hmph! (jahli chiqqanda)'],
+      ['boing', 'Hop! (sakraganda)'],
+      ['squeeze', 'Iiiiii! (qisilganda)'],
+    ] as const).map(([k, text]) => ({ key: `reak_${k}`, text, group: "Sahna qahramoni (o'z ovozingiz — eng tabiiy)" })),
+
     { key: 'bog_silkit', text: 'Daraxtni silkit!', group: "Bog'" },
     { key: 'bog_rang', text: 'Mevalarni rangiga qarab savatlarga sol!', group: "Bog'" },
     { key: 'bog_kattalik', text: 'Kattalarini katta savatga, kichiklarini kichik savatga sol!', group: "Bog'" },

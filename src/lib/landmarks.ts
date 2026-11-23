@@ -19,8 +19,21 @@ export const ANALYSIS_SIDE = 768
 
 /** Rasmning mazmunidan kalit: bir xil rasm uchun belgilar qayta so'ralmaydi */
 export async function blobKey(blob: Blob): Promise<string> {
-  const hash = await crypto.subtle.digest('SHA-256', await blob.arrayBuffer())
-  return [...new Uint8Array(hash).slice(0, 12)].map((b) => b.toString(16).padStart(2, '0')).join('')
+  const buf = await blob.arrayBuffer()
+  // crypto.subtle faqat xavfsiz manzilda bor (https, localhost). Masalan, telefondan
+  // http://192.168... orqali ochilganda yo'q — u holda oddiy FNV-1a xesh (ikki yo'nalishda)
+  if (globalThis.crypto?.subtle) {
+    const hash = await crypto.subtle.digest('SHA-256', buf)
+    return [...new Uint8Array(hash).slice(0, 12)].map((b) => b.toString(16).padStart(2, '0')).join('')
+  }
+  const bytes = new Uint8Array(buf)
+  let h1 = 0x811c9dc5
+  let h2 = 0x01000193
+  for (let i = 0; i < bytes.length; i++) {
+    h1 = Math.imul(h1 ^ bytes[i], 0x01000193)
+    h2 = Math.imul(h2 ^ bytes[bytes.length - 1 - i], 0x811c9dc5)
+  }
+  return `f${(h1 >>> 0).toString(16)}${(h2 >>> 0).toString(16)}${bytes.length.toString(16)}`
 }
 
 export async function analysisCanvas(blob: Blob): Promise<HTMLCanvasElement> {

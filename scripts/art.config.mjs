@@ -38,24 +38,37 @@ export function objectText(key) {
 }
 
 const fruit = (id, what) => ({ path: `fruit/${id}`, kind: 'object', size: 512, prompt: `${what}, one single fruit, cute glossy toy-like look` })
-const animal = (id, what) => ({
+const animal = (id, what, motion) => ({
   path: `animal/${id}`,
   kind: 'object',
   size: 640,
   prompt: `${what}, full body, standing on four legs (or two for birds), side view facing RIGHT, cute baby proportions, friendly smile`,
+  motion,
 })
 const person = (id, what) => [
-  { path: `person/${id}`, kind: 'object', size: 640, prompt: `${what}, full body, front view, standing, friendly calm smile, arms relaxed` },
-  { path: `person/${id}-happy`, kind: 'object', size: 640, prompt: `${what}, full body, front view, standing, very happy laughing with eyes closed, arms slightly raised` },
+  {
+    path: `person/${id}`,
+    kind: 'object',
+    size: 640,
+    prompt: `${what}, full body, front view, standing, friendly calm smile, arms relaxed`,
+    motion: 'gentle idle: breathing, blinks, a small friendly sway and a slight nod',
+  },
+  {
+    path: `person/${id}-happy`,
+    kind: 'object',
+    size: 640,
+    prompt: `${what}, full body, front view, standing, very happy laughing with eyes closed, arms slightly raised`,
+    motion: 'laughs happily and claps hands twice, a small joyful bounce',
+  },
 ]
 const bg = (id, what) => ({ path: `bg/${id}`, kind: 'background', aspect: '16:9', width: 1600, prompt: `${what}, wide landscape game background, horizon in the upper third, empty uncluttered lower half where game objects will be placed` })
 
 export const ASSETS = [
   // ---------- Maskot: Popishak (hudhud qushi) ----------
-  { path: 'mascot/idle', kind: 'object', size: 512, prompt: 'Popishak, an adorable cartoon hoopoe bird mascot: orange-peach body, fan-shaped orange crest with black tips, black-and-white striped wings, long thin curved dark beak, big shiny eyes, standing, side view facing right, friendly' },
-  { path: 'mascot/happy', kind: 'object', size: 512, prompt: 'Popishak the cartoon hoopoe bird mascot, jumping with joy, crest fully raised like a fan, wings open, eyes happily closed, beak open smiling, facing right' },
-  { path: 'mascot/oops', kind: 'object', size: 512, prompt: 'Popishak the cartoon hoopoe bird mascot, puzzled and confused, head tilted, crest lowered, one wing scratching head, facing right' },
-  { path: 'mascot/sleep', kind: 'object', size: 512, prompt: 'Popishak the cartoon hoopoe bird mascot, sleeping peacefully while standing, eyes closed, crest lowered, cozy, facing right' },
+  { path: 'mascot/idle', kind: 'object', size: 512, prompt: 'Popishak, an adorable cartoon hoopoe bird mascot: orange-peach body, fan-shaped orange crest with black tips, black-and-white striped wings, long thin curved dark beak, big shiny eyes, standing, side view facing right, friendly', motion: 'gentle idle: slow breathing, the crest feathers softly sway, blinks once, a small curious head tilt' },
+  { path: 'mascot/happy', kind: 'object', size: 512, prompt: 'Popishak the cartoon hoopoe bird mascot, jumping with joy, crest fully raised like a fan, wings open, eyes happily closed, beak open smiling, facing right', motion: 'jumps up joyfully twice, the crest fans fully open, wings flap happily' },
+  { path: 'mascot/oops', kind: 'object', size: 512, prompt: 'Popishak the cartoon hoopoe bird mascot, puzzled and confused, head tilted, crest lowered, one wing scratching head, facing right', motion: 'tilts head from side to side confused, the crest droops, scratches head with a wing' },
+  { path: 'mascot/sleep', kind: 'object', size: 512, prompt: 'Popishak the cartoon hoopoe bird mascot, sleeping peacefully while standing, eyes closed, crest lowered, cozy, facing right', motion: 'sleeping: slow deep breathing, the crest gently bobs, a tiny sleepy head nod' },
 
   // ---------- Fonlar ----------
   bg('map', 'bird-eye cheerful Uzbek village valley: rolling green hills, snowy Chimgan mountains far away, blue-domed madrasa on the horizon, rows of tall poplar trees, a small winding irrigation canal (ariq), sunny morning sky with soft clouds'),
@@ -83,14 +96,14 @@ export const ASSETS = [
   fruit('orik', 'an orange apricot with a leaf'),
 
   // ---------- Hayvonlar ----------
-  animal('sigir', 'a white cow with black spots, pink nose, small horns'),
-  animal('qoy', 'a fluffy white sheep with a dark face'),
-  animal('echki', 'a light brown goat with small curved horns and a little beard'),
-  animal('xoroz', 'a colorful rooster with red comb and a big teal-green tail'),
-  animal('it', 'a brown puppy with floppy ears'),
-  animal('mushuk', 'an orange tabby kitten'),
-  animal('ordak', 'a yellow duck'),
-  animal('eshak', 'a grey donkey with long ears'),
+  animal('sigir', 'a white cow with black spots, pink nose, small horns', 'chews slowly, swishes its tail, blinks and flicks an ear'),
+  animal('qoy', 'a fluffy white sheep with a dark face', 'bobs its fluffy head, wiggles its ears, blinks'),
+  animal('echki', 'a light brown goat with small curved horns and a little beard', 'nods its head, the little beard sways, swishes its short tail'),
+  animal('xoroz', 'a colorful rooster with red comb and a big teal-green tail', 'flaps its wings and crows proudly with the beak open, tail feathers bounce'),
+  animal('it', 'a brown puppy with floppy ears', 'wags its tail fast, pants happily with tongue out, ears bounce'),
+  animal('mushuk', 'an orange tabby kitten', 'slowly swishes its tail, blinks slowly, ears twitch'),
+  animal('ordak', 'a yellow duck', 'waddles in place, flaps its small wings, bobs its head'),
+  animal('eshak', 'a grey donkey with long ears', 'wiggles its long ears, swishes its tail, nods'),
 
   // ---------- Bozor mijozlari ----------
   ...person('bobo', 'a kind Uzbek grandfather with white beard, black-and-white doppi skullcap, striped blue chapan robe'),
@@ -130,6 +143,34 @@ export const ASSETS = [
     ['barg', 'a square ceramic tile with a green leaf on pale mint'],
   ].map(([id, what]) => ({ path: `tile/${id}`, kind: 'tile', size: 256, prompt: `${what}, flat front view, the tile fills the whole image edge to edge, glossy glaze` })),
 
+  // ---------- Tugma ikonkalari (3D o'yin UI) ----------
+  ...[
+    ['back', 'a chunky left-pointing arrow'],
+    ['home', 'a small cute house'],
+    ['eraser', 'a pink rubber eraser'],
+    ['undo', 'a curved arrow turning back to the left'],
+    ['camera', 'a cute blue photo camera'],
+    ['gallery', 'a framed picture with a green hill and a yellow sun'],
+    ['album', 'a red photo album book'],
+    ['stage', 'a little theater stage with red curtains'],
+    ['magic', 'a sparkling golden star'],
+    ['done', 'a bold green check mark'],
+    ['music', 'a purple music note'],
+    ['bones', 'a friendly white cartoon bone'],
+    ['bucket', 'a paint bucket pouring colorful paint'],
+    ['brush', 'a paint brush with a colorful tip'],
+    ['skip', 'a double forward arrow (fast forward)'],
+    ['reset', 'a circular refresh arrow'],
+    ['hero', 'a small happy child figure silhouette in blue and yellow'],
+    ['sponge', 'a yellow kitchen sponge'],
+    ['robot', 'a cute friendly little blue robot head with antenna'],
+  ].map(([id, what]) => ({
+    path: `icon/${id}`,
+    kind: 'object',
+    size: 192,
+    prompt: `${what}, glossy 3D mobile game UI icon, chunky rounded shape, bright saturated colors, soft highlight on top, no background element, no circle behind it`,
+  })),
+
   // ---------- Boshqa ----------
   { path: 'ui/basket', kind: 'object', size: 384, prompt: 'an empty woven wicker basket with a handle, front view' },
   { path: 'ui/coin', kind: 'object', size: 256, prompt: 'a shiny golden coin, front view' },
@@ -144,3 +185,16 @@ export function fullPrompt(a) {
 
 /** Qo'lda yaratilgan rasm uchun fayl nomi: "fruit/olma" → "fruit__olma.png" */
 export const inboxName = (a) => a.path.replace(/\//g, '__')
+
+/** Animatsiya prompti: tayyor rasmni biriktirib, GIF qilish uchun (Gemini / boshqa video AI) */
+export function motionPrompt(a) {
+  const k = KEYS[keyOf(a)]
+  return [
+    `Animate the attached image as a short seamless looping GIF (2-3 seconds): ${a.motion}.`,
+    'Keep exactly the same character, design, colors, size and position.',
+    'The camera does not move, no zoom, no cuts.',
+    `Keep the solid flat ${k.name} background (${k.hex}) completely unchanged in every frame.`,
+    'The character always stays fully inside the frame.',
+    'The last frame must match the first frame for a perfect loop.',
+  ].join(' ')
+}

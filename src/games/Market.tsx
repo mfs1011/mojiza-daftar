@@ -8,6 +8,7 @@ import { GameShell, useMascot } from '../components/GameShell'
 import { say, sfx } from '../lib/audio'
 import { pick, randInt } from '../lib/util'
 import type { GameProps } from '../types'
+import { Icon } from '../art/Icon'
 
 // 🛒 Bozor — sanash (#6).
 // Mijoz "N ta meva" so'raydi. Bola qutidan olib, 10 lik ramkaga soladi.
@@ -181,9 +182,9 @@ export function Market({ level, onComplete, onExit }: GameProps) {
         </div>
         {!cfg.auto && (
           <motion.button className="give-btn" whileTap={{ scale: 0.88 }} onClick={check} disabled={given === 0 || happy} aria-label="Berish">
-            <svg viewBox="0 0 100 100" className="art">
+            <Icon name="done"><svg viewBox="0 0 100 100" className="art">
               <path d="M22 52L42 72L80 30" fill="none" stroke="#fff" strokeWidth={12} strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            </svg></Icon>
           </motion.button>
         )}
       </div>

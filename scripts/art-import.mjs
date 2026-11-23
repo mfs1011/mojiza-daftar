@@ -10,7 +10,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync } from 'node:fs'
 import { extname, join } from 'node:path'
 import { ASSETS, inboxName } from './art.config.mjs'
-import { decode, processAsset } from './image.mjs'
+import { decode, processAnim, processAsset } from './image.mjs'
 import { ROOT, writeManifest } from './lib.mjs'
 
 const INBOX = join(ROOT, 'art-inbox')
@@ -27,6 +27,23 @@ let ok = 0
 const unknown = []
 for (const f of readdirSync(INBOX)) {
   const ext = extname(f).toLowerCase()
+  if (ext === '.gif') {
+    // Animatsiya → sprite sheet (statik rasm ham bo'lsa, o'yin animatsiyani afzal ko'radi)
+    const a = byName.get(f.slice(0, -ext.length))
+    if (!a) {
+      unknown.push(f)
+      continue
+    }
+    try {
+      const r = processAnim(a, readFileSync(join(INBOX, f)))
+      renameSync(join(INBOX, f), join(DONE, f))
+      ok++
+      console.log(`✓ ${f} → ${a.path} animatsiya (${r.frames} kadr, ${r.fps} fps, ${r.fw}×${r.fh})`)
+    } catch (e) {
+      console.error(`✗ ${f}: ${e.message}`)
+    }
+    continue
+  }
   if (!['.png', '.jpg', '.jpeg'].includes(ext)) {
     if (ext === '.webp') console.error(`✗ ${f}: WebP qo'llanmaydi — PNG yoki JPG qilib saqlang`)
     continue

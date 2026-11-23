@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Mascot } from '../art/Mascot'
 import { say, sfx } from '../lib/audio'
 import type { Landmarks } from '../lib/landmarks'
+import { Icon } from '../art/Icon'
 
 // 🦴 Belgilash: ko'zlar, og'iz, qo'llar va oyoqlar qayerda?
 // Avtomatik taxmin oldindan qo'yilgan; noto'g'ri bo'lsa barmoq bilan suriladi.
@@ -11,7 +12,7 @@ import type { Landmarks } from '../lib/landmarks'
 type Key = keyof Landmarks
 const LIMBS: Key[] = ['handL', 'handR', 'footL', 'footR']
 
-function Icon({ k }: { k: Key }) {
+function MarkIcon({ k }: { k: Key }) {
   if (k === 'eyeL' || k === 'eyeR')
     return (
       <svg viewBox="0 0 40 40" className="art">
@@ -129,7 +130,7 @@ export function RigSetup({ image, initial, auto, onDone, onExit }: Props) {
                     sfx.tap()
                   }}
                 >
-                  <Icon k={k} />
+                  <MarkIcon k={k} />
                   {LIMBS.includes(k) && (
                     <button
                       className="rig-x"
@@ -154,7 +155,7 @@ export function RigSetup({ image, initial, auto, onDone, onExit }: Props) {
         <div className="rig-tray">
           {removed.map((k) => (
             <motion.button key={k} className="rig-add" data-add={k} whileTap={{ scale: 0.9 }} onClick={() => restore(k)} aria-label="Qaytarish">
-              <Icon k={k} />
+              <MarkIcon k={k} />
               <span>+</span>
             </motion.button>
           ))}
@@ -163,10 +164,10 @@ export function RigSetup({ image, initial, auto, onDone, onExit }: Props) {
 
       <div className="tools">
         <motion.button className="tool" whileTap={{ scale: 0.85 }} aria-label="Avtomatik" onClick={() => (sfx.tap(), setMarks(auto))}>
-          <svg viewBox="0 0 100 100" className="art">
+          <Icon name="reset"><svg viewBox="0 0 100 100" className="art">
             <path d="M78 40A30 30 0 1 0 80 62" fill="none" stroke="#3d2c1e" strokeWidth={9} strokeLinecap="round" />
             <path d="M84 20V44H60" fill="none" stroke="#3d2c1e" strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          </svg></Icon>
         </motion.button>
         <motion.button
           className="tool done"
@@ -179,16 +180,16 @@ export function RigSetup({ image, initial, auto, onDone, onExit }: Props) {
             onDone(marks)
           }}
         >
-          <svg viewBox="0 0 100 100" className="art">
+          <Icon name="done"><svg viewBox="0 0 100 100" className="art">
             <path d="M22 52L42 72L80 30" fill="none" stroke="#fff" strokeWidth={12} strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          </svg></Icon>
         </motion.button>
       </div>
 
       <button className="back-btn" onClick={onExit} aria-label="Orqaga">
-        <svg viewBox="0 0 40 40" className="art">
+        <Icon name="back"><svg viewBox="0 0 40 40" className="art">
           <path d="M24 10L12 20L24 30" fill="none" stroke="#3d2c1e" strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        </svg></Icon>
       </button>
       <div className="mascot-corner">
         <Mascot mood="talk" />

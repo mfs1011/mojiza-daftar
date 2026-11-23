@@ -11,6 +11,7 @@ import { EASY_LETTERS, initialOf, LETTERS, WORDS, type Word } from '../lib/lette
 import { drawLetter, makeMask, maskPoints, scoreTrace, type TraceMask } from '../lib/trace'
 import { pick, shuffle } from '../lib/util'
 import type { GameProps, Profile } from '../types'
+import { Icon } from '../art/Icon'
 
 // 🔤 Harflar uyi — harflar bilan tanishish (#5), faqat 5 yoshga.
 // "Chiz" raundi: harfni barmoq bilan bo'r taxtaga chizish.
@@ -163,12 +164,12 @@ function TraceBoard({ letter, level, onDone, onMistake }: { letter: string; leve
       />
       {!done && (
         <button className="sponge" onClick={() => clear(true)} aria-label="Tozalash">
-          <svg viewBox="0 0 100 70" className="art">
+          <Icon name="sponge"><svg viewBox="0 0 100 70" className="art">
             <rect x={6} y={10} width={88} height={50} rx={12} fill="#ffd166" stroke="#3d2c1e" strokeWidth={3} />
             <circle cx={30} cy={30} r={5} fill="#e9b949" />
             <circle cx={60} cy={40} r={6} fill="#e9b949" />
             <circle cx={74} cy={24} r={4} fill="#e9b949" />
-          </svg>
+          </svg></Icon>
         </button>
       )}
     </div>

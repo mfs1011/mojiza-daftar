@@ -3,6 +3,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import jpeg from 'jpeg-js'
+import omggif from 'omggif'
 import { PNG } from 'pngjs'
 import { keyOf } from './art.config.mjs'
 import { ASSETS_DIR } from './lib.mjs'
@@ -126,4 +127,60 @@ export function processAsset(a, img) {
   img = resize(img, a.kind === 'background' ? a.width : a.size)
   save(outPath(a), img, a.kind === 'background')
   return img
+}
+
+/**
+ * Animatsiya (GIF, masalan Gemini'dan) → shaffof "sprite sheet" PNG.
+ * Har kadr: xroma fon kesiladi; barcha kadrlar uchun umumiy chegara bo'yicha kesiladi (kadr sakramasin),
+ * bir qatorga teriladi. Fayl nomida: <yo'l>@<kadr>f<fps>a<eni/bo'yi*100>.png
+ */
+export function processAnim(a, buf, frameH = 256) {
+  const g = new omggif.GifReader(new Uint8Array(buf))
+  const W = g.width
+  const H = g.height
+  const canvas = new Uint8Array(W * H * 4)
+  const frames = []
+  let delay = 0
+  for (let i = 0; i < g.numFrames(); i++) {
+    g.decodeAndBlitFrameRGBA(i, canvas)
+    delay += g.frameInfo(i).delay || 10
+    frames.push(chromaKey({ width: W, height: H, data: new Uint8Array(canvas) }, keyOf(a)))
+  }
+  // Umumiy chegara
+  let x0 = W
+  let y0 = H
+  let x1 = -1
+  let y1 = -1
+  for (const f of frames)
+    for (let y = 0; y < H; y++)
+      for (let x = 0; x < W; x++)
+        if (f.data[(y * W + x) * 4 + 3] > 20) {
+          if (x < x0) x0 = x
+          if (x > x1) x1 = x
+          if (y < y0) y0 = y
+          if (y > y1) y1 = y
+        }
+  const pad = 6
+  x0 = Math.max(0, x0 - pad)
+  y0 = Math.max(0, y0 - pad)
+  x1 = Math.min(W - 1, x1 + pad)
+  y1 = Math.min(H - 1, y1 + pad)
+  const cw = x1 - x0 + 1
+  const ch = y1 - y0 + 1
+  const crop = (f) => {
+    const out = new Uint8Array(cw * ch * 4)
+    for (let y = 0; y < ch; y++) out.set(f.data.subarray(((y + y0) * W + x0) * 4, ((y + y0) * W + x0 + cw) * 4), y * cw * 4)
+    return { width: cw, height: ch, data: out }
+  }
+  const scaled = frames.map((f) => resize(crop(f), Math.max(cw, ch) * Math.min(1, frameH / ch)))
+  const fw = scaled[0].width
+  const fh = scaled[0].height
+  const sheet = { width: fw * scaled.length, height: fh, data: new Uint8Array(fw * scaled.length * fh * 4) }
+  scaled.forEach((f, i) => {
+    for (let y = 0; y < fh; y++) sheet.data.set(f.data.subarray(y * fw * 4, (y + 1) * fw * 4), (y * sheet.width + i * fw) * 4)
+  })
+  const fps = Math.max(1, Math.round((frames.length * 100) / delay))
+  const file = join(ASSETS_DIR, 'art', `${a.path}@${frames.length}f${fps}a${Math.round((fw / fh) * 100)}.png`)
+  save(file, sheet, false)
+  return { frames: frames.length, fps, fw, fh }
 }

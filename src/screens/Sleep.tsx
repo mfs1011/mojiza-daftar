@@ -5,6 +5,7 @@ import { CoinArt } from '../art/Scenery'
 import { Hero } from '../components/Hero'
 import { say } from '../lib/audio'
 import type { Profile, Progress } from '../types'
+import { Icon } from '../art/Icon'
 
 interface Props {
   profile: Profile
@@ -68,10 +69,10 @@ export function Sleep({ profile, progress, onHome }: Props) {
       </div>
 
       <button className="home-btn" onClick={onHome} aria-label="Bosh sahifa">
-        <svg viewBox="0 0 40 40" className="art">
+        <Icon name="home"><svg viewBox="0 0 40 40" className="art">
           <path d="M6 20L20 7L34 20M10 17V33H30V17" fill="#ffd166" stroke="#3d2c1e" strokeWidth={3} strokeLinejoin="round" />
           <rect x={17} y={23} width={6} height={10} fill="#8d5524" />
-        </svg>
+        </svg></Icon>
       </button>
     </div>
   )

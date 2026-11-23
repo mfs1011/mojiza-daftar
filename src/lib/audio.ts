@@ -120,6 +120,25 @@ function withSamples<T extends Record<string, () => void>>(prefix: string, fx: T
   ) as T
 }
 
+/** Qahramon ovozi: ota-ona yozgan (reak_*) → AI yaratgan fayl → sintez */
+function withParentVoice<T extends Record<string, () => void>>(fx: T): T {
+  return Object.fromEntries(
+    Object.entries(fx).map(([k, fn]) => [
+      k,
+      () => {
+        void parentUrl(`reak_${k}`).then((u) => {
+          if (u) {
+            haptic.tap()
+            const a = new Audio(u)
+            a.playbackRate = 1.15
+            void a.play().catch(() => fn())
+          } else fn()
+        })
+      },
+    ]),
+  ) as T
+}
+
 // ============ Effekt tovushlari ============
 
 export const sfx = withSamples('', {
@@ -190,7 +209,7 @@ function sweep(f0: number, f1: number, at: number, dur: number, type: Oscillator
   o.stop(t0 + dur + 0.05)
 }
 
-export const voiceFx = withSamples('voice-', {
+export const voiceFx = withParentVoice(withSamples('voice-', {
   bonk: () => {
     sweep(320, 110, 0, 0.18, 'square', 0.12)
     sweep(900, 520, 0.16, 0.22, 'triangle', 0.18)
@@ -232,7 +251,7 @@ export const voiceFx = withSamples('voice-', {
     sweep(720, 300, 0.18, 0.25, 'sine', 0.2, 14)
   },
   squeeze: () => sweep(500, 1300, 0, 0.6, 'triangle', 0.12, 6),
-})
+}))
 
 // ============ Fon musiqasi: doira + yengil kuy ============
 

@@ -2,7 +2,7 @@
 
 :root {
   --ink: #3d2c1e;
-  font-family: ui-rounded, 'SF Pro Rounded', Nunito, Roboto, system-ui, sans-serif;
+  font-family: 'Baloo 2', ui-rounded, 'SF Pro Rounded', Nunito, Roboto, system-ui, sans-serif;
   color: var(--ink);
 }
 
@@ -2196,9 +2196,29 @@ button {
 .has-bg-workshop .workshop-shelf { display: none; }
 
 .has-bg-night .shadows { background: var(--bg-night); }
-.has-bg-night .pen { background: #c9a22755; border-color: transparent; box-shadow: none; }
+/* Fonda qo'ra va oy bor — kodda chizilganlari kerak emas. Soyalar fon tafsilotlarida
+   yo'qolib qolmasin: har birining ortida chiroqdek iliq yorug' dog' */
+.has-bg-night .pen { display: none; }
+.has-bg-night .night-moon { display: none; }
+.has-bg-night .silhouette::before {
+  content: '';
+  position: absolute;
+  inset: -18% -14%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #ffe6a8ee 0%, #ffd98299 55%, #ffd98200 100%);
+}
 
 .has-bg-letters .letters { background: var(--bg-letters); }
+/* Fon rasmida devorda doska bor (rasm eni ~37%da) — o'yin doskasi aynan uning ustiga tushsin,
+   aks holda ikkita doska ko'rinadi. Planshetda (4:3) so'z kartochkasiga tegmasin — max() */
+.has-bg-letters .chalkboard {
+  left: max(36%, calc(3vw + 31vmin + 38vh));
+  margin-left: -38vh;
+  background: #2f4f3e;
+  border-color: #3b2a20;
+  box-shadow: 0 1.4vmin 0 #0004, inset 0 0 4vmin #0005;
+}
 
 .has-bg-studio .studio { background: var(--bg-studio); }
 
@@ -2211,3 +2231,340 @@ button {
 .has-bg-sleep .sleep { background: var(--bg-sleep); }
 .has-bg-sleep .sleep-hills,
 .has-bg-sleep .moon { display: none; }
+
+/* =====================================================================
+   🎨 3D DIZAYN TIZIMI
+   Yorug'lik tepadan tushadi: yuqori yuza yorug', pastda "qalinlik" qatlami,
+   ichki yaltiroq chiziq, yumshoq soya. Bosilganda tugma pastga "botadi".
+   ===================================================================== */
+
+:root {
+  --ink: #3a2414;
+  --cream-top: #ffffff;
+  --cream-bot: #f4ead9;
+  --cream-edge: #c8ad8a;
+  --shadow-soft: 0 1.8vmin 2.6vmin rgba(60, 30, 10, 0.28);
+  --green-top: #49f2b5;
+  --green-bot: #05b988;
+  --green-edge: #04805f;
+  --gold-top: #ffe27a;
+  --gold-bot: #ffb703;
+  --gold-edge: #c27c00;
+}
+
+/* ---------- Asosiy 3D tugma (oq-krem) ---------- */
+.back-btn,
+.home-btn,
+.tool,
+.hold-btn,
+.thick-btn,
+.rig-add,
+.p-free {
+  background: linear-gradient(180deg, var(--cream-top) 0%, var(--cream-bot) 100%);
+  border: 0.45vmin solid #fff;
+  box-shadow:
+    inset 0 0.5vmin 0 rgba(255, 255, 255, 0.95),
+    inset 0 -0.8vmin 0 rgba(140, 90, 40, 0.14),
+    0 0.9vmin 0 var(--cream-edge),
+    var(--shadow-soft);
+  transition:
+    transform 0.08s ease-out,
+    box-shadow 0.08s ease-out;
+}
+
+.back-btn:active,
+.home-btn:active,
+.tool:active,
+.hold-btn:active,
+.thick-btn:active,
+.rig-add:active {
+  transform: translateY(0.7vmin);
+  box-shadow:
+    inset 0 0.5vmin 0 rgba(255, 255, 255, 0.95),
+    inset 0 -0.5vmin 0 rgba(140, 90, 40, 0.14),
+    0 0.2vmin 0 var(--cream-edge),
+    0 0.6vmin 1.2vmin rgba(60, 30, 10, 0.25);
+}
+
+.tool.on {
+  background: linear-gradient(180deg, #fff6cc 0%, #ffe08a 100%);
+  box-shadow:
+    inset 0 0.5vmin 0 rgba(255, 255, 255, 0.9),
+    0 0 0 0.6vmin #ffb703,
+    0 0.9vmin 0 var(--gold-edge),
+    var(--shadow-soft);
+}
+
+/* ---------- Asosiy harakat tugmasi (yashil, yaltiroq) ---------- */
+.tool.done,
+.give-btn {
+  background: radial-gradient(120% 90% at 50% 15%, var(--green-top) 0%, var(--green-bot) 70%);
+  border: 0.5vmin solid #d7fff0;
+  box-shadow:
+    inset 0 0.7vmin 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1vmin 0 rgba(0, 80, 60, 0.25),
+    0 1.1vmin 0 var(--green-edge),
+    0 2vmin 3vmin rgba(5, 120, 90, 0.4);
+}
+
+/* ---------- HUD (tanga, meva hisoblagichlari) ---------- */
+.hud > span,
+.earned,
+.sleep-stats {
+  font-weight: 800;
+  background: linear-gradient(180deg, #fffdf7 0%, #f6ead2 100%);
+  border: 0.45vmin solid #fff;
+  box-shadow:
+    inset 0 0.4vmin 0 #fff,
+    0 0.7vmin 0 var(--cream-edge),
+    var(--shadow-soft);
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+
+/* ---------- Sarlavha: hajmli, rang-barang matn ---------- */
+.title {
+  font-weight: 800;
+  font-size: 10vmin;
+  color: #ffd23f;
+  letter-spacing: 0.01em;
+  -webkit-text-stroke: 0.25vmin #7a3b00;
+  paint-order: stroke fill;
+  text-shadow:
+    0 0.35vmin 0 #e88a00,
+    0 0.7vmin 0 #c76f00,
+    0 1.05vmin 0 #a85b00,
+    0 1.4vmin 0 #7a3b00,
+    0 2.4vmin 2.4vmin rgba(60, 25, 0, 0.45);
+}
+
+.pname {
+  font-weight: 800;
+  font-size: 6.4vmin;
+  -webkit-text-stroke: 0.18vmin rgba(0, 0, 0, 0.35);
+  paint-order: stroke fill;
+  text-shadow:
+    0 0.4vmin 0 rgba(0, 0, 0, 0.25),
+    0 1vmin 1.4vmin rgba(0, 0, 0, 0.25);
+}
+
+/* ---------- Profil kartalari: shishasimon yaltiroq ---------- */
+.profile-card {
+  position: relative;
+  overflow: hidden;
+  border: 0.9vmin solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    inset 0 -1.6vmin 0 rgba(0, 0, 0, 0.14),
+    inset 0 1vmin 2vmin rgba(255, 255, 255, 0.45),
+    0 1.4vmin 0 rgba(0, 0, 0, 0.18),
+    0 3vmin 4vmin rgba(40, 20, 10, 0.3);
+}
+
+.profile-card::before {
+  content: '';
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: 3%;
+  height: 40%;
+  border-radius: 6vmin 6vmin 50% 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+/* ---------- Kartalar (sovg'a, tanlov, harf, naqsh, albom) ---------- */
+.reward-option,
+.choice-card,
+.word-card,
+.cb-variant,
+.album-item,
+.letter-option,
+.tile-option,
+.cell {
+  box-shadow:
+    inset 0 0.5vmin 0 rgba(255, 255, 255, 0.7),
+    inset 0 -0.9vmin 0 rgba(0, 0, 0, 0.08),
+    0 1vmin 0 rgba(120, 80, 40, 0.28),
+    0 2vmin 3vmin rgba(40, 20, 10, 0.25);
+}
+
+.reward-option,
+.choice-card {
+  background: linear-gradient(180deg, #ffffff 0%, #fff4dc 100%);
+}
+
+.choice-card span {
+  font-weight: 800;
+  font-size: 4.6vmin;
+  color: var(--ink);
+}
+
+.letter-option {
+  font-family: 'Baloo 2', ui-rounded, sans-serif;
+  background: radial-gradient(120% 100% at 50% 10%, #3f8f6a 0%, #24583f 80%);
+  text-shadow: 0 0.6vmin 0 rgba(0, 0, 0, 0.3);
+}
+
+/* ---------- Xarita bekatlari: yaltiroq "tugmacha" sharlar ---------- */
+.station {
+  background: radial-gradient(circle at 35% 28%, #ffffff 0%, #fbf5ea 45%, #e9dcc6 100%);
+  border: 0.5vmin solid #fff;
+  box-shadow:
+    inset 0 -0.9vmin 1.2vmin rgba(120, 80, 40, 0.22),
+    inset 0 0.8vmin 1vmin rgba(255, 255, 255, 0.9),
+    0 1vmin 0 #c8ad8a,
+    0 2.2vmin 3vmin rgba(40, 20, 10, 0.35);
+}
+
+.station.next {
+  background: radial-gradient(circle at 35% 28%, #fffbe6 0%, #ffe9a8 55%, #ffc94d 100%);
+  box-shadow:
+    0 0 0 0.9vmin rgba(255, 210, 63, 0.55),
+    0 0 4vmin rgba(255, 200, 40, 0.75),
+    inset 0 -0.9vmin 1.2vmin rgba(170, 100, 0, 0.25),
+    0 1vmin 0 var(--gold-edge),
+    0 2.2vmin 3vmin rgba(40, 20, 10, 0.35);
+}
+
+.station.done {
+  background: radial-gradient(circle at 35% 28%, #ffffff 0%, #dff8e8 55%, #a9e6c3 100%);
+}
+
+/* ---------- Raund "munchoqlari" ---------- */
+.pip {
+  background: radial-gradient(circle at 35% 30%, #fff, #e8e1d6);
+  box-shadow:
+    inset 0 -0.3vmin 0.4vmin rgba(0, 0, 0, 0.18),
+    0 0.4vmin 0.6vmin rgba(0, 0, 0, 0.25);
+}
+
+.pip.done {
+  background: radial-gradient(circle at 35% 30%, #b9ffe3, #06c48d);
+}
+
+.pip.now {
+  background: radial-gradient(circle at 35% 30%, #fff6c8, #ffb703);
+}
+
+/* ---------- Bo'yoq tomchilari (palitra) ---------- */
+.swatch {
+  position: relative;
+  border: 0.5vmin solid #fff;
+  box-shadow:
+    inset 0 -0.7vmin 0.8vmin rgba(0, 0, 0, 0.25),
+    0 0.6vmin 0 rgba(0, 0, 0, 0.18),
+    0 1.2vmin 1.6vmin rgba(0, 0, 0, 0.2);
+}
+
+.swatch::after {
+  content: '';
+  position: absolute;
+  left: 18%;
+  top: 12%;
+  width: 38%;
+  height: 28%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+
+.swatch.on {
+  transform: scale(1.12);
+  box-shadow:
+    0 0 0 0.6vmin var(--ink),
+    inset 0 -0.7vmin 0.8vmin rgba(0, 0, 0, 0.25),
+    0 1.2vmin 1.6vmin rgba(0, 0, 0, 0.25);
+}
+
+/* ---------- Panellar: chuqurlik ---------- */
+.tenframe,
+.crate,
+.pattern-board,
+.chalkboard,
+.paper,
+.sheet,
+.cut-canvas,
+.rig-box {
+  box-shadow:
+    inset 0 0.6vmin 0 rgba(255, 255, 255, 0.35),
+    0 1.2vmin 0 rgba(90, 55, 25, 0.35),
+    0 2.6vmin 3.6vmin rgba(40, 20, 10, 0.3);
+}
+
+.mic-badge {
+  background: radial-gradient(circle at 35% 28%, #ffffff, #efe6d8);
+  border: 0.5vmin solid #fff;
+  box-shadow:
+    inset 0 -0.7vmin 1vmin rgba(0, 0, 0, 0.15),
+    0 1vmin 0 var(--cream-edge),
+    0 2vmin 3vmin rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- Oynalar: orqa fon xiralashadi ---------- */
+.reward-picker,
+.choice-overlay,
+.album-overlay {
+  backdrop-filter: blur(0.8vmin) saturate(1.1);
+  -webkit-backdrop-filter: blur(0.8vmin) saturate(1.1);
+}
+
+/* Yumshoq "nafas olish" — muhim tugmalar o'zini ko'rsatib turadi */
+@keyframes glow-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgba(255, 210, 63, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 1.6vmin rgba(255, 210, 63, 0.9));
+  }
+}
+
+.next-arrow {
+  animation: glow-pulse 1.4s ease-in-out infinite;
+}
+
+.stage-nogl {
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  top: 35%;
+  z-index: 10;
+  padding: 3vmin;
+  border-radius: 3vmin;
+  background: #fffe;
+  color: var(--ink);
+  font-size: 3.6vmin;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* O'chiq tugma (masalan, rasm hali qayta ishlanayotganda): ko'rinib tursin */
+.tool:disabled,
+.give-btn:disabled {
+  opacity: 0.45;
+  filter: grayscale(0.7);
+  animation: none;
+}
+
+/* Sprite sheet animatsiya (masalan, Gemini'dan olingan GIF → kadrlar bir qatorda) */
+.sprite-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sprite {
+  width: 100%;
+  max-height: 100%;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+@keyframes sprite-play {
+  from {
+    background-position: 0% 0;
+  }
+  to {
+    background-position: 100% 0;
+  }
+}

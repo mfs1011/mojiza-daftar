@@ -1,8 +1,8 @@
 import type { StationId } from '../types'
 import { AnimalArt, type AnimalId } from './Animal'
 import { FruitArt, type FruitKind } from './Fruit'
-import { ArtImg } from './ArtImg'
-import { artUrl } from '../lib/assets'
+import { ArtImg, ArtSprite } from './ArtImg'
+import { animOf, artUrl } from '../lib/assets'
 
 const INK = '#3d2c1e'
 
@@ -31,7 +31,10 @@ export type PersonId = 'bobo' | 'buvi' | 'aka' | 'opa' | 'bola'
 export const ALL_PEOPLE: PersonId[] = ['bobo', 'buvi', 'aka', 'opa', 'bola']
 
 export function PersonArt({ id, happy, className }: { id: PersonId; happy?: boolean; className?: string }) {
-  const img = artUrl(`person/${id}${happy ? '-happy' : ''}`) ?? artUrl(`person/${id}`)
+  const key = `person/${id}${happy ? '-happy' : ''}`
+  const anim = animOf(key) ?? (artUrl(key) ? null : animOf(`person/${id}`))
+  if (anim) return <ArtSprite anim={anim} className={className} />
+  const img = artUrl(key) ?? artUrl(`person/${id}`)
   if (img) return <ArtImg src={img} className={className} />
   const skin = id === 'bobo' || id === 'aka' ? '#e0ac69' : '#f1c27d'
   return (

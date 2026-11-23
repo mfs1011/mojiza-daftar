@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { artUrl } from '../lib/assets'
+import { animOf, artUrl } from '../lib/assets'
+import { ArtSprite } from './ArtImg'
 
 // Popishak (hudhud qushi): o'yinning yo'lboshchisi.
 // Bolalar o'yinning o'ziga emas, qahramonga bog'lanadi, shuning uchun
@@ -26,8 +27,17 @@ export function Mascot({ mood = 'idle', className }: { mood?: Mood; className?: 
         : { y: [0, -3, 0] }
   const transition = happy || oops ? { duration: 0.8 } : { repeat: Infinity, duration: sleep ? 3 : 1.6 }
 
-  // Tayyor rasm bo'lsa — kayfiyatga mos rasm, xuddi shu harakatlar bilan
-  const img = artUrl(`mascot/${mood === 'talk' ? 'idle' : mood}`) ?? artUrl('mascot/idle')
+  // Tayyor asset tartibi: kayfiyatga mos animatsiya → kayfiyatga mos rasm → oddiy animatsiya → oddiy rasm
+  const m = mood === 'talk' ? 'idle' : mood
+  const own = artUrl(`mascot/${m}`)
+  const anim = animOf(`mascot/${m}`) ?? (own ? null : animOf('mascot/idle'))
+  if (anim)
+    return (
+      <motion.div className={`art mascot ${className ?? ''}`} animate={animate} transition={transition}>
+        <ArtSprite anim={anim} />
+      </motion.div>
+    )
+  const img = own ?? artUrl('mascot/idle')
   if (img)
     return (
       <motion.div className={`art mascot ${className ?? ''}`} animate={animate} transition={transition}>

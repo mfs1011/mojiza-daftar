@@ -3,7 +3,7 @@
 //   npm run art:prompts
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { ASSETS, fullPrompt, inboxName } from './art.config.mjs'
+import { ASSETS, fullPrompt, inboxName, motionPrompt } from './art.config.mjs'
 import { ROOT } from './lib.mjs'
 
 const GROUPS = [
@@ -15,6 +15,7 @@ const GROUPS = [
   ['station/', '🗺️ Xarita bekatlari'],
   ['decor/', "🌳 Qishloq bezaklari (sovg'alar)"],
   ['tile/', '🏺 Naqsh plitkalari'],
+  ['icon/', '🔘 Tugma ikonkalari'],
   ['ui/', '🧺 Boshqa'],
 ]
 
@@ -41,6 +42,10 @@ let md = `# Rasm promptlari (ChatGPT / Gemini uchun)
 
 Yoqmagan rasmni qayta yarating va o'sha nom bilan qayta saqlang — import uni almashtiradi.
 
+**🎬 Animatsiya:** 🎬 belgisi bor rasmlarni harakatlantirish ham mumkin. Rasm tayyor bo'lgach, uni biriktirib
+animatsiya promptini yuboring (Gemini GIF qilib beradi) va \`.gif\` nomi bilan \`art-inbox/\` ga saqlang.
+O'yin animatsiyani rasmdan afzal ko'radi. Avval statik rasm, keyin animatsiya — shunday tartibda.
+
 **Jami: ${ASSETS.length} ta rasm.**
 
 `
@@ -51,6 +56,8 @@ for (const [prefix, title] of GROUPS) {
   md += `## ${title}\n\n`
   for (const a of items) {
     md += `### - [ ] \`${inboxName(a)}.${ext(a)}\`  ·  ${ratio(a)}\n\n\`\`\`text\n${fullPrompt(a)}\n\`\`\`\n\n`
+    if (a.motion)
+      md += `🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → \`${inboxName(a)}.gif\` nomi bilan saqlang\n\n\`\`\`text\n${motionPrompt(a)}\n\`\`\`\n\n`
   }
 }
 
