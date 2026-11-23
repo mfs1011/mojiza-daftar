@@ -11,9 +11,11 @@ import { canvasToBlob, photoToCutout, trimCanvas } from '../lib/image'
 import type { Profile } from '../types'
 import { CharacterCut } from './CharacterCut'
 import { ColoringBook } from './ColoringBook'
+import { Icon } from '../art/Icon'
 
 // 3D sahna (three.js) og'ir: faqat kerak bo'lganda yuklanadi, ilova tezroq ochiladi
 const StageFlow = lazy(() => import('./StageFlow').then((m) => ({ default: m.StageFlow })))
+const ProStage = lazy(() => import('./ProStage').then((m) => ({ default: m.ProStage })))
 
 // 🎨 Rasm uyi (#10): bola qahramonini chizadi (yoki qog'ozdagi rasmini suratga oladi),
 // keyin u "tiriladi" va butun o'yin davomida xaritada yuradigan qahramonga aylanadi.
@@ -39,6 +41,8 @@ export function DrawStudio({ profile, onDone, onExit }: Props) {
   const [album, setAlbum] = useState<{ art: Artwork; url: string }[] | null>(null)
   const [bigArt, setBigArt] = useState<{ art: Artwork; url: string } | null>(null)
   const [stage, setStage] = useState<Blob | null>(null)
+  /** Professional 3D qahramon: undefined = yopiq, null = chizmasiz, Blob = chizma bilan kiyintirilgan */
+  const [pro, setPro] = useState<Blob | null | undefined>(undefined)
   const history = useRef<ImageData[]>([])
   const last = useRef<{ x: number; y: number } | null>(null)
   const [tool, setTool] = useState<Tool>({ kind: 'color', color: COLORS[1] })
@@ -218,16 +222,16 @@ export function DrawStudio({ profile, onDone, onExit }: Props) {
 
       <div className="tools">
         <motion.button className={`tool ${tool.kind === 'eraser' ? 'on' : ''}`} whileTap={{ scale: 0.85 }} onClick={() => (sfx.tap(), setTool({ kind: 'eraser' }))} aria-label="O'chirg'ich">
-          <svg viewBox="0 0 100 100" className="art">
+          <Icon name="eraser"><svg viewBox="0 0 100 100" className="art">
             <path d="M20 66L56 22L86 46L54 86H30Z" fill="#ff8fab" stroke="#3d2c1e" strokeWidth={5} strokeLinejoin="round" />
             <path d="M38 46L68 70" stroke="#3d2c1e" strokeWidth={5} />
-          </svg>
+          </svg></Icon>
         </motion.button>
         <motion.button className="tool" whileTap={{ scale: 0.85 }} onClick={undo} aria-label="Orqaga qaytarish">
-          <svg viewBox="0 0 100 100" className="art">
+          <Icon name="undo"><svg viewBox="0 0 100 100" className="art">
             <path d="M30 40H64C76 40 84 50 84 62C84 74 76 82 64 82H40" fill="none" stroke="#3d2c1e" strokeWidth={9} strokeLinecap="round" />
             <path d="M42 24L24 40L42 56" fill="none" stroke="#3d2c1e" strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          </svg></Icon>
         </motion.button>
         <HoldButton className="tool hold-clear" ms={900} onDone={clearAll}>
           <svg viewBox="0 0 100 100" className="art">
@@ -243,26 +247,26 @@ export function DrawStudio({ profile, onDone, onExit }: Props) {
           onClick={() => void bringToLife()}
           aria-label="Tiriltirish"
         >
-          <svg viewBox="0 0 100 100" className="art">
+          <Icon name="magic"><svg viewBox="0 0 100 100" className="art">
             <path d="M50 10L60 38L90 40L66 58L74 88L50 70L26 88L34 58L10 40L40 38Z" fill="#ffd166" stroke="#3d2c1e" strokeWidth={5} strokeLinejoin="round" />
-          </svg>
+          </svg></Icon>
         </motion.button>
       </div>
 
       <div className="studio-top">
         <motion.button className="tool" whileTap={{ scale: 0.85 }} onClick={() => cameraRef.current?.click()} disabled={busy} aria-label="Suratga olish">
-          <svg viewBox="0 0 100 100" className="art">
+          <Icon name="camera"><svg viewBox="0 0 100 100" className="art">
             <rect x={12} y={30} width={76} height={54} rx={10} fill="#118ab2" stroke="#3d2c1e" strokeWidth={5} />
             <path d="M34 30L40 18H60L66 30" fill="#118ab2" stroke="#3d2c1e" strokeWidth={5} strokeLinejoin="round" />
             <circle cx={50} cy={57} r={15} fill="#fff" stroke="#3d2c1e" strokeWidth={5} />
-          </svg>
+          </svg></Icon>
         </motion.button>
         <motion.button className="tool" whileTap={{ scale: 0.85 }} onClick={() => galleryRef.current?.click()} disabled={busy} aria-label="Galereyadan tanlash">
-          <svg viewBox="0 0 100 100" className="art">
+          <Icon name="gallery"><svg viewBox="0 0 100 100" className="art">
             <rect x={12} y={18} width={76} height={64} rx={8} fill="#fff" stroke="#3d2c1e" strokeWidth={5} />
             <path d="M16 74L38 48L54 64L64 54L84 74Z" fill="#52b788" stroke="#3d2c1e" strokeWidth={4} strokeLinejoin="round" />
             <circle cx={66} cy={36} r={8} fill="#ffd166" stroke="#3d2c1e" strokeWidth={4} />
-          </svg>
+          </svg></Icon>
         </motion.button>
         <motion.button
           className="tool"
@@ -273,18 +277,40 @@ export function DrawStudio({ profile, onDone, onExit }: Props) {
           }}
           aria-label="Albom"
         >
-          <svg viewBox="0 0 100 100" className="art">
+          <Icon name="album"><svg viewBox="0 0 100 100" className="art">
             <rect x={18} y={14} width={64} height={74} rx={6} fill="#ef476f" stroke="#3d2c1e" strokeWidth={5} />
             <rect x={30} y={28} width={40} height={30} rx={4} fill="#fff" stroke="#3d2c1e" strokeWidth={4} />
             <path d="M18 76H82" stroke="#3d2c1e" strokeWidth={4} />
-          </svg>
+          </svg></Icon>
         </motion.button>
         <motion.button className="tool" whileTap={{ scale: 0.85 }} onClick={() => void openStage()} aria-label="Sahna">
-          <svg viewBox="0 0 100 100" className="art">
+          <Icon name="stage"><svg viewBox="0 0 100 100" className="art">
             <path d="M10 14H90V86H10Z" fill="#ffd166" stroke="#3d2c1e" strokeWidth={5} />
             <path d="M10 14C10 50 26 70 40 86H10ZM90 14C90 50 74 70 60 86H90Z" fill="#c1121f" stroke="#3d2c1e" strokeWidth={5} strokeLinejoin="round" />
             <path d="M10 14H90V26H10Z" fill="#9d0208" stroke="#3d2c1e" strokeWidth={5} />
-          </svg>
+          </svg></Icon>
+        </motion.button>
+        <motion.button
+          className="tool"
+          whileTap={{ scale: 0.85 }}
+          aria-label="Robotcha"
+          onClick={async () => {
+            sfx.pop()
+            // Hozirgi chizma (bo'lsa) yoki saqlangan qahramon robotni "kiyintiradi"
+            const trimmed = trimCanvas(canvasRef.current!, 12)
+            setPro(trimmed ? await canvasToBlob(trimmed) : ((await getHero(profile.id)) ?? null))
+          }}
+        >
+          <Icon name="robot">
+            <svg viewBox="0 0 100 100" className="art">
+              <rect x={24} y={30} width={52} height={40} rx={12} fill="#7fb3ff" stroke="#3d2c1e" strokeWidth={5} />
+              <circle cx={40} cy={50} r={6} fill="#fff" stroke="#3d2c1e" strokeWidth={3} />
+              <circle cx={60} cy={50} r={6} fill="#fff" stroke="#3d2c1e" strokeWidth={3} />
+              <path d="M50 30V18" stroke="#3d2c1e" strokeWidth={5} />
+              <circle cx={50} cy={14} r={6} fill="#ef476f" stroke="#3d2c1e" strokeWidth={3} />
+              <path d="M36 78H64" stroke="#3d2c1e" strokeWidth={6} strokeLinecap="round" />
+            </svg>
+          </Icon>
         </motion.button>
       </div>
 
@@ -293,9 +319,9 @@ export function DrawStudio({ profile, onDone, onExit }: Props) {
       <input ref={galleryRef} type="file" accept="image/*" hidden data-source="gallery" onChange={onPicked} />
 
       <button className="back-btn" onClick={onExit} aria-label="Orqaga">
-        <svg viewBox="0 0 40 40" className="art">
+        <Icon name="back"><svg viewBox="0 0 40 40" className="art">
           <path d="M24 10L12 20L24 30" fill="none" stroke="#3d2c1e" strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        </svg></Icon>
       </button>
       <div className="mascot-corner">
         <Mascot key={mascot.key} mood={mascot.mood} />
@@ -422,10 +448,10 @@ export function DrawStudio({ profile, onDone, onExit }: Props) {
                   setStage(blob)
                 }}
               >
-                <svg viewBox="0 0 100 100" className="art">
+                <Icon name="stage"><svg viewBox="0 0 100 100" className="art">
                   <path d="M10 14H90V86H10Z" fill="#ffd166" stroke="#3d2c1e" strokeWidth={5} />
                   <path d="M10 14C10 50 26 70 40 86H10ZM90 14C90 50 74 70 60 86H90Z" fill="#c1121f" stroke="#3d2c1e" strokeWidth={5} strokeLinejoin="round" />
-                </svg>
+                </svg></Icon>
               </motion.button>
             </div>
           ) : album.length ? (
@@ -474,6 +500,12 @@ export function DrawStudio({ profile, onDone, onExit }: Props) {
             setStage(blob)
           }}
         />
+      )}
+
+      {pro !== undefined && (
+        <Suspense fallback={<div className="screen stage-screen" />}>
+          <ProStage decal={pro} onExit={() => setPro(undefined)} />
+        </Suspense>
       )}
 
       {stage && (

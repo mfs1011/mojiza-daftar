@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Mascot, type Mood } from '../art/Mascot'
+import { Icon } from '../art/Icon'
 
 /** Popishakning kayfiyati: react('happy') -> bir oz quvonadi, keyin tinchlanadi */
 export function useMascot() {
@@ -31,9 +32,9 @@ export function GameShell({ className, mascot, round, rounds, onExit, children, 
     <div className={`screen game ${className}`} {...data}>
       {children}
       <button className="back-btn" onClick={onExit} aria-label="Orqaga">
-        <svg viewBox="0 0 40 40" className="art">
+        <Icon name="back"><svg viewBox="0 0 40 40" className="art">
           <path d="M24 10L12 20L24 30" fill="none" stroke="#3d2c1e" strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        </svg></Icon>
       </button>
       <div className="pips">
         {Array.from({ length: rounds }, (_, i) => (

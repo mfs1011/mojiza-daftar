@@ -115,7 +115,8 @@ function makeRound(cfg: RoundCfg): { groups: Group[]; items: Item[] } {
   const items = shuffle(raw).map((r, i) => {
     const tr = Math.floor(i / treeCols)
     const tc = i % treeCols
-    const fx = 0.1 + (tc + 0.5) * (0.8 / treeCols) + (Math.random() - 0.5) * 0.04
+    // Shox-shabba ichida (fon rasmidagi daraxt ham, chizilgani ham shu oraliqda)
+    const fx = 0.14 + (tc + 0.5) * (0.56 / treeCols) + (Math.random() - 0.5) * 0.03
     const fy = 0.08 + (tr + 0.5) * (0.52 / treeRows) + (Math.random() - 0.5) * 0.04
     const row = i % 2
     const col = Math.floor(i / 2)

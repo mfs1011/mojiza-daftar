@@ -16,6 +16,9 @@ const MODEL = process.env.GEN_TTS_MODEL ?? 'gemini-2.5-flash-preview-tts'
 const VOICE = process.env.GEN_TTS_VOICE ?? 'Leda'
 const args = process.argv.slice(2)
 const test = args.includes('--test')
+// --only voice-ouch,salom → faqat shu kalitlar (qayta yaratish uchun --force bilan)
+const only = args.includes('--only') ? args[args.indexOf('--only') + 1].split(',') : null
+const want = (k) => !only || only.includes(k)
 const force = args.includes('--force')
 const key = apiKey()
 const dir = join(ASSETS_DIR, 'voices')
@@ -39,23 +42,18 @@ function wav(pcm, rate) {
   return Buffer.concat([h, pcm])
 }
 
-async function speak(text, file) {
+const TEACHER =
+  'You are a native Uzbek speaker from Tashkent. Read the following Uzbek (Latin script) phrase aloud ' +
+  'with natural Uzbek pronunciation, rhythm and word stress (in Uzbek the stress is usually on the LAST syllable of a word). ' +
+  "Do not use a Russian, Turkish or English accent. \"o'\" and \"g'\" are distinct Uzbek sounds. " +
+  'Speak like a warm, cheerful kindergarten teacher talking to a 4-year-old: unhurried, clear, smiling.'
+
+async function speak(text, file, style = TEACHER, voice = VOICE) {
   const body = {
-    contents: [
-      {
-        parts: [
-          {
-            text:
-              'Read the following Uzbek (Latin script) phrase aloud in natural, fluent Uzbek, ' +
-              'like a warm, cheerful kindergarten teacher talking to a 4-year-old: slow, clear, smiling. ' +
-              `Say only the phrase: "${text}"`,
-          },
-        ],
-      },
-    ],
+    contents: [{ parts: [{ text: `${style} Say only this: "${text}"` }] }],
     generationConfig: {
       responseModalities: ['AUDIO'],
-      speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: VOICE } } },
+      speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } },
     },
   }
   const data = inlineData(await gemini(MODEL, body, key))
@@ -70,10 +68,52 @@ if (test) {
   process.exit(0)
 }
 
+// ---------- Sahnadagi qahramonning jonli ovozlari (sintez "pip-pip" o'rniga) ----------
+// Ilova ularni sfx/voice-<nom> dan oladi (audio.ts → voiceFx).
+const CHARACTER =
+  'You are a cute, playful cartoon character (like a small animated toy) with a bright, expressive, child-like voice. ' +
+  'Perform this short vocal reaction with big emotion, very expressive, like in an animated movie. No extra words.'
+const REACTIONS = {
+  bonk: 'Voy!',
+  ouch: 'Oy-oy-oy!',
+  giggle: 'Hi-hi-hi-hi-hi!',
+  purr: 'Mmmmmm...',
+  yay: 'Uraaa!',
+  hmm: 'Hmm?',
+  woo: 'Vuuuuuy!',
+  yawn: 'Aaaaa-uuuf...',
+  snore: 'Xrrrr... pshhhh...',
+  grr: 'Grrr! Hmph!',
+  boing: 'Hop!',
+  squeeze: 'Iiiiiii!',
+}
+const CHAR_VOICE = process.env.GEN_CHAR_VOICE ?? 'Puck'
+const sfxDir = join(ASSETS_DIR, 'sfx')
+mkdirSync(sfxDir, { recursive: true })
+const charTodo = Object.entries(REACTIONS).filter(
+  ([k]) => want(`voice-${k}`) && (force || !(existsSync(join(sfxDir, `voice-${k}.wav`)) || existsSync(join(sfxDir, `voice-${k}.m4a`)))),
+)
+console.log(`Qahramon ovozlari (${CHAR_VOICE}): ${charTodo.length} ta`)
+for (const [k, text] of charTodo) {
+  if (process.env.GEN_DELAY_MS) await new Promise((r) => setTimeout(r, Number(process.env.GEN_DELAY_MS)))
+  try {
+    await speak(text, join(sfxDir, `voice-${k}.wav`), CHARACTER, CHAR_VOICE)
+    console.log(`✓ voice-${k}: ${text}`)
+  } catch (e) {
+    console.error(`✗ voice-${k}: ${e.message.slice(0, 120)}`)
+    if (/429/.test(e.message)) {
+      console.error('Kunlik limit tugadi — ertaga davom ettiring (borlari o\'tkazib yuboriladi).')
+      writeManifest()
+      process.exit(2)
+    }
+  }
+}
+
 // Ism bilan salomlashish (ism_*) ota-ona tomonidan yoziladi: ismlarni oldindan bilmaymiz
 // .wav (yangi) yoki .m4a (siqilgan) bo'lsa — bor deb hisoblanadi
 const exists = (k) => existsSync(join(dir, `${k}.wav`)) || existsSync(join(dir, `${k}.m4a`))
-const prompts = voicePrompts([]).filter((p) => force || !exists(p.key))
+// reak_* — ota-ona o'zi yozadigan qahramon ovozlari, ular uchun TTS kerak emas
+const prompts = voicePrompts([]).filter((p) => !p.key.startsWith('reak_') && want(p.key) && (force || !exists(p.key)))
 console.log(`Model: ${MODEL}, ovoz: ${VOICE}. Yaratiladi: ${prompts.length} ta`)
 let ok = 0
 for (const p of prompts) {
@@ -86,7 +126,11 @@ for (const p of prompts) {
     ok++
     console.log(`✓ ${p.key}: ${text}`)
   } catch (e) {
-    console.error(`✗ ${p.key}: ${e.message}`)
+    console.error(`✗ ${p.key}: ${e.message.slice(0, 120)}`)
+    if (/429/.test(e.message)) {
+      console.error('Kunlik limit tugadi — ertaga davom ettiring (borlari o\'tkazib yuboriladi).')
+      break
+    }
   }
 }
 console.log(`\nTayyor: ${ok}/${prompts.length}. Manifest: ${writeManifest()} ta fayl`)

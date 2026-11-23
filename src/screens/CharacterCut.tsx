@@ -9,6 +9,7 @@ import { autoCut, loadForCut, removeAt, renderCut, type CutState } from '../lib/
 import { saveHero } from '../lib/db'
 import { canvasToBlob } from '../lib/image'
 import type { Profile } from '../types'
+import { Icon } from '../art/Icon'
 
 // ✂️ Tayyor personaj (PNG/JPEG) → fonsiz personaj → 🎭 sahna.
 // Avtomatik kesishdan keyin qolib ketgan fon joyini bossa — o'sha joy o'chadi.
@@ -113,10 +114,10 @@ export function CharacterCut({ profile, file, onStage, onExit }: Props) {
             setAlpha(prev)
           }}
         >
-          <svg viewBox="0 0 100 100" className="art">
+          <Icon name="undo"><svg viewBox="0 0 100 100" className="art">
             <path d="M30 40H64C76 40 84 50 84 62C84 74 76 82 64 82H40" fill="none" stroke="#3d2c1e" strokeWidth={9} strokeLinecap="round" />
             <path d="M42 24L24 40L42 56" fill="none" stroke="#3d2c1e" strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          </svg></Icon>
         </motion.button>
         <motion.button
           className={`tool ${saved ? 'on' : ''}`}
@@ -132,11 +133,11 @@ export function CharacterCut({ profile, file, onStage, onExit }: Props) {
             react('happy')
           }}
         >
-          <svg viewBox="0 0 100 100" className="art">
+          <Icon name="hero"><svg viewBox="0 0 100 100" className="art">
             <circle cx={50} cy={32} r={16} fill="#ffd166" stroke="#3d2c1e" strokeWidth={5} />
             <path d="M20 88C20 64 34 54 50 54C66 54 80 64 80 88Z" fill="#118ab2" stroke="#3d2c1e" strokeWidth={5} strokeLinejoin="round" />
             {saved && <path d="M60 70L70 80L88 58" fill="none" stroke="#06d6a0" strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" />}
-          </svg>
+          </svg></Icon>
         </motion.button>
         <motion.button
           className="tool done"
@@ -150,10 +151,10 @@ export function CharacterCut({ profile, file, onStage, onExit }: Props) {
             if (blob) onStage(blob)
           }}
         >
-          <svg viewBox="0 0 100 100" className="art">
+          <Icon name="stage"><svg viewBox="0 0 100 100" className="art">
             <path d="M10 14H90V86H10Z" fill="#ffd166" stroke="#3d2c1e" strokeWidth={5} />
             <path d="M10 14C10 50 26 70 40 86H10ZM90 14C90 50 74 70 60 86H90Z" fill="#c1121f" stroke="#3d2c1e" strokeWidth={5} strokeLinejoin="round" />
-          </svg>
+          </svg></Icon>
         </motion.button>
       </div>
 
@@ -167,9 +168,9 @@ export function CharacterCut({ profile, file, onStage, onExit }: Props) {
       )}
 
       <button className="back-btn" onClick={onExit} aria-label="Orqaga">
-        <svg viewBox="0 0 40 40" className="art">
+        <Icon name="back"><svg viewBox="0 0 40 40" className="art">
           <path d="M24 10L12 20L24 30" fill="none" stroke="#3d2c1e" strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        </svg></Icon>
       </button>
       <div className="mascot-corner">
         <Mascot key={mascot.key} mood={mascot.mood} />

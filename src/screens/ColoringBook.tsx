@@ -10,6 +10,7 @@ import { canvasToBlob, trimCanvas } from '../lib/image'
 import type { Detail, LineArt } from '../lib/lineart'
 import { drawPaths, lineArtAsync, loadImageData } from '../lib/lineartClient'
 import type { Profile } from '../types'
+import { Icon } from '../art/Icon'
 
 // 📒 Bo'yash daftari: istalgan surat → chiziqli rasm.
 //   1) Bola 3 ta variantdan birini tanlaydi (kam / o'rta / ko'p chiziq)
@@ -396,29 +397,29 @@ export function ColoringBook({ profile, file, onDone, onExit }: Props) {
           <div className="tools">
             {phase === 'trace' ? (
               <motion.button className="tool" whileTap={{ scale: 0.85 }} onClick={traced} aria-label="O'tkazib yuborish">
-                <svg viewBox="0 0 100 100" className="art">
+                <Icon name="skip"><svg viewBox="0 0 100 100" className="art">
                   <path d="M20 22L52 50L20 78ZM52 22L84 50L52 78Z" fill="#adb5bd" stroke="#3d2c1e" strokeWidth={5} strokeLinejoin="round" />
-                </svg>
+                </svg></Icon>
               </motion.button>
             ) : (
               <>
                 <motion.button className={`tool ${tool === 'fill' ? 'on' : ''}`} whileTap={{ scale: 0.85 }} onClick={() => (sfx.tap(), setTool('fill'))} aria-label="Bo'yoq chelak">
-                  <svg viewBox="0 0 100 100" className="art">
+                  <Icon name="bucket"><svg viewBox="0 0 100 100" className="art">
                     <path d="M22 44L50 16L78 44L50 72Z" fill={color} stroke="#3d2c1e" strokeWidth={5} strokeLinejoin="round" />
                     <path d="M78 52C78 52 88 66 88 72C88 78 83 82 78 82C73 82 68 78 68 72C68 66 78 52 78 52Z" fill={color} stroke="#3d2c1e" strokeWidth={4} />
-                  </svg>
+                  </svg></Icon>
                 </motion.button>
                 <motion.button className={`tool ${tool === 'brush' ? 'on' : ''}`} whileTap={{ scale: 0.85 }} onClick={() => (sfx.tap(), setTool('brush'))} aria-label="Mo'yqalam">
-                  <svg viewBox="0 0 100 100" className="art">
+                  <Icon name="brush"><svg viewBox="0 0 100 100" className="art">
                     <path d="M62 14L86 38L50 62L38 50Z" fill="#c68b59" stroke="#3d2c1e" strokeWidth={5} strokeLinejoin="round" />
                     <path d="M38 50L50 62C46 80 30 86 14 86C14 70 20 54 38 50Z" fill={color} stroke="#3d2c1e" strokeWidth={5} strokeLinejoin="round" />
-                  </svg>
+                  </svg></Icon>
                 </motion.button>
                 <motion.button className="tool" whileTap={{ scale: 0.85 }} onClick={undo} aria-label="Orqaga qaytarish">
-                  <svg viewBox="0 0 100 100" className="art">
+                  <Icon name="undo"><svg viewBox="0 0 100 100" className="art">
                     <path d="M30 40H64C76 40 84 50 84 62C84 74 76 82 64 82H40" fill="none" stroke="#3d2c1e" strokeWidth={9} strokeLinecap="round" />
                     <path d="M42 24L24 40L42 56" fill="none" stroke="#3d2c1e" strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+                  </svg></Icon>
                 </motion.button>
                 <motion.button
                   className="tool done"
@@ -428,9 +429,9 @@ export function ColoringBook({ profile, file, onDone, onExit }: Props) {
                   onClick={() => void finish()}
                   aria-label="Tayyor"
                 >
-                  <svg viewBox="0 0 100 100" className="art">
+                  <Icon name="done"><svg viewBox="0 0 100 100" className="art">
                     <path d="M50 10L60 38L90 40L66 58L74 88L50 70L26 88L34 58L10 40L40 38Z" fill="#ffd166" stroke="#3d2c1e" strokeWidth={5} strokeLinejoin="round" />
-                  </svg>
+                  </svg></Icon>
                 </motion.button>
               </>
             )}
@@ -439,9 +440,9 @@ export function ColoringBook({ profile, file, onDone, onExit }: Props) {
       )}
 
       <button className="back-btn" onClick={onExit} aria-label="Orqaga">
-        <svg viewBox="0 0 40 40" className="art">
+        <Icon name="back"><svg viewBox="0 0 40 40" className="art">
           <path d="M24 10L12 20L24 30" fill="none" stroke="#3d2c1e" strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        </svg></Icon>
       </button>
       <div className="mascot-corner">
         <Mascot key={mascot.key} mood={mascot.mood} />
