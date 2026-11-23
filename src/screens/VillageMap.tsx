@@ -4,6 +4,7 @@ import { FruitArt } from '../art/Fruit'
 import { Mascot } from '../art/Mascot'
 import { CoinArt, DecorArt, StationIcon, type DecorKind } from '../art/Scenery'
 import { burst } from '../components/Fx'
+import { artUrl } from '../lib/assets'
 import { Hero, useHeroUrl, type HeroMode } from '../components/Hero'
 import { say, sfx } from '../lib/audio'
 import { dailyFor, stationsFor, STATIONS } from '../lib/stations'
@@ -25,6 +26,18 @@ interface Props {
 const pathPoints = STATIONS.map((s) => `${s.x * 16},${s.y * 9}`).join(' ')
 
 function MapBackground() {
+  const img = artUrl('bg/map')
+  if (img)
+    // Tayyor xarita rasmi + ustida faqat bekatlarni bog'lovchi yo'l
+    return (
+      <>
+        <img src={img} alt="" className="map-bg" draggable={false} style={{ objectFit: 'cover' }} />
+        <svg viewBox="0 0 1600 900" className="map-bg" preserveAspectRatio="none">
+          <polyline points={pathPoints} fill="none" stroke="#f6e7c1" strokeWidth={30} strokeLinecap="round" strokeLinejoin="round" opacity={0.92} />
+          <polyline points={pathPoints} fill="none" stroke="#e9c46a" strokeWidth={4} strokeDasharray="14 18" strokeLinecap="round" />
+        </svg>
+      </>
+    )
   return (
     <svg viewBox="0 0 1600 900" className="map-bg" preserveAspectRatio="none">
       <defs>

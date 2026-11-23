@@ -1,5 +1,6 @@
 import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics'
 import type { AnimalId } from '../art/Animal'
+import { audioUrl, musicTracks } from './assets'
 import { getVoice } from './db'
 
 // ============ Audio grafi ============
@@ -73,9 +74,55 @@ export const haptic = {
   oops: () => quiet(Haptics.notification({ type: NotificationType.Warning })),
 }
 
+// ============ Tayyor yozilgan tovushlar (public/assets/sfx) ============
+
+const sampleCache = new Map<string, Promise<AudioBuffer | null>>()
+
+function loadSample(url: string): Promise<AudioBuffer | null> {
+  let p = sampleCache.get(url)
+  if (!p) {
+    p = fetch(url)
+      .then((r) => r.arrayBuffer())
+      .then((b) => ac().decodeAudioData(b))
+      .catch(() => null)
+    sampleCache.set(url, p)
+  }
+  return p
+}
+
+/** Fayl bo'lsa ijro etadi va true qaytaradi; bo'lmasa false (sintezga o'tiladi) */
+function sample(name: string, vol = 0.8): boolean {
+  const url = audioUrl(`sfx/${name}`)
+  if (!url) return false
+  void loadSample(url).then((buf) => {
+    if (!buf) return
+    const c = ac()
+    const src = c.createBufferSource()
+    const g = c.createGain()
+    g.gain.value = vol
+    src.buffer = buf
+    src.connect(g).connect(master)
+    src.start()
+  })
+  return true
+}
+
+/** Har bir effekt: avval yozilgan fayl (sfx/<prefix><nom>), bo'lmasa sintez. Tebranish doim ishlaydi. */
+function withSamples<T extends Record<string, () => void>>(prefix: string, fx: T): T {
+  return Object.fromEntries(
+    Object.entries(fx).map(([k, fn]) => [
+      k,
+      () => {
+        if (sample(`${prefix}${k}`)) haptic.tap()
+        else fn()
+      },
+    ]),
+  ) as T
+}
+
 // ============ Effekt tovushlari ============
 
-export const sfx = {
+export const sfx = withSamples('', {
   tap: () => {
     tone(520, 0, 0.08, 'triangle', 0.12)
     haptic.tap()
@@ -113,7 +160,7 @@ export const sfx = {
     ;[784, 988, 1175, 1568, 1976, 2349].forEach((f, i) => tone(f, i * 0.07, 0.4, 'sine', 0.1))
     haptic.success()
   },
-}
+})
 
 // ============ Sahnadagi qahramonning "ovozlari" (sintez, multfilmcha) ============
 
@@ -143,7 +190,7 @@ function sweep(f0: number, f1: number, at: number, dur: number, type: Oscillator
   o.stop(t0 + dur + 0.05)
 }
 
-export const voiceFx = {
+export const voiceFx = withSamples('voice-', {
   bonk: () => {
     sweep(320, 110, 0, 0.18, 'square', 0.12)
     sweep(900, 520, 0.16, 0.22, 'triangle', 0.18)
@@ -185,7 +232,7 @@ export const voiceFx = {
     sweep(720, 300, 0.18, 0.25, 'sine', 0.2, 14)
   },
   squeeze: () => sweep(500, 1300, 0, 0.6, 'triangle', 0.12, 6),
-}
+})
 
 // ============ Fon musiqasi: doira + yengil kuy ============
 
@@ -230,9 +277,32 @@ function scheduler() {
   }
 }
 
+// Haqiqiy musiqa fayllari (public/assets/music/*): navbat bilan, aylanma
+let track: HTMLAudioElement | null = null
+let trackIdx = 0
+function playTrack() {
+  const list = musicTracks()
+  if (!list.length) return false
+  track?.pause()
+  track = new Audio(list[trackIdx % list.length])
+  track.volume = MUSIC_FILE_VOL
+  track.onended = () => {
+    trackIdx++
+    if (musicOn) playTrack()
+  }
+  void track.play().catch(() => {})
+  return true
+}
+const MUSIC_FILE_VOL = 0.4
+
 export function setMusic(on: boolean) {
   if (on === musicOn) return
   musicOn = on
+  if (musicTracks().length) {
+    if (on) playTrack()
+    else track?.pause()
+    return
+  }
   const c = ac()
   if (on) {
     nextTime = c.currentTime + 0.1
@@ -245,6 +315,7 @@ export function setMusic(on: boolean) {
 }
 
 function duck(down: boolean) {
+  if (track && musicOn) track.volume = down ? MUSIC_FILE_VOL * 0.3 : MUSIC_FILE_VOL
   if (!ctx || !musicOn) return
   musicGain.gain.setTargetAtTime(down ? MUSIC_DUCKED : MUSIC_VOL, ctx.currentTime, 0.15)
 }
@@ -271,7 +342,8 @@ export function forgetVoice(key: string) {
   urlCache.delete(key)
 }
 
-async function urlFor(key: string): Promise<string | null> {
+/** Faqat ota-ona yozgan ovoz */
+async function parentUrl(key: string): Promise<string | null> {
   const cached = urlCache.get(key)
   if (cached) return cached
   const blob = await getVoice(key)
@@ -279,6 +351,11 @@ async function urlFor(key: string): Promise<string | null> {
   const url = URL.createObjectURL(blob)
   urlCache.set(key, url)
   return url
+}
+
+/** Ota-ona yozuvi ustun; bo'lmasa oldindan yaratilgan zaxira ovoz (public/assets/voices) */
+async function urlFor(key: string): Promise<string | null> {
+  return (await parentUrl(key)) ?? audioUrl(`voices/${key}`)
 }
 
 export function stopVoice() {
@@ -422,7 +499,8 @@ function synthAnimal(id: AnimalId): number {
 export async function sayAnimal(id: AnimalId): Promise<void> {
   stopVoice()
   const my = token
-  const url = await urlFor(`tovush_${id}`)
+  // Ota-ona taqlidi → haqiqiy hayvon yozuvi → yaratilgan ovoz → sintez
+  const url = (await parentUrl(`tovush_${id}`)) ?? audioUrl(`sfx/animals/${id}`) ?? audioUrl(`voices/tovush_${id}`)
   if (my !== token) return
   duck(true)
   if (url) await playUrl(url)

@@ -1,5 +1,4 @@
-import { ANIMAL_NAMES, type AnimalId } from '../art/Animal'
-import { FRUIT_NAMES, type FruitKind } from '../art/Fruit'
+import { ANIMAL_NAMES, FRUIT_NAMES, type AnimalId, type FruitKind } from './names.ts'
 
 // Harflar uyi uchun so'zlar: faqat bitta harf bilan boshlanadiganlari
 // (O', G', Sh, Ch alohida harflar, ularni hozircha chetlab o'tamiz).

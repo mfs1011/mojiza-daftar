@@ -1,42 +1,11 @@
 // O'zbek dasturxonidagi mevalar, tekis vektor uslubda (viewBox 100x100).
 
-export type FruitKind = 'olma' | 'anor' | 'gilos' | 'qovun' | 'behi' | 'tarvuz' | 'nok' | 'uzum' | 'anjir' | 'orik'
-export type ColorId = 'qizil' | 'sariq' | 'yashil' | 'binafsha'
+import { ALL_FRUITS, COLOR_HEX, FRUIT_COLOR, FRUIT_NAMES, type ColorId, type FruitKind } from '../lib/names.ts'
+import { ArtImg } from './ArtImg'
+import { artUrl } from '../lib/assets'
 
-export const FRUIT_COLOR: Record<FruitKind, ColorId | null> = {
-  olma: 'qizil',
-  anor: 'qizil',
-  gilos: 'qizil',
-  qovun: 'sariq',
-  behi: 'sariq',
-  tarvuz: 'yashil',
-  nok: 'yashil',
-  uzum: 'binafsha',
-  anjir: 'binafsha',
-  orik: null, // faqat bozorda
-}
-
-export const COLOR_HEX: Record<ColorId, string> = {
-  qizil: '#e63946',
-  sariq: '#f6c945',
-  yashil: '#52b788',
-  binafsha: '#8e5bd6',
-}
-
-export const FRUIT_NAMES: Record<FruitKind, string> = {
-  olma: 'Olma',
-  anor: 'Anor',
-  gilos: 'Gilos',
-  qovun: 'Qovun',
-  behi: 'Behi',
-  tarvuz: 'Tarvuz',
-  nok: 'Nok',
-  uzum: 'Uzum',
-  anjir: 'Anjir',
-  orik: "O'rik",
-}
-
-export const ALL_FRUITS = Object.keys(FRUIT_NAMES) as FruitKind[]
+export { ALL_FRUITS, COLOR_HEX, FRUIT_COLOR, FRUIT_NAMES }
+export type { ColorId, FruitKind }
 
 const Shine = ({ x, y, rx = 6, ry = 10, r = 20 }: { x: number; y: number; rx?: number; ry?: number; r?: number }) => (
   <ellipse cx={x} cy={y} rx={rx} ry={ry} fill="#fff" opacity={0.5} transform={`rotate(${r} ${x} ${y})`} />
@@ -160,6 +129,8 @@ const SHAPES: Record<FruitKind, React.ReactNode> = {
 }
 
 export function FruitArt({ kind, className }: { kind: FruitKind; className?: string }) {
+  const img = artUrl(`fruit/${kind}`)
+  if (img) return <ArtImg src={img} className={className} alt={FRUIT_NAMES[kind]} />
   return (
     <svg viewBox="0 0 100 100" className={`art ${className ?? ''}`} aria-label={FRUIT_NAMES[kind]}>
       {SHAPES[kind]}

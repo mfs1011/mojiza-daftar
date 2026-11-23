@@ -1,6 +1,8 @@
 import type { StationId } from '../types'
 import { AnimalArt, type AnimalId } from './Animal'
 import { FruitArt, type FruitKind } from './Fruit'
+import { ArtImg } from './ArtImg'
+import { artUrl } from '../lib/assets'
 
 const INK = '#3d2c1e'
 
@@ -29,6 +31,8 @@ export type PersonId = 'bobo' | 'buvi' | 'aka' | 'opa' | 'bola'
 export const ALL_PEOPLE: PersonId[] = ['bobo', 'buvi', 'aka', 'opa', 'bola']
 
 export function PersonArt({ id, happy, className }: { id: PersonId; happy?: boolean; className?: string }) {
+  const img = artUrl(`person/${id}${happy ? '-happy' : ''}`) ?? artUrl(`person/${id}`)
+  if (img) return <ArtImg src={img} className={className} />
   const skin = id === 'bobo' || id === 'aka' ? '#e0ac69' : '#f1c27d'
   return (
     <svg viewBox="0 0 100 140" className={`art ${className ?? ''}`}>
@@ -107,6 +111,8 @@ export function PersonArt({ id, happy, className }: { id: PersonId; happy?: bool
 }
 
 export function CoinArt({ className }: { className?: string }) {
+  const img = artUrl('ui/coin')
+  if (img) return <ArtImg src={img} className={className} />
   return (
     <svg viewBox="0 0 100 100" className={`art ${className ?? ''}`}>
       <circle cx={50} cy={50} r={44} fill="#f6bd60" stroke="#c98f00" strokeWidth={5} />
@@ -262,6 +268,8 @@ const STATION_ICONS: Record<StationId, React.ReactNode> = {
 }
 
 export function StationIcon({ id, className }: { id: StationId; className?: string }) {
+  const img = artUrl(`station/${id}`)
+  if (img) return <ArtImg src={img} className={className} />
   return (
     <svg viewBox="0 0 100 100" className={`art ${className ?? ''}`}>
       <g stroke={INK} strokeWidth={2.6} strokeLinejoin="round" strokeLinecap="round">
@@ -350,6 +358,8 @@ const DECOR: Partial<Record<DecorKind, React.ReactNode>> = {
 }
 
 export function DecorArt({ kind, className }: { kind: DecorKind; className?: string }) {
+  const img = kind.startsWith('hayvon_') ? null : artUrl(`decor/${kind}`)
+  if (img) return <ArtImg src={img} className={className} />
   if (kind.startsWith('hayvon_')) return <AnimalArt id={kind.slice(7) as AnimalId} className={className} />
   if (kind === 'terak') return <PoplarArt className={className} />
   if (kind === 'olma_daraxt') return <FruitTreeArt fruit="olma" className={className} />

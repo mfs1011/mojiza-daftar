@@ -11,7 +11,12 @@
     "android:sync": "npm run build && npx cap sync android",
     "android:open": "npm run android:sync && npx cap open android",
     "android:apk": "npm run android:sync && cd android && ./gradlew assembleDebug",
-    "android:release": "npm run android:sync && cd android && ./gradlew bundleRelease assembleRelease"
+    "android:release": "npm run android:sync && cd android && ./gradlew bundleRelease assembleRelease",
+    "gen:art": "node scripts/gen-art.mjs",
+    "gen:voices": "node scripts/gen-voices.mjs",
+    "assets:manifest": "node -e \"import('./scripts/lib.mjs').then(m=>console.log(m.writeManifest()+' ta fayl'))\"",
+    "art:prompts": "node scripts/art-prompts.mjs",
+    "art:import": "node scripts/art-import.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.6.2",
@@ -31,7 +36,9 @@
     "@types/react-dom": "^19.3.0",
     "@types/three": "^0.187.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "jpeg-js": "^0.4.4",
     "oxlint": "^1.90.0",
+    "pngjs": "^7.0.0",
     "typescript": "~7.0.2",
     "vite": "^8.3.6"
   }

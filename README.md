@@ -52,6 +52,10 @@ npm run android:apk      # debug APK: android/app/build/outputs/apk/debug/app-de
 
 To'liq qo'llanma (JDK, SDK, telefonda sinash, imzolash, Play Market): [docs/ANDROID_BUILD.md](docs/ANDROID_BUILD.md)
 
+## Rasmlar, ovozlar, musiqa
+
+AI rasmlar va ovozlarni Gemini bilan yaratish, effekt va musiqa manbalari: [docs/ASSETS.md](docs/ASSETS.md)
+
 ## Tuzilma
 
 ```

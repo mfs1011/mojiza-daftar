@@ -2,32 +2,12 @@
 // Konturli multfilm uslubi. Soyalar o'yinida xuddi shu rasm qora qilib ishlatiladi,
 // shuning uchun har birining siluyeti ajralib turishi muhim.
 
-export type AnimalId = 'sigir' | 'qoy' | 'echki' | 'xoroz' | 'it' | 'mushuk' | 'ordak' | 'eshak'
+import { ALL_ANIMALS, ANIMAL_NAMES, ANIMAL_SOUNDS, type AnimalId } from '../lib/names.ts'
+import { ArtImg } from './ArtImg'
+import { artUrl } from '../lib/assets'
 
-export const ANIMAL_NAMES: Record<AnimalId, string> = {
-  sigir: 'Sigir',
-  qoy: "Qo'y",
-  echki: 'Echki',
-  xoroz: "Xo'roz",
-  it: 'Kuchukcha',
-  mushuk: 'Mushuk',
-  ordak: "O'rdak",
-  eshak: 'Eshak',
-}
-
-/** Ota-ona yozib oladigan tovushlar uchun matn */
-export const ANIMAL_SOUNDS: Record<AnimalId, string> = {
-  sigir: "Mo'-o'-o'",
-  qoy: 'Ma-a-a',
-  echki: 'Me-e-e',
-  xoroz: 'Qu-qu-qu-quuu!',
-  it: 'Vov-vov!',
-  mushuk: 'Miyov!',
-  ordak: 'Vak-vak!',
-  eshak: 'I-a! I-a!',
-}
-
-export const ALL_ANIMALS = Object.keys(ANIMAL_NAMES) as AnimalId[]
+export { ALL_ANIMALS, ANIMAL_NAMES, ANIMAL_SOUNDS }
+export type { AnimalId }
 
 const INK = '#3d2c1e'
 const Eye = ({ x, y, r = 3.4 }: { x: number; y: number; r?: number }) => (
@@ -194,6 +174,16 @@ interface Props {
 }
 
 export function AnimalArt({ id, className, shadow, flip }: Props) {
+  const img = artUrl(`animal/${id}`)
+  if (img)
+    return (
+      <ArtImg
+        src={img}
+        alt={ANIMAL_NAMES[id]}
+        className={`${shadow ? 'silhouette-art' : ''} ${className ?? ''}`}
+        style={flip ? { transform: 'scaleX(-1)' } : undefined}
+      />
+    )
   return (
     <svg
       viewBox="0 0 120 100"

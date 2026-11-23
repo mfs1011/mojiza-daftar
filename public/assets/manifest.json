@@ -1,0 +1,17 @@
+{
+ "files": [
+  "art/fruit/tarvuz.png",
+  "voices/barakalla.wav",
+  "voices/boyash_chiz.wav",
+  "voices/boyash_rang.wav",
+  "voices/boyash_tanla.wav",
+  "voices/rasm_intro.wav",
+  "voices/rasm_tirildi.wav",
+  "voices/salom.wav",
+  "voices/sovga_qoy.wav",
+  "voices/sovga_tanla.wav",
+  "voices/uxlash.wav",
+  "voices/yana.wav",
+  "voices/zor.wav"
+ ]
+}
