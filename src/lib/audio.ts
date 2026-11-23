@@ -671,7 +671,7 @@ function animalVariants(id: AnimalId): string[] {
 }
 
 /**
- * Hayvon ovozi: haqiqiy yozuv → ota-ona taqlidi → yaratilgan ovoz → sintez.
+ * Hayvon ovozi: haqiqiy yozuv → ota-ona taqlidi → sintez.
  * Ferma o'yini bolaga haqiqiy hayvonni tanitadi, shuning uchun yozuv ota-ona taqlididan ustun.
  * `steady` — doim asosiy variant ("Eshit va takrorla": xotira o'yini barqaror tovush talab qiladi).
  */
@@ -680,7 +680,8 @@ export async function sayAnimal(id: AnimalId, opts: { steady?: boolean } = {}): 
   const my = token
   const real = animalVariants(id)
   const recorded = real.length ? (opts.steady ? real[0] : real[Math.floor(Math.random() * real.length)]) : null
-  const url = recorded ?? (await parentUrl(`tovush_${id}`)) ?? audioUrl(`voices/tovush_${id}`)
+  // TTS (odam ovozidagi taqlid) ishlatilmaydi: bola haqiqiy hayvonni tanishi kerak
+  const url = recorded ?? (await parentUrl(`tovush_${id}`))
   if (my !== token) return
   duck(true)
   if (url) await playUrl(url)

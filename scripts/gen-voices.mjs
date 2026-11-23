@@ -132,7 +132,8 @@ for (const [k, text] of charTodo) {
 // .wav (yangi) yoki .m4a (siqilgan) bo'lsa — bor deb hisoblanadi
 const exists = (k) => existsSync(join(dir, `${k}.wav`)) || existsSync(join(dir, `${k}.m4a`))
 // reak_* — ota-ona o'zi yozadigan qahramon ovozlari, ular uchun TTS kerak emas
-const prompts = voicePrompts([]).filter((p) => !p.key.startsWith('reak_') && want(p.key) && (force || !exists(p.key)))
+// tovush_* — hayvon taqlidi: TTS (odam ovozi) bilan yaratilmaydi, haqiqiy yozuvlar sfx/animals/ da
+const prompts = voicePrompts([]).filter((p) => !p.key.startsWith('reak_') && !p.key.startsWith('tovush_') && want(p.key) && (force || !exists(p.key)))
 console.log(`Model: ${MODEL}, ovoz: ${VOICE}. Yaratiladi: ${prompts.length} ta`)
 let ok = 0
 for (const p of prompts) {
