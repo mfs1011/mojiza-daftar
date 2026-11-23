@@ -1,0 +1,146 @@
+// Mo'jiza Daftar — barcha rasmlar ro'yxati va yagona uslub.
+// `npm run gen:art` shu ro'yxat bo'yicha Gemini (Nano Banana) orqali rasm yaratadi.
+// Yo'l (path) = ilova qidiradigan fayl: public/assets/art/<path>.(png|jpg)
+
+export const STYLE = [
+  "Soft 3D children's cartoon illustration in the style of a premium mobile kids game",
+  'rounded chunky friendly shapes, warm saturated but gentle colors, soft global illumination, subtle ambient occlusion',
+  'clean readable silhouette, smooth matte clay-like materials, big expressive eyes where there is a face',
+  'Uzbek cultural flavor where relevant (blue tiled domes, carved wooden doors, atlas ikat patterns, suzani motifs, tandir, so\'ri, poplar trees)',
+  'no text, no letters, no logos, no watermark, no border, no frame',
+].join(', ')
+
+/**
+ * Fonsiz obyekt: bir xil rangli "xroma" fonda so'raladi, keyin fon kesib olinadi.
+ * Fon rangi obyektda YO'Q rang bo'lishi kerak: yashil narsalar (barg, tarvuz, daraxt) uchun
+ * magenta, yashil va pushti ikkalasi bor narsalar (uzum, gul) uchun ko'k.
+ */
+export const KEYS = {
+  green: { name: 'pure chroma-key green', hex: '#00FF00', avoid: 'green' },
+  magenta: { name: 'pure chroma-key magenta', hex: '#FF00FF', avoid: 'magenta or hot pink' },
+  blue: { name: 'pure chroma-key blue', hex: '#0000FF', avoid: 'pure saturated blue' },
+}
+
+export function keyOf(a) {
+  const t = a.prompt.toLowerCase()
+  const green = /green|leaf|leaves|tree|grass|watermelon|pear|poplar|teal|mint|vine|stem|sunflower|clump/.test(t)
+  const pink = /pink|purple|magenta|violet|fig|grape/.test(t)
+  return !green ? 'green' : !pink ? 'magenta' : 'blue'
+}
+
+export function objectText(key) {
+  const k = KEYS[key]
+  return [
+    'a single object, centered, fully visible with generous empty margin around it',
+    `isolated on a perfectly flat solid ${k.name} background (${k.hex})`,
+    `no shadow on the background, no ground, no other objects, no ${k.avoid} color on the object itself`,
+  ].join(', ')
+}
+
+const fruit = (id, what) => ({ path: `fruit/${id}`, kind: 'object', size: 512, prompt: `${what}, one single fruit, cute glossy toy-like look` })
+const animal = (id, what) => ({
+  path: `animal/${id}`,
+  kind: 'object',
+  size: 640,
+  prompt: `${what}, full body, standing on four legs (or two for birds), side view facing RIGHT, cute baby proportions, friendly smile`,
+})
+const person = (id, what) => [
+  { path: `person/${id}`, kind: 'object', size: 640, prompt: `${what}, full body, front view, standing, friendly calm smile, arms relaxed` },
+  { path: `person/${id}-happy`, kind: 'object', size: 640, prompt: `${what}, full body, front view, standing, very happy laughing with eyes closed, arms slightly raised` },
+]
+const bg = (id, what) => ({ path: `bg/${id}`, kind: 'background', aspect: '16:9', width: 1600, prompt: `${what}, wide landscape game background, horizon in the upper third, empty uncluttered lower half where game objects will be placed` })
+
+export const ASSETS = [
+  // ---------- Maskot: Popishak (hudhud qushi) ----------
+  { path: 'mascot/idle', kind: 'object', size: 512, prompt: 'Popishak, an adorable cartoon hoopoe bird mascot: orange-peach body, fan-shaped orange crest with black tips, black-and-white striped wings, long thin curved dark beak, big shiny eyes, standing, side view facing right, friendly' },
+  { path: 'mascot/happy', kind: 'object', size: 512, prompt: 'Popishak the cartoon hoopoe bird mascot, jumping with joy, crest fully raised like a fan, wings open, eyes happily closed, beak open smiling, facing right' },
+  { path: 'mascot/oops', kind: 'object', size: 512, prompt: 'Popishak the cartoon hoopoe bird mascot, puzzled and confused, head tilted, crest lowered, one wing scratching head, facing right' },
+  { path: 'mascot/sleep', kind: 'object', size: 512, prompt: 'Popishak the cartoon hoopoe bird mascot, sleeping peacefully while standing, eyes closed, crest lowered, cozy, facing right' },
+
+  // ---------- Fonlar ----------
+  bg('map', 'bird-eye cheerful Uzbek village valley: rolling green hills, snowy Chimgan mountains far away, blue-domed madrasa on the horizon, rows of tall poplar trees, a small winding irrigation canal (ariq), sunny morning sky with soft clouds'),
+  bg('garden', 'sunny Uzbek fruit orchard: one big lush fruit tree on the left half, green grass, wooden fence, soft blue sky, peaceful'),
+  bg('market', 'cozy Uzbek bazaar stall seen from the front: red-and-white striped awning on top, wooden counter at the bottom, warm sunlight, blurred colorful market behind'),
+  bg('farm', 'Uzbek village farm yard: mud-brick barn with wooden door on the left, wooden fence across the middle, haystacks, green grass, sunny sky'),
+  bg('workshop', 'traditional Uzbek pottery workshop interior: warm terracotta walls, wooden shelf with clay pots (ko\'za), patterned tiles, soft window light, wooden floor'),
+  bg('night', 'Uzbek village animal pen at night: wooden fence enclosure with straw floor, crescent moon and stars, deep blue sky, cozy warm lantern glow'),
+  bg('letters', 'cozy children classroom in an Uzbek school: green chalkboard on the wall, carved wooden window, sunlight, wooden floor'),
+  bg('studio', 'bright children art studio: easel, crayons and paint pots on shelves, colorful drawings pinned on the warm cream wall, wooden floor'),
+  bg('stage', 'children puppet theater stage: red velvet curtains on both sides, golden valance on top, warm spotlight in the center, wooden stage floor, dark purple backdrop'),
+  bg('profiles', 'welcoming Uzbek village at golden morning: blue dome and minaret far away, poplar trees, green meadow, soft sunrise sky'),
+  bg('sleep', 'peaceful Uzbek village at night: starry deep blue sky, big crescent moon, dark hills, tiny warm window lights'),
+
+  // ---------- Mevalar ----------
+  fruit('olma', 'a shiny red apple with a green leaf'),
+  fruit('anor', 'a ripe red pomegranate with its little crown'),
+  fruit('gilos', 'a pair of bright red cherries joined by stems with a leaf'),
+  fruit('qovun', 'a golden Uzbek melon (qovun) with a netted skin, oval shape'),
+  fruit('behi', 'a yellow fuzzy quince fruit with a leaf'),
+  fruit('tarvuz', 'a round dark green striped watermelon'),
+  fruit('nok', 'a light green pear with a leaf'),
+  fruit('uzum', 'a bunch of purple grapes with a vine leaf'),
+  fruit('anjir', 'a purple fig'),
+  fruit('orik', 'an orange apricot with a leaf'),
+
+  // ---------- Hayvonlar ----------
+  animal('sigir', 'a white cow with black spots, pink nose, small horns'),
+  animal('qoy', 'a fluffy white sheep with a dark face'),
+  animal('echki', 'a light brown goat with small curved horns and a little beard'),
+  animal('xoroz', 'a colorful rooster with red comb and a big teal-green tail'),
+  animal('it', 'a brown puppy with floppy ears'),
+  animal('mushuk', 'an orange tabby kitten'),
+  animal('ordak', 'a yellow duck'),
+  animal('eshak', 'a grey donkey with long ears'),
+
+  // ---------- Bozor mijozlari ----------
+  ...person('bobo', 'a kind Uzbek grandfather with white beard, black-and-white doppi skullcap, striped blue chapan robe'),
+  ...person('buvi', 'a sweet Uzbek grandmother with a white headscarf and purple dress'),
+  ...person('aka', 'a young Uzbek man with a doppi skullcap and white shirt with dark vest'),
+  ...person('opa', 'a young Uzbek woman with long braids in a colorful atlas ikat dress'),
+  ...person('bola', 'a cheerful little Uzbek boy with a blue cap and green t-shirt'),
+
+  // ---------- Xarita bekatlari (dumaloq ikonka sifatida ishlatiladi) ----------
+  { path: 'station/rasm', kind: 'object', size: 384, prompt: 'a small wooden easel with a colorful child drawing and crayons, game map icon' },
+  { path: 'station/bog', kind: 'object', size: 384, prompt: 'a small fruit tree full of red apples, game map icon' },
+  { path: 'station/bozor', kind: 'object', size: 384, prompt: 'a tiny Uzbek market stall with striped red awning and fruit crates, game map icon' },
+  { path: 'station/ferma', kind: 'object', size: 384, prompt: 'a tiny mud-brick barn with a wooden door and a haystack, game map icon' },
+  { path: 'station/ustaxona', kind: 'object', size: 384, prompt: 'a decorated Uzbek clay pot (ko\'za) with blue patterns, game map icon' },
+  { path: 'station/qora', kind: 'object', size: 384, prompt: 'a small wooden animal pen with a crescent moon above it, game map icon' },
+  { path: 'station/harflar', kind: 'object', size: 384, prompt: 'a tiny school house with a blue roof and a green chalkboard, game map icon' },
+
+  // ---------- Qishloq bezaklari (sovg'alar) ----------
+  { path: 'decor/terak', kind: 'object', size: 384, prompt: 'a tall slim Uzbek poplar tree' },
+  { path: 'decor/olma_daraxt', kind: 'object', size: 384, prompt: 'a round apple tree with red apples' },
+  { path: 'decor/anor_daraxt', kind: 'object', size: 384, prompt: 'a pomegranate tree with red pomegranates' },
+  { path: 'decor/gul', kind: 'object', size: 384, prompt: 'a cheerful pink flower in a small clump of grass' },
+  { path: 'decor/kungaboqar', kind: 'object', size: 384, prompt: 'a tall sunflower' },
+  { path: 'decor/uy', kind: 'object', size: 384, prompt: 'a small white Uzbek village house with flat roof and carved wooden door' },
+  { path: 'decor/sori', kind: 'object', size: 384, prompt: 'an Uzbek so\'ri (raised wooden platform for sitting) with a red carpet and pillows' },
+  { path: 'decor/tandir', kind: 'object', size: 384, prompt: 'an Uzbek clay tandir oven with a round bread next to it' },
+  { path: 'decor/quduq', kind: 'object', size: 384, prompt: 'a small stone water well with a wooden roof and bucket' },
+  { path: 'decor/koza', kind: 'object', size: 384, prompt: 'a terracotta Uzbek water jug (ko\'za) with blue pattern band' },
+
+  // ---------- Ustaxona naqshlari (kvadrat plitka, fonli) ----------
+  ...[
+    ['yulduz', 'a square ceramic tile with a golden eight-pointed Samarkand star on deep lapis blue'],
+    ['bodom', 'a square ceramic tile with a red paisley (bodom) motif on cream'],
+    ['gul', 'a square ceramic tile with a white six-petal flower on turquoise'],
+    ['olmos', 'a square ceramic tile with a dark teal diamond (rhombus) on warm orange'],
+    ['doira', 'a square ceramic tile with purple concentric circles on light peach'],
+    ['barg', 'a square ceramic tile with a green leaf on pale mint'],
+  ].map(([id, what]) => ({ path: `tile/${id}`, kind: 'tile', size: 256, prompt: `${what}, flat front view, the tile fills the whole image edge to edge, glossy glaze` })),
+
+  // ---------- Boshqa ----------
+  { path: 'ui/basket', kind: 'object', size: 384, prompt: 'an empty woven wicker basket with a handle, front view' },
+  { path: 'ui/coin', kind: 'object', size: 256, prompt: 'a shiny golden coin, front view' },
+  { path: 'ui/haystack', kind: 'object', size: 384, prompt: 'a round golden haystack' },
+]
+
+/** Yakuniy prompt: tavsif + yagona uslub (+ obyekt bo'lsa: yashil fon talabi) */
+export function fullPrompt(a) {
+  if (a.kind === 'object') return `${a.prompt}. ${STYLE}. ${objectText(keyOf(a))}.`
+  return `${a.prompt}. ${STYLE}.`
+}
+
+/** Qo'lda yaratilgan rasm uchun fayl nomi: "fruit/olma" → "fruit__olma.png" */
+export const inboxName = (a) => a.path.replace(/\//g, '__')

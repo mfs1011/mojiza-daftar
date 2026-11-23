@@ -1,4 +1,6 @@
 // O'zbek naqsh plitkalari (Ustaxona uchun). Har biri rangi VA shakli bilan farq qiladi,
+import { ArtImg } from './ArtImg'
+import { artUrl } from '../lib/assets'
 // shunda 3 yoshli bola rangga, 5 yoshli bola shaklga qarab ajrata oladi.
 
 export type TileId = 'yulduz' | 'bodom' | 'gul' | 'olmos' | 'doira' | 'barg'
@@ -59,6 +61,8 @@ const SHAPES: Record<TileId, React.ReactNode> = {
 }
 
 export function TileArt({ id, className }: { id: TileId; className?: string }) {
+  const img = artUrl(`tile/${id}`)
+  if (img) return <ArtImg src={img} className={className} />
   return (
     <svg viewBox="0 0 100 100" className={`art ${className ?? ''}`}>
       {SHAPES[id]}

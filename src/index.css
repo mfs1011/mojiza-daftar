@@ -2165,3 +2165,49 @@ button {
     color: #2d6a4f;
   }
 }
+
+/* ---------- Tayyor rasmlar (AI/rassom) ---------- */
+
+.art-img {
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* Fon rasmi bo'lsa: u ishlatiladi, kodda chizilgan bezaklar yashiriladi */
+.has-bg-profiles .profiles { background: var(--bg-profiles); }
+.has-bg-profiles .profiles-deco { display: none; }
+
+.has-bg-garden .garden { background: var(--bg-garden); }
+.has-bg-garden .garden-hills,
+.has-bg-garden .garden-fence { display: none; }
+/* Daraxt fon rasmida bor: bosiladigan joy qoladi, chizilgani ko'rinmaydi */
+.has-bg-garden .tree-hit svg { opacity: 0; }
+
+.has-bg-market .market { background: var(--bg-market); }
+.has-bg-market .stall-roof,
+.has-bg-market .stall-counter { display: none; }
+
+.has-bg-farm .farm { background: var(--bg-farm); }
+.has-bg-farm .farm-barn,
+.has-bg-farm .farm-fence,
+.has-bg-farm .farm-sun { display: none; }
+
+.has-bg-workshop .workshop { background: var(--bg-workshop); }
+.has-bg-workshop .workshop-shelf { display: none; }
+
+.has-bg-night .shadows { background: var(--bg-night); }
+.has-bg-night .pen { background: #c9a22755; border-color: transparent; box-shadow: none; }
+
+.has-bg-letters .letters { background: var(--bg-letters); }
+
+.has-bg-studio .studio { background: var(--bg-studio); }
+
+.has-bg-stage .stage-screen { background: var(--bg-stage); }
+.has-bg-stage .stage-curtain,
+.has-bg-stage .stage-valance,
+.has-bg-stage .stage-floor,
+.has-bg-stage .stage-spot { display: none; }
+
+.has-bg-sleep .sleep { background: var(--bg-sleep); }
+.has-bg-sleep .sleep-hills,
+.has-bg-sleep .moon { display: none; }

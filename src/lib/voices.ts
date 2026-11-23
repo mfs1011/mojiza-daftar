@@ -1,7 +1,6 @@
-import { ALL_ANIMALS, ANIMAL_NAMES, ANIMAL_SOUNDS } from '../art/Animal'
-import { ALL_FRUITS, FRUIT_NAMES } from '../art/Fruit'
-import type { Profile } from '../types'
-import { LETTERS } from './letters'
+import type { Profile } from '../types.ts'
+import { LETTERS } from './letters.ts'
+import { ALL_ANIMALS, ALL_FRUITS, ANIMAL_NAMES, ANIMAL_SOUNDS, FRUIT_NAMES } from './names.ts'
 
 export interface VoicePrompt {
   key: string

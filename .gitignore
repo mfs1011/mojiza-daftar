@@ -28,3 +28,10 @@ dist-ssr
 *.keystore
 keystore.properties
 android/keystore.properties
+
+# Maxfiy kalitlar
+.env
+.env.*
+
+# Qo'lda yaratilgan rasmlar (import qilingach public/assets/art ga ko'chadi)
+art-inbox/

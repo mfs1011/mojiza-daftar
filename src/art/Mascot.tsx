@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { artUrl } from '../lib/assets'
 
 // Popishak (hudhud qushi): o'yinning yo'lboshchisi.
 // Bolalar o'yinning o'ziga emas, qahramonga bog'lanadi, shuning uchun
@@ -16,22 +17,26 @@ export function Mascot({ mood = 'idle', className }: { mood?: Mood; className?: 
   const happy = mood === 'happy'
   const oops = mood === 'oops'
   const sleep = mood === 'sleep'
+  const animate = happy
+    ? { y: [0, -18, 0, -10, 0], rotate: [0, -4, 4, 0] }
+    : oops
+      ? { rotate: [0, -8, 6, -4, 0] }
+      : sleep
+        ? { y: [0, 2, 0] }
+        : { y: [0, -3, 0] }
+  const transition = happy || oops ? { duration: 0.8 } : { repeat: Infinity, duration: sleep ? 3 : 1.6 }
+
+  // Tayyor rasm bo'lsa — kayfiyatga mos rasm, xuddi shu harakatlar bilan
+  const img = artUrl(`mascot/${mood === 'talk' ? 'idle' : mood}`) ?? artUrl('mascot/idle')
+  if (img)
+    return (
+      <motion.div className={`art mascot ${className ?? ''}`} animate={animate} transition={transition}>
+        <img src={img} alt="" draggable={false} className="art art-img" />
+      </motion.div>
+    )
 
   return (
-    <motion.svg
-      viewBox="0 0 130 130"
-      className={`art mascot ${className ?? ''}`}
-      animate={
-        happy
-          ? { y: [0, -18, 0, -10, 0], rotate: [0, -4, 4, 0] }
-          : oops
-            ? { rotate: [0, -8, 6, -4, 0] }
-            : sleep
-              ? { y: [0, 2, 0] }
-              : { y: [0, -3, 0] }
-      }
-      transition={happy || oops ? { duration: 0.8 } : { repeat: Infinity, duration: sleep ? 3 : 1.6 }}
-    >
+    <motion.svg viewBox="0 0 130 130" className={`art mascot ${className ?? ''}`} animate={animate} transition={transition}>
       <g stroke={INK} strokeWidth={2.4} strokeLinejoin="round" strokeLinecap="round">
         {/* oyoqlar */}
         <path d="M56 104L54 118M70 104L72 118M48 118H60M66 118H78" fill="none" />
