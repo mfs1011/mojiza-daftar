@@ -1391,8 +1391,8 @@ button {
 }
 
 .choice-card {
-  width: 34vmin;
-  height: 40vmin;
+  width: 30vmin;
+  height: 38vmin;
   padding: 3vmin;
   border-radius: 6vmin;
   background: #fff;
@@ -1603,6 +1603,46 @@ button {
 
 .sheet-layer.touch {
   touch-action: none;
+}
+
+/* ---------- ✂️ Personajni kesish ---------- */
+
+.cut-screen {
+  z-index: 60;
+}
+
+.cut-area {
+  position: absolute;
+  left: 16vmin;
+  right: 17vmin;
+  top: 4vmin;
+  bottom: 4vmin;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cut-canvas {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 2vmin;
+  /* Shaxmat fon: kesilgan joylar aniq ko'rinsin */
+  background: repeating-conic-gradient(#e9ecef 0 25%, #fff 0 50%) 0 0 / 4vmin 4vmin;
+  box-shadow: 0 1.4vmin 0 #0002;
+  touch-action: none;
+}
+
+.cut-hint {
+  position: absolute;
+  left: 3vmin;
+  bottom: 4vmin;
+  width: 11vmin;
+  height: 11vmin;
+  padding: 2vmin;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0.8vmin 0 #0002;
+  pointer-events: none;
 }
 
 /* ---------- 🎭 Sahna ---------- */
