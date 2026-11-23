@@ -9,6 +9,7 @@ import { say, sfx } from '../lib/audio'
 import { getHero, listArtworks, saveHero, type Artwork } from '../lib/db'
 import { canvasToBlob, photoToCutout, trimCanvas } from '../lib/image'
 import type { Profile } from '../types'
+import { CharacterCut } from './CharacterCut'
 import { ColoringBook } from './ColoringBook'
 
 // 3D sahna (three.js) og'ir: faqat kerak bo'lganda yuklanadi, ilova tezroq ochiladi
@@ -34,6 +35,7 @@ export function DrawStudio({ profile, onDone, onExit }: Props) {
   const galleryRef = useRef<HTMLInputElement>(null)
   const [picked, setPicked] = useState<Blob | null>(null)
   const [coloring, setColoring] = useState<Blob | null>(null)
+  const [cutting, setCutting] = useState<Blob | null>(null)
   const [album, setAlbum] = useState<{ art: Artwork; url: string }[] | null>(null)
   const [bigArt, setBigArt] = useState<{ art: Artwork; url: string } | null>(null)
   const [stage, setStage] = useState<Blob | null>(null)
@@ -365,6 +367,30 @@ export function DrawStudio({ profile, onDone, onExit }: Props) {
               </svg>
               <span>Qahramon qilish</span>
             </motion.button>
+            <motion.button
+              className="choice-card"
+              data-choice="personaj"
+              initial={{ scale: 0, rotate: -6 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ delay: 0.2 }}
+              whileTap={{ scale: 0.92 }}
+              onClick={(e) => {
+                e.stopPropagation()
+                setCutting(picked)
+                setPicked(null)
+              }}
+            >
+              <svg viewBox="0 0 100 100" className="art">
+                <path d="M8 12H92V88H8Z" fill="#ffd166" stroke="#3d2c1e" strokeWidth={4} />
+                <path d="M8 12C8 46 22 66 34 88H8ZM92 12C92 46 78 66 66 88H92Z" fill="#c1121f" stroke="#3d2c1e" strokeWidth={4} strokeLinejoin="round" />
+                <circle cx={50} cy={46} r={16} fill="#8ecae6" stroke="#3d2c1e" strokeWidth={4} />
+                <circle cx={44} cy={43} r={3} fill="#3d2c1e" />
+                <circle cx={56} cy={43} r={3} fill="#3d2c1e" />
+                <path d="M43 52Q50 60 57 52" fill="#5a1020" stroke="#3d2c1e" strokeWidth={3} />
+                <path d="M36 70Q50 62 64 70V84H36Z" fill="#8ecae6" stroke="#3d2c1e" strokeWidth={4} />
+              </svg>
+              <span>Gapirtirish</span>
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -434,6 +460,18 @@ export function DrawStudio({ profile, onDone, onExit }: Props) {
           onDone={(cutout) => {
             setColoring(null)
             setStage(cutout)
+          }}
+        />
+      )}
+
+      {cutting && (
+        <CharacterCut
+          profile={profile}
+          file={cutting}
+          onExit={() => setCutting(null)}
+          onStage={(blob) => {
+            setCutting(null)
+            setStage(blob)
           }}
         />
       )}

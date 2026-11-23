@@ -46,13 +46,11 @@ Ota-ona paneli: bosh ekrandagi ⚙️ ni 2 soniya bosib turing. Avval ovozlarni 
 ## Android
 
 ```bash
-npm run build && npx cap sync android
-npx cap open android     # Android Studio → ▶ Run
+npm run android:open     # build + sync + Android Studio → ▶ Run
+npm run android:apk      # debug APK: android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Yoki terminalda: `cd android && ./gradlew assembleDebug` → `android/app/build/outputs/apk/debug/app-debug.apk`
-
-Talablar: JDK 21, Android SDK.
+To'liq qo'llanma (JDK, SDK, telefonda sinash, imzolash, Play Market): [docs/ANDROID_BUILD.md](docs/ANDROID_BUILD.md)
 
 ## Tuzilma
 

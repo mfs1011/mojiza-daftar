@@ -77,6 +77,165 @@ function inkComponents(ink: Uint8Array, outside: Uint8Array, w: number, h: numbe
   return list
 }
 
+type Cand = { pixels: number[]; x0: number; y0: number; x1: number; y1: number; cx: number; cy: number; cw: number; ch: number }
+
+/** Ikki ko'z: bir xil balandlikda, o'lchami yaqin, oralig'i mos ikki bo'lak */
+function pickEyes(cands: Cand[]): [Cand, Cand] | null {
+  let eyes: [Cand, Cand] | null = null
+  let bestScore = -Infinity
+  for (let i = 0; i < cands.length; i++)
+    for (let j = i + 1; j < cands.length; j++) {
+      const a = cands[i]
+      const b = cands[j]
+      const size = Math.max(a.cw, a.ch, b.cw, b.ch)
+      const dx = Math.abs(a.cx - b.cx)
+      const dy = Math.abs(a.cy - b.cy)
+      const ratio = Math.max(a.pixels.length, b.pixels.length) / Math.min(a.pixels.length, b.pixels.length)
+      if (dy > size * 1.1 || dx < size * 0.9 || dx > size * 9 || ratio > 4) continue
+      const score = a.pixels.length + b.pixels.length - dy * 4 - a.cy * 0.05
+      if (score > bestScore) {
+        bestScore = score
+        eyes = a.cx < b.cx ? [a, b] : [b, a]
+      }
+    }
+  return eyes
+}
+
+/**
+ * Tayyor rangli personaj (PNG/JPEG): yuz ichidagi to'q, ixcham dog'lar = ko'z qorachiqlari va og'iz.
+ * Ular personaj konturiga (shaffof chetga) tegmaydi va yuqori qismda joylashadi.
+ */
+function colorFeatures(sd: Uint8ClampedArray, w: number, h: number): Cand[] {
+  const n = w * h
+  const mask = new Uint8Array(n)
+  const L = new Float32Array(n)
+  const vals: number[] = []
+  let y0 = h
+  let y1 = 0
+  for (let i = 0; i < n; i++) {
+    mask[i] = sd[i * 4 + 3] > 128 ? 1 : 0
+    L[i] = 0.299 * sd[i * 4] + 0.587 * sd[i * 4 + 1] + 0.114 * sd[i * 4 + 2]
+    if (mask[i]) {
+      if (i % 7 === 0) vals.push(L[i])
+      const y = Math.floor(i / w)
+      y0 = Math.min(y0, y)
+      y1 = Math.max(y1, y)
+    }
+  }
+  if (!vals.length) return []
+  vals.sort((a, b) => a - b)
+  const med = vals[Math.floor(vals.length / 2)]
+  const thr = Math.min(med - 40, 95)
+  const dark = new Uint8Array(n)
+  let maskCount = 0
+  for (let i = 0; i < n; i++) {
+    maskCount += mask[i]
+    dark[i] = mask[i] && L[i] < thr ? 1 : 0
+  }
+  const comp = new Int32Array(n).fill(-1)
+  const out: Cand[] = []
+  const st: number[] = []
+  for (let s0 = 0; s0 < n; s0++) {
+    if (!dark[s0] || comp[s0] !== -1) continue
+    const c = { pixels: [] as number[], x0: w, y0: h, x1: 0, y1: 0, touches: false }
+    comp[s0] = out.length + 1e6
+    st.push(s0)
+    while (st.length) {
+      const i = st.pop()!
+      c.pixels.push(i)
+      const x = i % w
+      const y = (i - x) / w
+      c.x0 = Math.min(c.x0, x)
+      c.x1 = Math.max(c.x1, x)
+      c.y0 = Math.min(c.y0, y)
+      c.y1 = Math.max(c.y1, y)
+      for (const j of [x > 0 ? i - 1 : -1, x < w - 1 ? i + 1 : -1, y > 0 ? i - w : -1, y < h - 1 ? i + w : -1]) {
+        if (j < 0 || !mask[j]) {
+          c.touches = true
+          continue
+        }
+        if (dark[j] && comp[j] === -1) {
+          comp[j] = comp[s0]
+          st.push(j)
+        }
+      }
+    }
+    const cw = c.x1 - c.x0 + 1
+    const ch = c.y1 - c.y0 + 1
+    const a = c.pixels.length
+    const aspect = Math.max(cw, ch) / Math.min(cw, ch)
+    if (c.touches || a < maskCount * 0.0003 || a > maskCount * 0.03 || aspect > 3.2) continue
+    if ((c.y0 + c.y1) / 2 > y0 + (y1 - y0) * 0.7) continue
+    out.push({ pixels: c.pixels, x0: c.x0, y0: c.y0, x1: c.x1, y1: c.y1, cx: (c.x0 + c.x1) / 2, cy: (c.y0 + c.y1) / 2, cw, ch })
+  }
+  return out
+}
+
+/**
+ * Ko'z atrofidagi "teri" rangi: yaqin atrofdagi eng ko'p uchraydigan rang
+ * (to'q kontur va oppoq ko'z oqi hisobga olinmaydi).
+ */
+function skinAround(sd: Uint8ClampedArray, w: number, h: number, c: Cand): [number, number, number] {
+  const R = Math.max(c.cw, c.ch) * 3
+  const bins = new Map<number, [number, number, number, number]>()
+  for (let y = Math.max(0, Math.round(c.cy - R)); y <= Math.min(h - 1, c.cy + R); y++)
+    for (let x = Math.max(0, Math.round(c.cx - R)); x <= Math.min(w - 1, c.cx + R); x++) {
+      const i = y * w + x
+      if (sd[i * 4 + 3] < 200) continue
+      const r = sd[i * 4]
+      const g = sd[i * 4 + 1]
+      const b = sd[i * 4 + 2]
+      const L = 0.299 * r + 0.587 * g + 0.114 * b
+      if (L < 80 || L > 238) continue
+      const k = ((r >> 4) << 8) | ((g >> 4) << 4) | (b >> 4)
+      const e = bins.get(k) ?? [0, 0, 0, 0]
+      e[0] += r
+      e[1] += g
+      e[2] += b
+      e[3]++
+      bins.set(k, e)
+    }
+  let best: [number, number, number, number] = [255, 255, 255, 1]
+  for (const e of bins.values()) if (e[3] > best[3]) best = e
+  return [Math.round(best[0] / best[3]), Math.round(best[1] / best[3]), Math.round(best[2] / best[3])]
+}
+
+/**
+ * Rangli personajda ko'z = qorachiq + oqi + konturi. Qorachiqdan boshlab terining rangidan
+ * farq qiladigan bog'langan piksellarni yig'amiz — butun ko'z bitta "bo'lak" bo'ladi,
+ * shunda ko'z yumilganda asl ko'zning oqi ostida qolib ketmaydi.
+ */
+function expandToSkin(sd: Uint8ClampedArray, w: number, h: number, c: Cand, skin: [number, number, number]): Cand {
+  const R = Math.max(c.cw, c.ch) * 1.4
+  const seen = new Set<number>(c.pixels)
+  const st = [...c.pixels]
+  const px = [...c.pixels]
+  let { x0, y0, x1, y1 } = c
+  while (st.length) {
+    const i = st.pop()!
+    const x = i % w
+    const y = (i - x) / w
+    for (const j of [x > 0 ? i - 1 : -1, x < w - 1 ? i + 1 : -1, y > 0 ? i - w : -1, y < h - 1 ? i + w : -1]) {
+      if (j < 0 || seen.has(j) || sd[j * 4 + 3] < 128) continue
+      const jx = j % w
+      const jy = (j - jx) / w
+      if (Math.hypot(jx - c.cx, jy - c.cy) > R) continue
+      const d = Math.hypot(sd[j * 4] - skin[0], sd[j * 4 + 1] - skin[1], sd[j * 4 + 2] - skin[2])
+      if (d < 45) continue
+      seen.add(j)
+      st.push(j)
+      px.push(j)
+      x0 = Math.min(x0, jx)
+      x1 = Math.max(x1, jx)
+      y0 = Math.min(y0, jy)
+      y1 = Math.max(y1, jy)
+    }
+  }
+  // Haddan tashqari katta bo'lib ketsa (teri rangi noto'g'ri topilgan) — faqat asl bo'lak
+  if (px.length > c.pixels.length * 14) return c
+  return { pixels: px, x0, y0, x1, y1, cx: (x0 + x1) / 2, cy: (y0 + y1) / 2, cw: x1 - x0 + 1, ch: y1 - y0 + 1 }
+}
+
 /**
  * base: yuzsiz tekstura (bolaning ko'z/og'zi topilsa, ular shu yerdan o'chiriladi).
  * src: asl chizma (shaffof fonli) tekstura o'lchamida.
@@ -113,26 +272,22 @@ export function buildFaceRig(base: HTMLCanvasElement, src: HTMLCanvasElement, an
     .filter((c) => c.enclosed && c.pixels.length >= 15 && c.pixels.length < totalInk * 0.2)
     .map((c) => ({ ...c, cx: (c.x0 + c.x1) / 2, cy: (c.y0 + c.y1) / 2, cw: c.x1 - c.x0 + 1, ch: c.y1 - c.y0 + 1 }))
 
-  // Ko'zlar: bir xil balandlikdagi, o'lchami yaqin ikkita bo'lak
-  let eyes: [(typeof cands)[number], (typeof cands)[number]] | null = null
-  let bestScore = -Infinity
-  for (let i = 0; i < cands.length; i++)
-    for (let j = i + 1; j < cands.length; j++) {
-      const a = cands[i]
-      const b = cands[j]
-      const size = Math.max(a.cw, a.ch, b.cw, b.ch)
-      const dx = Math.abs(a.cx - b.cx)
-      const dy = Math.abs(a.cy - b.cy)
-      const ratio = Math.max(a.pixels.length, b.pixels.length) / Math.min(a.pixels.length, b.pixels.length)
-      if (dy > size * 1.1 || dx < size * 0.9 || dx > size * 9 || ratio > 4) continue
-      const score = a.pixels.length + b.pixels.length - dy * 4 - a.cy * 0.05
-      if (score > bestScore) {
-        bestScore = score
-        eyes = a.cx < b.cx ? [a, b] : [b, a]
-      }
+  // Ko'zlar: avval bolaning chizmasidan (bo'shliq ichidagi nuqtalar),
+  // topilmasa — tayyor rangli personajdan (yuz ichidagi to'q dog'lar)
+  let eyes = pickEyes(cands)
+  let pool: Cand[] = cands
+  let colorMode = false
+  let skinColor = '#fff'
+  if (!eyes) {
+    const cc = colorFeatures(sd, w, h)
+    eyes = pickEyes(cc)
+    if (eyes) {
+      pool = cc
+      colorMode = true
     }
+  }
 
-  const toFeature = (c: (typeof cands)[number]): Feature => {
+  const toFeature = (c: Cand): Feature => {
     const sprite = document.createElement('canvas')
     sprite.width = c.cw
     sprite.height = c.ch
@@ -149,10 +304,17 @@ export function buildFaceRig(base: HTMLCanvasElement, src: HTMLCanvasElement, an
   }
 
   const bg = base.getContext('2d')!
-  const erase = (c: (typeof cands)[number]) => {
-    // Bo'shliq oq bilan to'ldirilgan, shuning uchun o'chirish = oq bilan bo'yash
-    bg.fillStyle = '#fff'
+  const erase = (c: Cand) => {
+    // Bolaning chizmasida bo'shliq oq bilan to'ldirilgan → oq; rangli personajda → atrofdagi teri rangi
+    bg.fillStyle = colorMode ? skinColor : '#fff'
     for (const i of c.pixels) bg.fillRect((i % w) - 2, Math.floor(i / w) - 2, 5, 5)
+  }
+
+  if (eyes && colorMode) {
+    // Butun ko'zni (oqi va konturi bilan) olamiz; o'chirishda teri rangi ishlatiladi
+    const skin = skinAround(sd, w, h, eyes[0])
+    skinColor = `rgb(${skin[0]},${skin[1]},${skin[2]})`
+    eyes = [expandToSkin(sd, w, h, eyes[0], skin), expandToSkin(sd, w, h, eyes[1], skin)]
   }
 
   if (eyes) {
@@ -161,8 +323,8 @@ export function buildFaceRig(base: HTMLCanvasElement, src: HTMLCanvasElement, an
     const ecy = (l.cy + r.cy) / 2
     const dist = r.cx - l.cx
     const eyeSize = Math.max(l.cw, l.ch, r.cw, r.ch)
-    const mouthC = cands
-      .filter((c) => c !== l && c !== r && c.cy > ecy + eyeSize * 0.4 && Math.abs(c.cx - ecx) < dist * 0.9)
+    const mouthC = pool
+      .filter((c) => c !== l && c !== r && c.cy > ecy + eyeSize * 0.4 && c.cy < ecy + dist * 1.8 && Math.abs(c.cx - ecx) < dist * 0.9)
       .sort((a, b) => a.cy - b.cy)[0]
 
     // Siyoh rangi va qalinligi: ko'z piksellarining o'rtacha rangi
@@ -178,9 +340,9 @@ export function buildFaceRig(base: HTMLCanvasElement, src: HTMLCanvasElement, an
     const ink = `rgb(${Math.round(rr / n)},${Math.round(gg / n)},${Math.round(bb / n)})`
     const lw = Math.max(4, Math.min(16, Math.min(l.cw, l.ch) * 0.55))
 
-    erase(l)
-    erase(r)
-    if (mouthC) erase(mouthC)
+    const mouthFull = mouthC && colorMode ? expandToSkin(sd, w, h, mouthC, skinAround(sd, w, h, l)) : mouthC
+    const feats = mouthFull ? [l, r, mouthFull] : [l, r]
+    for (const f of feats) erase(f)
     const er = Math.max(eyeSize / 2, dist * 0.18)
     return {
       drawn: true,
@@ -188,8 +350,8 @@ export function buildFaceRig(base: HTMLCanvasElement, src: HTMLCanvasElement, an
         { x: l.cx, y: l.cy, r: er, f: toFeature(l) },
         { x: r.cx, y: r.cy, r: er, f: toFeature(r) },
       ],
-      mouth: mouthC
-        ? { x: mouthC.cx, y: mouthC.cy, w: Math.max(mouthC.cw, dist * 0.5), f: toFeature(mouthC) }
+      mouth: mouthFull
+        ? { x: mouthFull.cx, y: mouthFull.cy, w: Math.max(mouthFull.cw, dist * 0.5), f: toFeature(mouthFull) }
         : { x: ecx, y: ecy + dist * 0.75, w: dist * 0.6 },
       ink,
       lw,
