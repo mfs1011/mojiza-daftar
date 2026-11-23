@@ -9,6 +9,8 @@ export interface EchoHandle {
   /** 0..1 — qahramon og'zini shunga qarab ochadi */
   level: () => number
   state: () => EchoState
+  /** Lip-sync uchun: past / o'rta / yuqori chastota ulushi (gapirayotganda) */
+  bands: () => [number, number, number]
   /** Qahramon o'zi tovush chiqarayotganda mikrofon "quloqni yopadi" (o'zini takrorlamasin) */
   holdOff: (seconds: number) => void
 }
@@ -36,6 +38,7 @@ export async function startEcho(onState: (s: EchoState) => void): Promise<EchoHa
   out.fftSize = 512
   out.connect(ctx.destination)
   const outBuf = new Float32Array(out.fftSize)
+  const freq = new Uint8Array(out.frequencyBinCount)
 
   const chunkSec = 2048 / ctx.sampleRate
   let state: EchoState = 'listening'
@@ -114,6 +117,22 @@ export async function startEcho(onState: (s: EchoState) => void): Promise<EchoHa
 
   return {
     state: () => state,
+    bands: () => {
+      if (state !== 'speaking') return [0, 0, 0]
+      out.getByteFrequencyData(freq)
+      const hz = ctx.sampleRate / out.fftSize
+      const band = (a: number, b: number) => {
+        let sum = 0
+        let n = 0
+        for (let i = Math.floor(a / hz); i <= Math.min(freq.length - 1, Math.ceil(b / hz)); i++) {
+          sum += freq[i]
+          n++
+        }
+        return n ? sum / n / 255 : 0
+      }
+      // Ovoz 1.45x tezlashtirilgan, shuning uchun chegaralar ham shunga mos
+      return [band(150, 1100), band(1100, 3500), band(3500, 9000)]
+    },
     holdOff: (seconds) => {
       if (state === 'hearing') {
         chunks = []

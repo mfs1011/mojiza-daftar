@@ -7,6 +7,8 @@
 
 export type EyeState = 'open' | 'closed' | 'happy' | 'squeeze' | 'dizzy' | 'wide' | 'sad' | 'angry' | 'sleepy'
 export type MouthState = 'rest' | 'smile' | 'talk' | 'laugh' | 'ouch' | 'o' | 'sad' | 'grr'
+  // Lip-sync (viseme): ovoz chastotasiga qarab og'iz shakli
+  | 'A' | 'E' | 'O' | 'U' | 'M'
 
 export interface FaceState {
   eyes: EyeState
@@ -37,6 +39,11 @@ export interface FaceRig {
   mouth: { x: number; y: number; w: number; f?: Feature }
   ink: string
   lw: number
+  /**
+   * Asl rasmda ko'z/og'iz bor, lekin alohida ajratib bo'lmadi: odatiy holatda asl rasm ko'rinadi,
+   * emotsiyada o'sha joy teri rangi bilan yopilib ustidan ifoda chiziladi
+   */
+  overlay?: { eyes: boolean; mouth: boolean; skin: string }
 }
 
 /** Bog'langan bo'laklar (siyoh piksellari) */
@@ -236,12 +243,29 @@ function expandToSkin(sd: Uint8ClampedArray, w: number, h: number, c: Cand, skin
   return { pixels: px, x0, y0, x1, y1, cx: (x0 + x1) / 2, cy: (y0 + y1) / 2, cw: x1 - x0 + 1, ch: y1 - y0 + 1 }
 }
 
-/**
- * base: yuzsiz tekstura (bolaning ko'z/og'zi topilsa, ular shu yerdan o'chiriladi).
- * src: asl chizma (shaffof fonli) tekstura o'lchamida.
- * anchor: model hisoblagan yuz markazi (tekstura pikselida).
- */
-export function buildFaceRig(base: HTMLCanvasElement, src: HTMLCanvasElement, anchor: { x: number; y: number; spacing: number }): FaceRig {
+export interface Pt {
+  x: number
+  y: number
+}
+
+/** Yuz belgilari (tekstura pikselida): bola yoki ota-ona belgilash ekranida tasdiqlagan */
+export interface FaceMarks {
+  eyeL: Pt
+  eyeR: Pt
+  mouth: Pt
+}
+
+interface Detection {
+  sd: Uint8ClampedArray
+  w: number
+  h: number
+  colorMode: boolean
+  eyes: [Cand, Cand] | null
+  pool: Cand[]
+}
+
+/** Rasmdan ko'z va og'iz qidirish: avval chizma (bo'shliq ichidagi nuqtalar), keyin rangli personaj */
+function detect(src: HTMLCanvasElement): Detection {
   const w = src.width
   const h = src.height
   const sd = src.getContext('2d', { willReadFrequently: true })!.getImageData(0, 0, w, h).data
@@ -251,7 +275,6 @@ export function buildFaceRig(base: HTMLCanvasElement, src: HTMLCanvasElement, an
     ink[i] = sd[i * 4 + 3] > 80 ? 1 : 0
     totalInk += ink[i]
   }
-  // Tashqi bo'shliq (chetdan to'ldirish)
   const outside = new Uint8Array(w * h)
   const q: number[] = []
   for (let x = 0; x < w; x++) q.push(x, (h - 1) * w + x)
@@ -266,25 +289,82 @@ export function buildFaceRig(base: HTMLCanvasElement, src: HTMLCanvasElement, an
     if (i >= w) q.push(i - w)
     if (i < w * (h - 1)) q.push(i + w)
   }
-
-  const comps = inkComponents(ink, outside, w, h)
-  const cands = comps
+  const cands = inkComponents(ink, outside, w, h)
     .filter((c) => c.enclosed && c.pixels.length >= 15 && c.pixels.length < totalInk * 0.2)
     .map((c) => ({ ...c, cx: (c.x0 + c.x1) / 2, cy: (c.y0 + c.y1) / 2, cw: c.x1 - c.x0 + 1, ch: c.y1 - c.y0 + 1 }))
+  const eyes = pickEyes(cands)
+  if (eyes) return { sd, w, h, colorMode: false, eyes, pool: cands }
+  const cc = colorFeatures(sd, w, h)
+  const ce = pickEyes(cc)
+  return { sd, w, h, colorMode: !!ce, eyes: ce, pool: cc }
+}
 
-  // Ko'zlar: avval bolaning chizmasidan (bo'shliq ichidagi nuqtalar),
-  // topilmasa — tayyor rangli personajdan (yuz ichidagi to'q dog'lar)
-  let eyes = pickEyes(cands)
-  let pool: Cand[] = cands
-  let colorMode = false
-  let skinColor = '#fff'
-  if (!eyes) {
-    const cc = colorFeatures(sd, w, h)
-    eyes = pickEyes(cc)
-    if (eyes) {
-      pool = cc
-      colorMode = true
+function mouthOf(det: Detection, l: Cand, r: Cand): Cand | undefined {
+  const ecx = (l.cx + r.cx) / 2
+  const ecy = (l.cy + r.cy) / 2
+  const dist = r.cx - l.cx
+  const eyeSize = Math.max(l.cw, l.ch, r.cw, r.ch)
+  return det.pool
+    .filter((c) => c !== l && c !== r && c.cy > ecy + eyeSize * 0.4 && c.cy < ecy + dist * 1.8 && Math.abs(c.cx - ecx) < dist * 0.9)
+    .sort((a, b) => a.cy - b.cy)[0]
+}
+
+/** Belgilash ekrani uchun: avtomatik topilgan yuz (tekstura pikselida) yoki null */
+export function findFace(src: HTMLCanvasElement): FaceMarks | null {
+  const det = detect(src)
+  if (!det.eyes) return null
+  const [l, r] = det.eyes
+  const m = mouthOf(det, l, r)
+  const dist = r.cx - l.cx
+  return {
+    eyeL: { x: l.cx, y: l.cy },
+    eyeR: { x: r.cx, y: r.cy },
+    mouth: m ? { x: m.cx, y: m.cy } : { x: (l.cx + r.cx) / 2, y: (l.cy + r.cy) / 2 + dist * 0.75 },
+  }
+}
+
+/** Nuqta atrofi "bo'sh"mi (bir xil rang) — u yerda chizilgan ko'z/og'iz yo'q */
+function isPlain(sd: Uint8ClampedArray, w: number, h: number, p: Pt, r: number): boolean {
+  let n = 0
+  let sum = 0
+  let sq = 0
+  for (let y = Math.round(p.y - r); y <= p.y + r; y++)
+    for (let x = Math.round(p.x - r); x <= p.x + r; x++) {
+      if (x < 0 || y < 0 || x >= w || y >= h || (x - p.x) ** 2 + (y - p.y) ** 2 > r * r) continue
+      const i = (y * w + x) * 4
+      if (sd[i + 3] < 128) continue
+      const L = 0.299 * sd[i] + 0.587 * sd[i + 1] + 0.114 * sd[i + 2]
+      sum += L
+      sq += L * L
+      n++
     }
+  if (n < 5) return true
+  const mean = sum / n
+  return sq / n - mean * mean < 220
+}
+
+/**
+ * base: yuzsiz tekstura (bolaning ko'z/og'zi topilsa, ular shu yerdan o'chiriladi).
+ * src: asl chizma (shaffof fonli) tekstura o'lchamida.
+ * anchor: model taxmin qilgan yuz markazi — faqat belgilar bo'lmaganda ishlatiladi.
+ * marks: belgilash ekranida tasdiqlangan ko'z/og'iz joylari (tekstura pikselida).
+ */
+export function buildFaceRig(
+  base: HTMLCanvasElement,
+  src: HTMLCanvasElement,
+  anchor: { x: number; y: number; spacing: number },
+  marks?: FaceMarks,
+): FaceRig {
+  const det = detect(src)
+  const { sd, w, h } = det
+  let eyes = det.eyes
+  const colorMode = det.colorMode
+
+  // Avtomatik topilgan ko'zlar belgilarga mos kelmasa — ishonmaymiz (noto'g'ri dog' bo'lishi mumkin)
+  if (eyes && marks) {
+    const tol = Math.max(14, Math.hypot(marks.eyeR.x - marks.eyeL.x, marks.eyeR.y - marks.eyeL.y) * 0.45)
+    const near = (c: Cand, p: Pt) => Math.hypot(c.cx - p.x, c.cy - p.y) < tol
+    if (!(near(eyes[0], marks.eyeL) && near(eyes[1], marks.eyeR))) eyes = null
   }
 
   const toFeature = (c: Cand): Feature => {
@@ -296,38 +376,23 @@ export function buildFaceRig(base: HTMLCanvasElement, src: HTMLCanvasElement, an
     for (const i of c.pixels) {
       const x = (i % w) - c.x0
       const y = Math.floor(i / w) - c.y0
-      const o = (y * c.cw + x) * 4
-      img.data.set(sd.subarray(i * 4, i * 4 + 4), o)
+      img.data.set(sd.subarray(i * 4, i * 4 + 4), (y * c.cw + x) * 4)
     }
     g.putImageData(img, 0, 0)
     return { cx: c.cx, cy: c.cy, w: c.cw, h: c.ch, x0: c.x0, y0: c.y0, sprite }
   }
 
-  const bg = base.getContext('2d')!
-  const erase = (c: Cand) => {
-    // Bolaning chizmasida bo'shliq oq bilan to'ldirilgan → oq; rangli personajda → atrofdagi teri rangi
-    bg.fillStyle = colorMode ? skinColor : '#fff'
-    for (const i of c.pixels) bg.fillRect((i % w) - 2, Math.floor(i / w) - 2, 5, 5)
-  }
-
-  if (eyes && colorMode) {
-    // Butun ko'zni (oqi va konturi bilan) olamiz; o'chirishda teri rangi ishlatiladi
-    const skin = skinAround(sd, w, h, eyes[0])
-    skinColor = `rgb(${skin[0]},${skin[1]},${skin[2]})`
-    eyes = [expandToSkin(sd, w, h, eyes[0], skin), expandToSkin(sd, w, h, eyes[1], skin)]
-  }
-
   if (eyes) {
+    let skinColor = '#fff'
+    if (colorMode) {
+      const skin = skinAround(sd, w, h, eyes[0])
+      skinColor = `rgb(${skin[0]},${skin[1]},${skin[2]})`
+      eyes = [expandToSkin(sd, w, h, eyes[0], skin), expandToSkin(sd, w, h, eyes[1], skin)]
+    }
     const [l, r] = eyes
-    const ecx = (l.cx + r.cx) / 2
-    const ecy = (l.cy + r.cy) / 2
     const dist = r.cx - l.cx
     const eyeSize = Math.max(l.cw, l.ch, r.cw, r.ch)
-    const mouthC = pool
-      .filter((c) => c !== l && c !== r && c.cy > ecy + eyeSize * 0.4 && c.cy < ecy + dist * 1.8 && Math.abs(c.cx - ecx) < dist * 0.9)
-      .sort((a, b) => a.cy - b.cy)[0]
-
-    // Siyoh rangi va qalinligi: ko'z piksellarining o'rtacha rangi
+    const mouthC = mouthOf(det, l, r)
     let rr = 0
     let gg = 0
     let bb = 0
@@ -339,11 +404,12 @@ export function buildFaceRig(base: HTMLCanvasElement, src: HTMLCanvasElement, an
     const n = l.pixels.length
     const ink = `rgb(${Math.round(rr / n)},${Math.round(gg / n)},${Math.round(bb / n)})`
     const lw = Math.max(4, Math.min(16, Math.min(l.cw, l.ch) * 0.55))
-
     const mouthFull = mouthC && colorMode ? expandToSkin(sd, w, h, mouthC, skinAround(sd, w, h, l)) : mouthC
-    const feats = mouthFull ? [l, r, mouthFull] : [l, r]
-    for (const f of feats) erase(f)
+    const bg = base.getContext('2d')!
+    bg.fillStyle = skinColor
+    for (const f of mouthFull ? [l, r, mouthFull] : [l, r]) for (const i of f.pixels) bg.fillRect((i % w) - 2, Math.floor(i / w) - 2, 5, 5)
     const er = Math.max(eyeSize / 2, dist * 0.18)
+    const mouthPos = marks?.mouth ?? { x: (l.cx + r.cx) / 2, y: (l.cy + r.cy) / 2 + dist * 0.75 }
     return {
       drawn: true,
       eyes: [
@@ -352,9 +418,32 @@ export function buildFaceRig(base: HTMLCanvasElement, src: HTMLCanvasElement, an
       ],
       mouth: mouthFull
         ? { x: mouthFull.cx, y: mouthFull.cy, w: Math.max(mouthFull.cw, dist * 0.5), f: toFeature(mouthFull) }
-        : { x: ecx, y: ecy + dist * 0.75, w: dist * 0.6 },
+        : { x: mouthPos.x, y: mouthPos.y, w: dist * 0.6 },
       ink,
       lw,
+    }
+  }
+
+  if (marks) {
+    // Belgilangan joylar: o'sha yerda asl ko'z/og'iz chizilgan bo'lsa — ular saqlanadi
+    // (odatiy holatda tegilmaydi), emotsiyada esa teri rangi bilan yopilib, ifoda chiziladi
+    const dist = Math.max(10, Math.hypot(marks.eyeR.x - marks.eyeL.x, marks.eyeR.y - marks.eyeL.y))
+    const r = Math.min(dist * 0.32, 60)
+    const eyesPlain = isPlain(sd, w, h, marks.eyeL, r) && isPlain(sd, w, h, marks.eyeR, r)
+    const mouthPlain = isPlain(sd, w, h, marks.mouth, dist * 0.3)
+    const sk = skinAround(sd, w, h, {
+      pixels: [], x0: 0, y0: 0, x1: 0, y1: 0, cx: marks.eyeL.x, cy: marks.eyeL.y, cw: r, ch: r,
+    })
+    return {
+      drawn: false,
+      eyes: [
+        { x: marks.eyeL.x, y: marks.eyeL.y, r },
+        { x: marks.eyeR.x, y: marks.eyeR.y, r },
+      ],
+      mouth: { x: marks.mouth.x, y: marks.mouth.y, w: dist * 0.85 },
+      ink: '#2b1d14',
+      lw: Math.max(4, r * 0.22),
+      overlay: { eyes: !eyesPlain, mouth: !mouthPlain, skin: `rgb(${sk[0]},${sk[1]},${sk[2]})` },
     }
   }
 
@@ -387,6 +476,15 @@ function drawEye(g: CanvasRenderingContext2D, rig: FaceRig, e: FaceRig['eyes'][n
   g.fillStyle = rig.ink
   g.lineWidth = rig.lw
   const look = { x: s.look.x * r * 0.35, y: -s.look.y * r * 0.3 }
+  if (rig.overlay?.eyes) {
+    // Asl rasmdagi ko'z: ochiq holatda o'zi ko'rinadi; boshqa holatda yopib, ifoda chizamiz
+    if (s.eyes === 'open' || s.eyes === 'wide') return
+    g.fillStyle = rig.overlay.skin
+    g.beginPath()
+    g.ellipse(x, y, r * 1.3, r * 1.45, 0, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = rig.ink
+  }
 
   switch (s.eyes) {
     case 'closed':
@@ -456,6 +554,13 @@ function drawMouth(g: CanvasRenderingContext2D, rig: FaceRig, s: FaceState) {
   g.lineWidth = rig.lw
   const dark = '#5a1020'
   const tongue = '#ff6b81'
+  if (rig.overlay?.mouth) {
+    if (s.mouth === 'rest') return
+    g.fillStyle = rig.overlay.skin
+    g.beginPath()
+    g.ellipse(x, y, w * 0.6, w * 0.4, 0, 0, Math.PI * 2)
+    g.fill()
+  }
 
   const openShape = (rx: number, ry: number, d = false) => {
     g.save()
@@ -528,6 +633,24 @@ function drawMouth(g: CanvasRenderingContext2D, rig: FaceRig, s: FaceState) {
       return
     case 'talk':
       openShape(w * 0.38, w * (0.06 + s.open * 0.38))
+      return
+    case 'M':
+      line(g, [x - w * 0.28, y, x + w * 0.28, y])
+      g.stroke()
+      return
+    case 'A':
+      openShape(w * 0.34, w * (0.2 + s.open * 0.2))
+      return
+    case 'O':
+      openShape(w * 0.2, w * (0.22 + s.open * 0.08))
+      return
+    case 'U':
+      openShape(w * 0.12, w * 0.15)
+      return
+    case 'E':
+      openShape(w * 0.42, w * (0.1 + s.open * 0.08))
+      g.fillStyle = '#fff'
+      g.fillRect(x - w * 0.3, y - w * 0.1, w * 0.6, w * 0.07)
       return
   }
 }

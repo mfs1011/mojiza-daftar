@@ -40,6 +40,7 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     { key: 'boyash_tanla', text: 'Qaysi rasmni chizamiz? Tanla!', group: 'Rasm uyi' },
     { key: 'boyash_chiz', text: "Barmog'ing bilan chiziqlar ustidan yurib chiz!", group: 'Rasm uyi' },
     { key: 'boyash_rang', text: "Endi ranglar bilan bo'ya!", group: 'Rasm uyi' },
+    { key: 'rig_belgila', text: "Ko'zlari, og'zi, qo'l-oyoqlari qayerda? To'g'ri joyga qo'y!", group: 'Rasm uyi' },
     { key: 'boyash_tayyor', text: 'Qanday chiroyli rasm! Albomga qo\'ydik.', group: 'Rasm uyi' },
 
     { key: 'bog_silkit', text: 'Daraxtni silkit!', group: "Bog'" },

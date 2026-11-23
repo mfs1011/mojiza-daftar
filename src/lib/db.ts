@@ -1,5 +1,6 @@
 import { openDB, type DBSchema } from 'idb'
 import type { PlacedDecor, Profile, Progress } from '../types'
+import type { Landmarks } from './landmarks'
 import { today } from './util'
 
 // Hamma ma'lumot (profillar, ovozlar, chizmalar) faqat qurilmaning o'zida saqlanadi.
@@ -11,6 +12,8 @@ interface QishloqDB extends DBSchema {
   heroes: { key: string; value: Blob }
   /** Bo'yash daftaridan tayyor rasmlar (albom) */
   artworks: { key: number; value: Artwork }
+  /** Sahna qahramonlarining belgilari (ko'z, og'iz, qo'l, oyoq); kalit = rasm mazmuni xeshi */
+  rigs: { key: string; value: Landmarks }
 }
 
 export interface Artwork {
@@ -23,7 +26,7 @@ export interface Artwork {
 }
 
 // Ichki baza nomi eski nomda qoladi: o'zgartirilsa, qurilmadagi ma'lumotlar yo'qoladi
-const dbp = openDB<QishloqDB>('bizning-qishloq', 3, {
+const dbp = openDB<QishloqDB>('bizning-qishloq', 4, {
   upgrade(db, oldVersion) {
     if (oldVersion < 1) {
       db.createObjectStore('profiles', { keyPath: 'id' })
@@ -32,6 +35,7 @@ const dbp = openDB<QishloqDB>('bizning-qishloq', 3, {
     }
     if (oldVersion < 2) db.createObjectStore('heroes')
     if (oldVersion < 3) db.createObjectStore('artworks', { keyPath: 'id', autoIncrement: true })
+    if (oldVersion < 4) db.createObjectStore('rigs')
   },
 })
 
@@ -116,4 +120,12 @@ export async function saveArtwork(profileId: string, png: Blob, cutout?: Blob) {
 export async function listArtworks(profileId: string): Promise<Artwork[]> {
   const all = await (await dbp).getAll('artworks')
   return all.filter((a) => a.profileId === profileId).sort((a, b) => b.created - a.created)
+}
+
+export async function getRig(key: string) {
+  return (await dbp).get('rigs', key)
+}
+
+export async function saveRig(key: string, marks: Landmarks) {
+  await (await dbp).put('rigs', marks, key)
 }

@@ -8,6 +8,8 @@ import * as THREE from 'three'
 // Rasmning o'zi tekstura bo'lib yopishtiriladi, shuning uchun bolaning chizig'i saqlanadi.
 
 const GRID = 150
+/** Hajm: qancha katta bo'lsa, qahramon shuncha "to'la" (yon tomondan qog'ozdek yupqa ko'rinmasin) */
+const INFLATE = 3.1
 const TEX = 768
 
 export interface FaceAnchor {
@@ -24,6 +26,10 @@ export interface FaceAnchor {
 export interface Inflated {
   group: THREE.Group
   mesh: THREE.Mesh
+  /** Geometriya (rig uchun: SkinnedMesh shu geometriyadan yasaladi) */
+  geo: THREE.BufferGeometry
+  /** Siluet niqobi (to'r o'lchamida, gw×gh): suyak og'irliklarini hisoblash uchun */
+  mask: Uint8Array
   materials: THREE.MeshToonMaterial[]
   face: FaceAnchor
   /** Modelning pastki chegarasi (yerga qo'yish uchun) */
@@ -188,7 +194,7 @@ export async function buildInflated(blob: Blob): Promise<Inflated> {
       }
       const vi = y * vw + x
       inside[vi] = cnt === 4 ? 1 : 0
-      height[vi] = cnt === 4 ? 2.1 * Math.sqrt(Math.max(0, sum / cnt - 0.5)) : 0
+      height[vi] = cnt === 4 ? INFLATE * Math.sqrt(Math.max(0, sum / cnt - 0.5)) : 0
     }
 
   // Old va orqa yuzalar (orqasi yupqaroq)
@@ -202,7 +208,7 @@ export async function buildInflated(blob: Blob): Promise<Inflated> {
     const vi = y * vw + x
     const table = back ? backOf : indexOf
     if (table[vi] >= 0) return table[vi]
-    const z = back ? -height[vi] * 0.55 : height[vi]
+    const z = back ? -height[vi] * 0.8 : height[vi]
     pos.push(x - gw / 2, gh / 2 - y, z)
     uv.push(x / gw, 1 - y / gh)
     table[vi] = n++
@@ -299,7 +305,7 @@ export async function buildInflated(blob: Blob): Promise<Inflated> {
     for (let y = Math.round(py - r); y <= py + r; y++)
       for (let x = Math.round(px - r); x <= px + r; x++)
         if (x >= 0 && y >= 0 && x < gw && y < gh) m = Math.max(m, dist[y * gw + x])
-    return 2.1 * Math.sqrt(Math.max(0, m - 0.5))
+    return INFLATE * Math.sqrt(Math.max(0, m - 0.5))
   }
   const eyeY = fy - spacing * 0.25
   const eyeZ = Math.max(surfaceZ(fx - spacing, eyeY, spacing * 0.6), surfaceZ(fx + spacing, eyeY, spacing * 0.6))
@@ -313,6 +319,8 @@ export async function buildInflated(blob: Blob): Promise<Inflated> {
   return {
     group,
     mesh,
+    geo,
+    mask,
     materials: [frontMat, backMat],
     face: { x: fx - gw / 2, y: gh / 2 - fy, spacing, eyeZ, mouthZ },
     bottom: (gh / 2 - bot - 1) * k,
