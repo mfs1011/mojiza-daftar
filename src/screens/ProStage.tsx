@@ -4,7 +4,7 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js'
 import { Icon } from '../art/Icon'
-import { setMusic, sfx, voiceFx } from '../lib/audio'
+import { robotFx, setMusic, sfx, voiceFx } from '../lib/audio'
 import { asset } from '../lib/assets'
 import { getSettings } from '../lib/settings'
 import { startEcho, type EchoHandle, type EchoState } from '../lib/voiceEcho'
@@ -161,7 +161,8 @@ export function ProStage({ decal, onExit }: Props) {
       b.reaction = { kind, until: t + r.dur }
       b.lastTouch = t
       echoRef.current?.holdOff(r.dur + 0.4)
-      voiceFx[r.sound]()
+      // 3D robot — robotcha ovoz (sfx/robot-*)
+      robotFx[r.sound]()
       play(r.clip, true)
       for (const k of Object.keys(morphTarget)) morphTarget[k] = 0
       if (r.morph) morphTarget[r.morph[0]] = r.morph[1]

@@ -5,7 +5,7 @@ import { ALL_PEOPLE, CoinArt, PersonArt, type PersonId } from '../art/Scenery'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
-import { say, sfx } from '../lib/audio'
+import { hasVoice, say, sfx } from '../lib/audio'
 import { pick, randInt } from '../lib/util'
 import { levelRow } from '../lib/stations'
 import type { GameProps } from '../types'
@@ -64,6 +64,12 @@ function newCustomer(cfg: MarketCfg, prev?: Customer): Customer {
   }
 }
 
+/** Mijoz o'z ovozida gapiradi (voices/mijoz_<kim>_<gap>); fayl bo'lmasa — umumiy ko'rsatma */
+function customerLine(person: PersonId, line: 'salom' | 'kam' | 'kop' | 'rahmat', fallback?: string): string[] {
+  const key = `mijoz_${person}_${line}`
+  return hasVoice(key) ? [key] : fallback ? [fallback] : []
+}
+
 export function Market({ level, onComplete, onExit }: GameProps) {
   // Endless'da tasodifiy tanlanadi: bitta o'yin davomida o'zgarmasin
   const [cfg] = useState(() => marketCfg(level))
@@ -81,7 +87,7 @@ export function Market({ level, onComplete, onExit }: GameProps) {
   const { want, fruit } = customer
 
   useEffect(() => {
-    void say(...(round === 0 ? ['bozor_intro'] : []), `son_${want}`, `meva_${fruit}`)
+    void say(...(round === 0 ? ['bozor_intro'] : []), ...customerLine(customer.person, 'salom'), `son_${want}`, `meva_${fruit}`)
     // Har yangi mijoz kelganda
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [round])
@@ -92,7 +98,7 @@ export function Market({ level, onComplete, onExit }: GameProps) {
     react('happy', 2000)
     burstAt(bagRef.current, ['#f6bd60', '#ffd166', '#fff'], 18)
     setEarned((e) => e + want)
-    void say('bozor_rahmat')
+    void say(...customerLine(customer.person, 'rahmat', 'bozor_rahmat'))
     setTimeout(() => {
       if (round + 1 >= ROUNDS) {
         setFinished(true)
@@ -130,7 +136,7 @@ export function Market({ level, onComplete, onExit }: GameProps) {
     sfx.wrong()
     react('oops')
     setTries((t) => t + 1)
-    void say(given > want ? 'bozor_kop' : 'bozor_kam')
+    void say(...(given > want ? customerLine(customer.person, 'kop', 'bozor_kop') : customerLine(customer.person, 'kam', 'bozor_kam')))
   }
 
   const cells = cfg.max <= 5 ? 5 : 10

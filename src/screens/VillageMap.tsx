@@ -6,7 +6,8 @@ import { CoinArt, DecorArt, StationIcon, type DecorKind } from '../art/Scenery'
 import { burst } from '../components/Fx'
 import { artUrl } from '../lib/assets'
 import { Hero, useHeroUrl, type HeroMode } from '../components/Hero'
-import { say, sfx } from '../lib/audio'
+import { say, sayAnimal, sfx } from '../lib/audio'
+import type { AnimalId } from '../art/Animal'
 import { dailyFor, stationsFor, STATIONS } from '../lib/stations'
 import type { PlacedDecor, Profile, Progress, StationId } from '../types'
 import { Icon } from '../art/Icon'
@@ -137,6 +138,15 @@ export function VillageMap({ profile, progress, reward, arrivedFrom, onPlay, onP
     }
   }, [busy, next, heroAt, heroUrl, progress.dayDone, onSleep])
 
+  /** Qishloqdagi hayvonga tegilsa — o'z ovozida javob beradi va sakraydi */
+  const [poked, setPoked] = useState<{ i: number; n: number } | null>(null)
+  function poke(e: React.MouseEvent, i: number, kind: DecorKind) {
+    if (placing || !kind.startsWith('hayvon_')) return // sovg'a qo'yilayotgan bo'lsa — bosish joylashtirishga o'tadi
+    e.stopPropagation()
+    setPoked((p) => ({ i, n: (p?.n ?? 0) + 1 }))
+    void sayAnimal(kind.slice('hayvon_'.length) as AnimalId)
+  }
+
   function choose(kind: DecorKind) {
     sfx.pop()
     setPicking(null)
@@ -175,11 +185,13 @@ export function VillageMap({ profile, progress, reward, arrivedFrom, onPlay, onP
             key={i}
             className={`decor ${d.kind.startsWith('hayvon_') ? 'animal' : ''}`}
             style={{ left: `${d.x}%`, top: `${d.y}%`, zIndex: Math.round(d.y) }}
+            onClick={(e) => poke(e, i, d.kind)}
           >
             <motion.div
+              key={poked?.i === i ? `poke-${poked.n}` : 'still'}
               className="decor-inner"
               initial={i === justPlaced ? { scale: 0, y: -80 } : false}
-              animate={{ scale: 1, y: 0 }}
+              animate={poked?.i === i ? { scale: [1, 1.15, 1], y: [0, -24, 0] } : { scale: 1, y: 0 }}
               transition={{ type: 'spring', stiffness: 220, damping: 12 }}
             >
               <DecorArt kind={d.kind} />

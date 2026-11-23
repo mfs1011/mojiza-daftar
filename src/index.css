@@ -132,7 +132,8 @@ button {
   width: 19vmin;
   height: 19vmin;
   z-index: 25;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .hold-btn {
@@ -401,6 +402,9 @@ button {
 .decor.animal {
   width: 5.5%;
   aspect-ratio: 1.2;
+  /* Hayvonga tegsa ovoz chiqaradi */
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .decor-inner {

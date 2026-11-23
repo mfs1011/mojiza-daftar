@@ -28,7 +28,13 @@ bo'lishi shart. CC BY bo'lsa, muallif ilovaning "Haqida" oynasida ko'rsatiladi.
 | `sfx/animals/eshak.m4a` | [157763 felix-blume a-donkey-is-braying-in-his-enclosure-in-south-of-france.wav](https://commons.wikimedia.org/wiki/File:157763_felix-blume_a-donkey-is-braying-in-his-enclosure-in-south-of-france.wav) | felix-blume | CC0 | 2026-11-23 |
 | `sfx/animals/eshak-2.m4a` | [157763 felix-blume a-donkey-is-braying-in-his-enclosure-in-south-of-france.wav](https://commons.wikimedia.org/wiki/File:157763_felix-blume_a-donkey-is-braying-in-his-enclosure-in-south-of-france.wav) | felix-blume | CC0 | 2026-11-23 |
 | `sfx/animals/eshak-3.m4a` | [Домашний Осёл, Киприотский.ogg](https://commons.wikimedia.org/wiki/File:%D0%94%D0%BE%D0%BC%D0%B0%D1%88%D0%BD%D0%B8%D0%B9_%D0%9E%D1%81%D1%91%D0%BB,_%D0%9A%D0%B8%D0%BF%D1%80%D0%B8%D0%BE%D1%82%D1%81%D0%BA%D0%B8%D0%B9.ogg) | Warper up | CC BY-SA 3.0 | 2026-11-23 |
+| `sfx/popishak.m4a` | [Upupa epops.ogg](https://commons.wikimedia.org/wiki/File:Upupa_epops.ogg) | Vladimir Yu. Arkhipov, Arkhivov | CC BY-SA 3.0 | 2026-11-23 |
+| `sfx/popishak-2.m4a` | [Upupa epops.ogg](https://commons.wikimedia.org/wiki/File:Upupa_epops.ogg) | Vladimir Yu. Arkhipov, Arkhivov | CC BY-SA 3.0 | 2026-11-23 |
+| `sfx/popishak-3.m4a` | [Upupa epops.ogg](https://commons.wikimedia.org/wiki/File:Upupa_epops.ogg) | Vladimir Yu. Arkhipov, Arkhivov | CC BY-SA 3.0 | 2026-11-23 |
 
 Hayvon ovozlari Wikimedia Commons'dan: asl yozuvdan eng toza bo'lak kesilgan, balandligi
 normallashtirilgan va AAC'ga o'tkazilgan. CC BY-SA fayllarning o'zgartirilgan nusxalari ham
 CC BY-SA ostida tarqaladi; mualliflar ilovaning "Haqida" oynasida ko'rsatilishi kerak.
+
+Popishak (hudhud) ovozi ham Commons'dan. `sfx/robot-*` — o'zimizning `sfx/voice-*` (Gemini TTS) dan ffmpeg bilan
+robotlashtirilgan nusxalar. `voices/*` — Gemini TTS bilan yaratilgan (tashqi manba emas).

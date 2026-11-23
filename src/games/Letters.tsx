@@ -6,7 +6,7 @@ import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
 import { Hero } from '../components/Hero'
-import { say, sfx } from '../lib/audio'
+import { say, sayAnimal, sfx } from '../lib/audio'
 import { EASY_LETTERS, initialOf, LETTERS, WORDS, type Word } from '../lib/letters'
 import { drawLetter, makeMask, maskPoints, scoreTrace, type TraceMask } from '../lib/trace'
 import { pick, shuffle } from '../lib/util'
@@ -284,7 +284,12 @@ export function Letters({ profile, level, onComplete, onExit }: GameProps) {
         className="word-card"
         initial={{ x: -80, opacity: 0, rotate: -6 }}
         animate={{ x: 0, opacity: 1, rotate: -3 }}
-        onClick={() => word && void say(word.voice)}
+        onClick={() => {
+          if (!word) return
+          // Hayvon bo'lsa — avval o'z ovozi, keyin nomi
+          if (word.pic.type === 'animal') void sayAnimal(word.pic.id).then(() => say(word.voice))
+          else void say(word.voice)
+        }}
       >
         <div className="word-pic">
           <WordPicture word={word} profile={profile} />

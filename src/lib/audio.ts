@@ -301,6 +301,26 @@ export const voiceFx = withParentVoice(withSamples('voice-', {
   squeeze: () => sweep(500, 1300, 0, 0.6, 'triangle', 0.12, 6),
 }))
 
+/** 3D robot: qahramon reaksiyalarining robotcha nusxasi (sfx/robot-*), bo'lmasa oddiy ovoz */
+export const robotFx = Object.fromEntries(
+  Object.entries(voiceFx).map(([k, fn]) => [
+    k,
+    () => {
+      if (sample(`robot-${k}`)) haptic.tap()
+      else fn()
+    },
+  ]),
+) as typeof voiceFx
+
+/** Popishak (hudhud): haqiqiy hudhud sayrashi, variantlardan tasodifiy */
+export function mascotCall() {
+  const v = ['popishak', 'popishak-2', 'popishak-3'].filter((n) => audioUrl(`sfx/${n}`))
+  if (v.length) sample(v[Math.floor(Math.random() * v.length)])
+}
+
+/** Tayyor ovoz fayli bormi (ota-ona yozuvisiz): personaj ovozi yo'q bo'lsa umumiy ko'rsatmaga qaytish uchun */
+export const hasVoice = (key: string) => !!audioUrl(`voices/${key}`)
+
 // ============ Fon musiqasi va muhit ovozlari ============
 // Har ekran o'z trekini so'raydi (playMusic/playAmbience). Treklar AudioBufferSourceNode bilan
 // uzluksiz aylanadi, almashganda crossfade qilinadi. Fayl bo'lmasa — jimlik (sintez kuy yo'q).

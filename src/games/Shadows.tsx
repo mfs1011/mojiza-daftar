@@ -4,8 +4,8 @@ import { AnimalArt, type AnimalId } from '../art/Animal'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
-import { say, sfx } from '../lib/audio'
-import { shuffle } from '../lib/util'
+import { say, sayAnimal, sfx } from '../lib/audio'
+import { shuffle, wait } from '../lib/util'
 import { levelRow } from '../lib/stations'
 import type { GameProps } from '../types'
 
@@ -82,6 +82,8 @@ export function Shadows({ level, onComplete, onExit }: GameProps) {
   const [mascot, react] = useMascot()
   const mistakes = useRef(0)
   const spotRefs = useRef<Partial<Record<AnimalId, HTMLDivElement | null>>>({})
+  /** Har joylashtirishda +1: eski ovoz ketma-ketligi yangisini bosib ketmasin */
+  const speech = useRef(0)
 
   useEffect(() => {
     if (roundIdx === 0) void say('qora_intro')
@@ -105,18 +107,23 @@ export function Shadows({ level, onComplete, onExit }: GameProps) {
       burstAt(spotRefs.current[id], ['#ffd166', '#fff6b0', '#a2d2ff'])
       const next = new Set(placed).add(id)
       setPlaced(next)
-      void say(`hayvon_${id}`)
-      if (next.size === round.spots.length) {
-        setTimeout(() => void say('qora_tun'), 700)
-        setTimeout(() => {
-          if (roundIdx + 1 >= ROUNDS) setFinished(true)
-          else {
-            sfx.whoosh()
-            setPlaced(new Set())
-            setRoundIdx((i) => i + 1)
-          }
-        }, 2400)
-      }
+      const last = next.size === round.spots.length
+      const my = ++speech.current
+      // Hayvon o'z ovozida "javob beradi", keyin ismi aytiladi; oxirgisidan keyin "Xayrli tun"
+      void (async () => {
+        await sayAnimal(id)
+        if (my !== speech.current) return
+        await say(`hayvon_${id}`)
+        if (!last || my !== speech.current) return
+        await say('qora_tun')
+        await wait(600)
+        if (roundIdx + 1 >= ROUNDS) setFinished(true)
+        else {
+          sfx.whoosh()
+          setPlaced(new Set())
+          setRoundIdx((i) => i + 1)
+        }
+      })()
     } else {
       mistakes.current++
       sfx.wrong()

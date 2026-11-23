@@ -7,6 +7,26 @@ export interface VoicePrompt {
   /** Ota-ona o'qib beradigan matn */
   text: string
   group: string
+  /** Generator uchun: o'z ovozi bilan gapiradigan personaj (Gemini TTS ovoz nomi) */
+  voice?: string
+}
+
+/** Bozor mijozlari: har biri o'z ovozida gapiradi (Gemini TTS ovozlari) */
+export const CUSTOMER_VOICES = {
+  bobo: 'Algenib', // xirildoq, keksa erkak
+  buvi: 'Gacrux', // yetuk, mehribon ayol
+  aka: 'Orus', // yosh yigit
+  opa: 'Aoede', // yengil, yosh qiz
+  bola: 'Puck', // sho'x bola
+} as const
+export type CustomerId = keyof typeof CUSTOMER_VOICES
+
+const CUSTOMER_LINES: Record<CustomerId, Record<'salom' | 'kam' | 'kop' | 'rahmat', string>> = {
+  bobo: { salom: 'Assalomu alaykum, bolam!', kam: 'Yana bering, bolam.', kop: "Voy, ko'payib ketdi-ku!", rahmat: 'Barakalla, bolam! Mana tanga.' },
+  buvi: { salom: 'Assalomu alaykum, jonim!', kam: 'Yana kerak, aylanay.', kop: "Ko'p bo'lib ketdi, jonim.", rahmat: 'Rahmat, aylanay! Mana tanga.' },
+  aka: { salom: "Salom, do'stim!", kam: 'Yana kerak!', kop: "Ko'p bo'ldi-ku!", rahmat: "Rahmat, do'stim! Ol, tanga." },
+  opa: { salom: 'Salom, jonim!', kam: 'Yana bitta kerak!', kop: "Ko'p bo'lib qoldi!", rahmat: 'Rahmat! Mana senga tanga.' },
+  bola: { salom: 'Salom!', kam: 'Yana!', kop: "Ko'p bo'ldi!", rahmat: 'Rahmat! Tanga ol!' },
 }
 
 const NUMBERS = ['Bir', 'Ikki', 'Uch', "To'rt", 'Besh', 'Olti', 'Yetti', 'Sakkiz', "To'qqiz", "O'n"]
@@ -69,6 +89,14 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     { key: 'bozor_kop', text: "Ko'p bo'lib qoldi. Bittasini qaytarib ol.", group: 'Bozor' },
     { key: 'bozor_kam', text: 'Yana kerak!', group: 'Bozor' },
     { key: 'bozor_rahmat', text: 'Rahmat! Mana senga tanga.', group: 'Bozor' },
+    ...(Object.keys(CUSTOMER_LINES) as CustomerId[]).flatMap((c) =>
+      Object.entries(CUSTOMER_LINES[c]).map(([line, text]) => ({
+        key: `mijoz_${c}_${line}`,
+        text,
+        group: 'Bozor mijozlari',
+        voice: CUSTOMER_VOICES[c],
+      })),
+    ),
     ...NUMBERS.map((n, i) => ({ key: `son_${i + 1}`, text: n, group: 'Sonlar' })),
 
     { key: 'ferma_kim', text: 'Kim gapiryapti? Topchi!', group: 'Ferma' },

@@ -142,7 +142,7 @@ for (const p of prompts) {
   // Bepul tarifda daqiqalik so'rov limiti bor: GEN_DELAY_MS bilan sekinlashtirish mumkin
   if (process.env.GEN_DELAY_MS) await new Promise((r) => setTimeout(r, Number(process.env.GEN_DELAY_MS)))
   try {
-    await speak(text, join(dir, `${p.key}.wav`))
+    await speak(text, join(dir, `${p.key}.wav`), TEACHER, p.voice ?? VOICE)
     ok++
     console.log(`✓ ${p.key}: ${text}`)
   } catch (e) {
