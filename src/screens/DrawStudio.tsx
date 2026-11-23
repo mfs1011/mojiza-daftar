@@ -13,7 +13,7 @@ import { CharacterCut } from './CharacterCut'
 import { ColoringBook } from './ColoringBook'
 
 // 3D sahna (three.js) og'ir: faqat kerak bo'lganda yuklanadi, ilova tezroq ochiladi
-const Stage = lazy(() => import('./Stage').then((m) => ({ default: m.Stage })))
+const StageFlow = lazy(() => import('./StageFlow').then((m) => ({ default: m.StageFlow })))
 
 // 🎨 Rasm uyi (#10): bola qahramonini chizadi (yoki qog'ozdagi rasmini suratga oladi),
 // keyin u "tiriladi" va butun o'yin davomida xaritada yuradigan qahramonga aylanadi.
@@ -478,7 +478,7 @@ export function DrawStudio({ profile, onDone, onExit }: Props) {
 
       {stage && (
         <Suspense fallback={<div className="screen stage-screen" />}>
-          <Stage image={stage} onExit={() => setStage(null)} />
+          <StageFlow image={stage} onExit={() => setStage(null)} />
         </Suspense>
       )}
     </div>

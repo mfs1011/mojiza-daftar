@@ -1645,6 +1645,131 @@ button {
   pointer-events: none;
 }
 
+/* ---------- 🦴 Belgilash ---------- */
+
+.rig-setup {
+  z-index: 85;
+}
+
+.rig-area {
+  position: absolute;
+  left: 16vmin;
+  right: 17vmin;
+  top: 4vmin;
+  bottom: 4vmin;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rig-box {
+  position: relative;
+  border-radius: 2vmin;
+  background: repeating-conic-gradient(#e9ecef 0 25%, #fff 0 50%) 0 0 / 4vmin 4vmin;
+  box-shadow: 0 1.4vmin 0 #0002;
+  touch-action: none;
+}
+
+.rig-box img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+.rig-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.rig-mark {
+  position: absolute;
+  width: 9vmin;
+  height: 9vmin;
+  margin: -4.5vmin 0 0 -4.5vmin;
+  padding: 0.6vmin;
+  border-radius: 50%;
+  background: #ffffffcc;
+  box-shadow:
+    0 0 0 0.6vmin #ffd166,
+    0 0.8vmin 0 #0003;
+  touch-action: none;
+  cursor: grab;
+  z-index: 2;
+}
+
+.rig-mark.face {
+  width: 7vmin;
+  height: 7vmin;
+  margin: -3.5vmin 0 0 -3.5vmin;
+}
+
+.rig-mark.drag {
+  box-shadow:
+    0 0 0 0.8vmin #06d6a0,
+    0 1.2vmin 0 #0003;
+  z-index: 3;
+}
+
+.rig-x {
+  position: absolute;
+  right: -1.6vmin;
+  top: -1.6vmin;
+  width: 4.4vmin;
+  height: 4.4vmin;
+  border-radius: 50%;
+  background: #ef476f;
+  color: #fff;
+  font-size: 2.6vmin;
+  font-weight: 900;
+  line-height: 4.4vmin;
+}
+
+.rig-tray {
+  position: absolute;
+  left: 3vmin;
+  bottom: 4vmin;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6vmin;
+  z-index: 3;
+}
+
+.rig-add {
+  position: relative;
+  width: 10vmin;
+  height: 10vmin;
+  padding: 1.6vmin;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.85;
+  box-shadow: 0 0.8vmin 0 #0002;
+}
+
+.rig-add span {
+  position: absolute;
+  right: -1vmin;
+  bottom: -1vmin;
+  width: 4.4vmin;
+  height: 4.4vmin;
+  border-radius: 50%;
+  background: #06d6a0;
+  color: #fff;
+  font-weight: 900;
+  line-height: 4.4vmin;
+  font-size: 3.4vmin;
+}
+
+.stage-loading {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -15vmin 0 0 -15vmin;
+}
+
 /* ---------- 🎭 Sahna ---------- */
 
 .stage-screen {
