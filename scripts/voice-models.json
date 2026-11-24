@@ -238,5 +238,8 @@
  "mijoz_bola_meva_orik": "gemini-3.8-flash-tts",
  "mijoz_bola_meva_nok": "gemini-3.8-flash-tts",
  "mijoz_bola_meva_behi": "gemini-3.8-flash-tts",
- "mijoz_bola_meva_uzum": "gemini-3.8-flash-tts"
+ "mijoz_bola_meva_uzum": "gemini-3.8-flash-tts",
+ "harf_top": "gemini-2.5-flash-preview-tts",
+ "harf_A": "gemini-2.5-flash-preview-tts",
+ "harf_B": "gemini-2.5-flash-preview-tts"
 }

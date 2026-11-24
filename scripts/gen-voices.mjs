@@ -55,7 +55,9 @@ function wav(pcm, rate) {
 const UZBEK =
   'Read the following Uzbek (Latin script) phrase aloud as a native Uzbek speaker from Tashkent, ' +
   'with natural Uzbek pronunciation, rhythm and word stress (in Uzbek the stress is usually on the LAST syllable of a word). ' +
-  "Do not use a Russian, Turkish or English accent. \"o'\" and \"g'\" are distinct Uzbek sounds; \"q\" is a deep uvular sound, \"x\" is like Scottish \"loch\", \"h\" is soft. "
+  'Do not use a Russian, Turkish or English accent. ' +
+  '"oʻ" is ONE rounded vowel [ɵ] between o and u, with no pause after it; "gʻ" is ONE soft guttural consonant [ʁ] like French "r", not "g", with no pause; ' +
+  '"q" is a deep uvular [q], different from "k"; "x" is like German "ch" in "Bach"; "h" is a light breath. '
 
 const TEACHER = UZBEK + 'Speak like a warm, cheerful kindergarten teacher talking to a 4-year-old: unhurried, clear, smiling.'
 
@@ -202,7 +204,7 @@ const needs = (k) => force || !exists(k) || (redo && needStyle(k) && !(made[k] &
 /** Ustuvorlik: avval o'yin ko'rsatmalari (ularsiz bola nima qilishni bilmaydi), keyin nomlar, harflar, mijozlar */
 const PRIORITY = [
   'Raqamlar uyi', 'Hisob maktabi', 'Shakllar', 'Ranglar', 'Mantiq', 'Yozuv maktabi', 'Musiqa uyi', "She'rlar",
-  'Sonlar', 'Umumiy', 'Kechki qo\'ra', 'Ustaxona', 'Bozor mijozlari', 'Harflar uyi', 'Harflar', 'Hayvonlar', 'Odamlar', 'Hovli',
+  'Sonlar', 'Umumiy', 'Kechki qo\'ra', 'Ustaxona', 'Harflar uyi', 'Harflar', 'Bozor mijozlari', 'Hayvonlar', 'Odamlar', 'Hovli',
 ]
 const rank = (g) => {
   const i = PRIORITY.indexOf(g)
@@ -218,7 +220,9 @@ let ok = 0
 let skipped = 0
 for (const p of prompts) {
   // "Sigir: "Mo'-o'"" kabi matnlarda faqat tovushning o'zi aytiladi
-  const text = p.key.startsWith('tovush_') ? p.text.split(': ').slice(1).join(': ').replace(/"/g, '') : p.text.replace(/^"(.+)" harfi$/, '$1')
+  const raw = p.key.startsWith('tovush_') ? p.text.split(': ').slice(1).join(': ').replace(/"/g, '') : p.text.replace(/^"(.+)" harfi$/, '$1')
+  // Rasmiy imlo: oʻ / gʻ (U+02BB). Oddiy apostrofni model pauza yoki qisqartma deb o'qiydi
+  const text = raw.replace(/([OoGg])['‘’`]/g, '$1ʻ')
   // Bepul tarifda daqiqalik so'rov limiti bor: GEN_DELAY_MS bilan sekinlashtirish mumkin
   if (process.env.GEN_DELAY_MS) await new Promise((r) => setTimeout(r, Number(process.env.GEN_DELAY_MS)))
   try {
