@@ -3594,3 +3594,277 @@ button {
   min-width: 1.4em;
   text-align: center;
 }
+
+/* ---------- 🎁 Mukofot oynasi ---------- */
+
+.reward-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(#ffffffcc, #3d2c1e99);
+  perspective: 800px;
+}
+
+.reward-card {
+  position: relative;
+  width: 44vmin;
+  height: 56vmin;
+  border-radius: 5vmin;
+  background: linear-gradient(160deg, #fff, #fff3c4);
+  border: 1.4vmin solid #ffd166;
+  box-shadow: 0 2vmin 4vmin #0004;
+  display: grid;
+  place-items: center;
+  transform-style: preserve-3d;
+}
+
+.reward-sticker {
+  width: 34vmin;
+  height: 40vmin;
+  display: grid;
+  place-items: center;
+}
+
+.reward-back {
+  font-size: 22vmin;
+  font-weight: 900;
+  color: #ffd166;
+}
+
+.reward-tap {
+  position: absolute;
+  bottom: -9vmin;
+  font-size: 8vmin;
+}
+
+.reward-gifts {
+  display: flex;
+  gap: 4vmin;
+}
+
+.reward-gift {
+  width: 28vmin;
+  height: 28vmin;
+  padding: 3vmin;
+  border-radius: 5vmin;
+  background: #fff;
+  border: 1vmin solid #ffd166;
+  box-shadow: 0 1.6vmin 0 #0003;
+}
+
+/* ---------- 📒 Albom ---------- */
+
+.album {
+  background: linear-gradient(#fdf0d5, #f6d7a7);
+  display: flex;
+  flex-direction: column;
+}
+
+.album-tabs {
+  display: flex;
+  gap: 2vmin;
+  padding: 2vmin 4vmin 0;
+}
+
+.album-tab {
+  display: flex;
+  align-items: center;
+  gap: 1vmin;
+  padding: 1.6vmin 3vmin;
+  border-radius: 3vmin 3vmin 0 0;
+  background: #e9c46a;
+  font-size: 4vmin;
+  font-weight: 800;
+  color: #3d2c1e;
+}
+
+.album-tab small {
+  font-size: 3vmin;
+  opacity: 0.7;
+}
+
+.album-tab.on {
+  background: #fffaf0;
+}
+
+.album-page {
+  flex: 1;
+  margin: 0 4vmin 4vmin;
+  padding: 3vmin 4vmin;
+  background: #fffaf0;
+  border-radius: 0 3vmin 3vmin 3vmin;
+  box-shadow: 0 1.4vmin 0 #0002;
+  overflow: auto;
+}
+
+.album-title {
+  margin: 0 0 2vmin;
+  font-size: 5vmin;
+}
+
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(19vmin, 1fr));
+  gap: 2.5vmin;
+}
+
+.album-slot {
+  aspect-ratio: 1;
+  border-radius: 3vmin;
+  padding: 1.8vmin;
+  background: #fff;
+  border: 0.6vmin dashed #e9c46a;
+}
+
+.album-slot.got {
+  border: 0.6vmin solid #ffd166;
+  box-shadow: 0 1vmin 0 #0002;
+}
+
+.album-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Yig'ilmagan stiker — soya (nima yig'ish kerakligi ko'rinsin) */
+.album-slot.empty .album-art {
+  filter: brightness(0) opacity(0.12);
+}
+
+/* ---------- 🏡 Hovli ---------- */
+
+.yard {
+  background: linear-gradient(#bde0fe 0 40%, #95d5b2 40% 100%);
+  background-size: cover;
+  background-position: center;
+}
+
+.yard-ground {
+  position: absolute;
+  inset: 0;
+}
+
+.yard-item {
+  position: absolute;
+  width: 11%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -88%);
+  touch-action: none;
+  cursor: grab;
+}
+
+.yard-item.animal {
+  width: 9%;
+  aspect-ratio: 1.2;
+}
+
+.yard-inner {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+}
+
+.yard-hero {
+  position: absolute;
+  left: 6%;
+  bottom: 6%;
+  width: 14vmin;
+  height: 14vmin;
+  pointer-events: none;
+}
+
+.yard-head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.yard-title {
+  background: #ffffffdd;
+  padding: 1vmin 3vmin;
+  border-radius: 3vmin;
+}
+
+.yard-inbox {
+  position: absolute;
+  left: 50%;
+  bottom: 3vmin;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2vmin;
+  padding: 2vmin 3vmin;
+  background: #fffaf0ee;
+  border-radius: 4vmin;
+  box-shadow: 0 1.4vmin 0 #0003;
+  z-index: 120;
+}
+
+.yard-gift-icon {
+  font-size: 8vmin;
+}
+
+.yard-inbox-item {
+  width: 16vmin;
+  height: 16vmin;
+  padding: 1.5vmin;
+  border-radius: 3vmin;
+  background: #fff;
+  border: 0.6vmin solid #e9c46a;
+}
+
+.yard-inbox-item.on {
+  border-color: #06d6a0;
+  box-shadow: 0 0 0 1vmin #06d6a066;
+}
+
+.yard-hint {
+  font-size: 4vmin;
+  font-weight: 800;
+  color: #2d6a4f;
+}
+
+/* ---------- Xaritadagi albom/hovli tugmalari ---------- */
+
+.map-collect {
+  position: absolute;
+  left: 3vmin;
+  top: 18vmin;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5vmin;
+  z-index: 130;
+}
+
+.collect-btn {
+  position: relative;
+  width: 13vmin;
+  height: 13vmin;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1vmin 0 #0002;
+  font-size: 7vmin;
+  display: grid;
+  place-items: center;
+}
+
+.collect-btn small {
+  position: absolute;
+  right: -1.5vmin;
+  bottom: -1vmin;
+  min-width: 5.5vmin;
+  padding: 0 1vmin;
+  border-radius: 3vmin;
+  background: #ffd166;
+  font-size: 3.2vmin;
+  font-weight: 900;
+}
+
+.collect-btn .collect-new {
+  background: #ef476f;
+  color: #fff;
+}

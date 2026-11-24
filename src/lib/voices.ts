@@ -2,6 +2,23 @@ import type { Profile } from '../types.ts'
 import { PAINT_NAMES, PAINT_ORDER, SHAPE_NAMES, SHAPE_ORDER } from './shapes.ts'
 import { ALPHABET, LETTER_NAMES, letterVoice, STROKE_LABELS } from './letters.ts'
 import { RIDDLES } from './poems.ts'
+import { PEOPLE } from './stickers.ts'
+
+const PERSON_NAMES: Record<(typeof PEOPLE)[number], string> = { bobo: 'Bobo', buvi: 'Buvi', aka: 'Aka', opa: 'Opa', bola: 'Bola' }
+
+/** Hovli narsalari nomlari (bosganda aytiladi) */
+const DECOR_NAMES = {
+  terak: 'Terak',
+  olma_daraxt: 'Olma daraxti',
+  anor_daraxt: 'Anor daraxti',
+  gul: 'Gul',
+  kungaboqar: 'Kungaboqar',
+  uy: 'Uy',
+  sori: "So'ri",
+  tandir: 'Tandir',
+  quduq: 'Quduq',
+  koza: "Ko'za",
+}
 import { ALL_ANIMALS, ALL_FRUITS, ANIMAL_NAMES, ANIMAL_SOUNDS, FRUIT_NAMES, MARKET_FRUITS } from './names.ts'
 
 export interface VoicePrompt {
@@ -137,6 +154,11 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     { key: 'hisob_tushgan', text: 'Qaysi son yetishmayapti?', group: 'Hisob maktabi' },
     ...SHAPE_ORDER.map((s) => ({ key: `shakl_${s}`, text: SHAPE_NAMES[s], group: 'Shakllar' })),
     ...PAINT_ORDER.filter((c) => !(c in COLOR_NAMES)).map((c) => ({ key: `rang_${c}`, text: PAINT_NAMES[c], group: 'Ranglar' })),
+    ...PEOPLE.map((p) => ({ key: `odam_${p}`, text: PERSON_NAMES[p], group: 'Odamlar' })),
+    ...Object.entries(DECOR_NAMES).map(([k, text]) => ({ key: `narsa_${k}`, text, group: 'Hovli' })),
+    { key: 'albom_yangi', text: 'Yangi stiker! Albomingga qo\'shildi.', group: 'Umumiy' },
+    { key: 'hovli_sovga', text: 'Hovlingga sovg\'a tanla!', group: 'Umumiy' },
+    { key: 'hovli_joyla', text: 'Sovg\'angni hovlingga joyla! Qayerga qo\'yamiz?', group: 'Umumiy' },
     { key: 'shakl_qani', text: 'qani? Topib ber!', group: 'Shakllar' },
     { key: 'shakl_teshik', text: "Har bir shaklni o'z uyasiga joyla!", group: 'Shakllar' },
     { key: 'rang_aralash', text: 'Ikkalasini aralashtirsak, qaysi rang chiqadi?', group: 'Ranglar' },

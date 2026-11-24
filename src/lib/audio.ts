@@ -312,6 +312,44 @@ export const robotFx = Object.fromEntries(
   ]),
 ) as typeof voiceFx
 
+/**
+ * Hovli narsasi bosilganda: o'z tovushi (sfx/obj-<nom> fayli yoki sintez), keyin nomi.
+ * Hayvon — haqiqiy ovozi.
+ */
+export async function objectSound(kind: string) {
+  if (kind.startsWith('hayvon_')) {
+    await sayAnimal(kind.slice(7) as AnimalId)
+    return void say(kind)
+  }
+  if (!sample(`obj-${kind}`)) {
+    const synth: Record<string, () => void> = {
+      // Daraxtlar — barglar shitirlaydi
+      terak: () => sfx.rustle(),
+      olma_daraxt: () => (sfx.rustle(), tone(660, 0.35, 0.12, 'triangle', 0.12)),
+      anor_daraxt: () => (sfx.rustle(), tone(587, 0.35, 0.12, 'triangle', 0.12)),
+      // Gullar — sehrli jiringlash
+      gul: () => [1047, 1319, 1568].forEach((f, i) => tone(f, i * 0.08, 0.3, 'sine', 0.08)),
+      kungaboqar: () => [784, 988, 1175].forEach((f, i) => tone(f, i * 0.09, 0.3, 'sine', 0.08)),
+      // Uy — eshik taqillaydi
+      uy: () => [0, 0.18].forEach((t) => (tone(180, t, 0.09, 'sine', 0.35), noise(t, 0.05, 900, 0.18))),
+      // So'ri — yog'och g'ichirlaydi
+      sori: () => noise(0, 0.25, 600, 0.15),
+      // Tandir — olov chirsillaydi
+      tandir: () => {
+        for (let i = 0; i < 7; i++) noise(i * 0.06 + Math.random() * 0.03, 0.04, 2500 + Math.random() * 2500, 0.2)
+      },
+      // Quduq — chelak suvga tushadi
+      quduq: () => (tone(300, 0, 0.12, 'sine', 0.25), noise(0.08, 0.4, 700, 0.25)),
+      // Ko'za — sopol jiringlaydi
+      koza: () => (tone(1480, 0, 0.35, 'sine', 0.14), tone(2220, 0.02, 0.3, 'sine', 0.07)),
+    }
+    synth[kind]?.()
+  }
+  haptic.tap()
+  await new Promise((r) => setTimeout(r, 450))
+  void say(`narsa_${kind}`)
+}
+
 /** Popishak (hudhud): haqiqiy hudhud sayrashi, variantlardan tasodifiy */
 export function mascotCall() {
   const v = ['popishak', 'popishak-2', 'popishak-3'].filter((n) => audioUrl(`sfx/${n}`))

@@ -1,26 +1,22 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { FruitArt } from '../art/Fruit'
-import { Mascot } from '../art/Mascot'
-import { CoinArt, DecorArt, StationIcon, type DecorKind } from '../art/Scenery'
-import { burst } from '../components/Fx'
+import { CoinArt, StationIcon } from '../art/Scenery'
 import { artUrl } from '../lib/assets'
 import { Hero, useHeroUrl, type HeroMode } from '../components/Hero'
-import { say, sayAnimal, sfx } from '../lib/audio'
-import type { AnimalId } from '../art/Animal'
+import { say, sfx } from '../lib/audio'
 import { dailyFor, stationsFor, STATIONS } from '../lib/stations'
-import type { PlacedDecor, Profile, Progress, StationId } from '../types'
+import type { Profile, Progress, StationId } from '../types'
 import { Icon } from '../art/Icon'
 
 interface Props {
   profile: Profile
   progress: Progress
-  /** Bekat tugagach bola tanlaydigan 3 ta sovg'a (yoki null) */
-  reward: DecorKind[] | null
   /** Qahramon qaysi bekatdan qaytdi (yurish animatsiyasi shu yerdan boshlanadi) */
   arrivedFrom: StationId | null
   onPlay: (s: StationId) => void
-  onPlace: (d: PlacedDecor) => void
+  onAlbum: () => void
+  onYard: () => void
   onHome: () => void
   onSleep: () => void
 }
@@ -93,25 +89,22 @@ function MapBackground() {
   )
 }
 
-export function VillageMap({ profile, progress, reward, arrivedFrom, onPlay, onPlace, onHome, onSleep }: Props) {
+export function VillageMap({ profile, progress, arrivedFrom, onPlay, onAlbum, onYard, onHome, onSleep }: Props) {
   const heroUrl = useHeroUrl(profile.id)
   const stations = stationsFor(profile.age)
   const done = new Set(progress.stationsDone)
   const needsHero = heroUrl === null
   const next: StationId | null = needsHero ? 'rasm' : (dailyFor(profile.age).find((s) => !done.has(s.id))?.id ?? null)
 
-  const [picking, setPicking] = useState<DecorKind[] | null>(reward)
-  const [placing, setPlacing] = useState<DecorKind | null>(null)
-  const [justPlaced, setJustPlaced] = useState<number | null>(null)
   const [heroAt, setHeroAt] = useState<StationId>(arrivedFrom ?? next ?? dailyFor(profile.age).at(-1)!.id)
   const [heroMode, setHeroMode] = useState<HeroMode>('idle')
   const stageRef = useRef<HTMLDivElement>(null)
-  const busy = !!picking || !!placing
+  // Sovg'alar endi albom va hovliga tushadi — xarita doim toza va bosiladigan
+  const busy = false
 
   // Ovoz: sovg'a tanlash yoki salomlashish
   useEffect(() => {
-    if (reward) void say('sovga_tanla')
-    else if (progress.stationsDone.length === 0 && !arrivedFrom) void say(`ism_${profile.id}`, 'salom')
+    if (progress.stationsDone.length === 0 && !arrivedFrom) void say(`ism_${profile.id}`, 'salom')
     // Faqat xarita ochilganda
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -138,40 +131,11 @@ export function VillageMap({ profile, progress, reward, arrivedFrom, onPlay, onP
     }
   }, [busy, next, heroAt, heroUrl, progress.dayDone, onSleep])
 
-  /** Qishloqdagi hayvonga tegilsa — o'z ovozida javob beradi va sakraydi */
-  const [poked, setPoked] = useState<{ i: number; n: number } | null>(null)
-  function poke(e: React.MouseEvent, i: number, kind: DecorKind) {
-    if (placing || !kind.startsWith('hayvon_')) return // sovg'a qo'yilayotgan bo'lsa — bosish joylashtirishga o'tadi
-    e.stopPropagation()
-    setPoked((p) => ({ i, n: (p?.n ?? 0) + 1 }))
-    void sayAnimal(kind.slice('hayvon_'.length) as AnimalId)
-  }
-
-  function choose(kind: DecorKind) {
-    sfx.pop()
-    setPicking(null)
-    setPlacing(kind)
-    void say('sovga_qoy')
-  }
-
-  function place(e: React.MouseEvent) {
-    if (!placing) return
-    const r = stageRef.current!.getBoundingClientRect()
-    const x = ((e.clientX - r.left) / r.width) * 100
-    const y = Math.max(30, Math.min(95, ((e.clientY - r.top) / r.height) * 100))
-    sfx.thump()
-    burst(e.clientX, e.clientY, ['#ffd166', '#06d6a0', '#ef476f'], 16)
-    setJustPlaced(progress.village.length)
-    onPlace({ kind: placing, x, y })
-    setPlacing(null)
-    void say('barakalla')
-  }
-
   const hs = STATIONS.find((s) => s.id === heroAt)!
 
   return (
     <div className="screen map">
-      <div className="stage" ref={stageRef} onClick={place}>
+      <div className="stage" ref={stageRef}>
         <MapBackground />
 
         <motion.div className="cloud" animate={{ x: ['0%', '120%', '0%'] }} transition={{ repeat: Infinity, duration: 40, ease: 'linear' }}>
@@ -179,25 +143,6 @@ export function VillageMap({ profile, progress, reward, arrivedFrom, onPlay, onP
             <path d="M20 44C6 44 6 26 20 26C20 10 44 8 50 20C58 6 84 8 86 24C102 22 110 44 94 44Z" fill="#fff" />
           </svg>
         </motion.div>
-
-        {progress.village.map((d, i) => (
-          <div
-            key={i}
-            className={`decor ${d.kind.startsWith('hayvon_') ? 'animal' : ''}`}
-            style={{ left: `${d.x}%`, top: `${d.y}%`, zIndex: Math.round(d.y) }}
-            onClick={(e) => poke(e, i, d.kind)}
-          >
-            <motion.div
-              key={poked?.i === i ? `poke-${poked.n}` : 'still'}
-              className="decor-inner"
-              initial={i === justPlaced ? { scale: 0, y: -80 } : false}
-              animate={poked?.i === i ? { scale: [1, 1.15, 1], y: [0, -24, 0] } : { scale: 1, y: 0 }}
-              transition={{ type: 'spring', stiffness: 220, damping: 12 }}
-            >
-              <DecorArt kind={d.kind} />
-            </motion.div>
-          </div>
-        ))}
 
         {stations.map((s) => {
           const isNext = s.id === next
@@ -274,42 +219,21 @@ export function VillageMap({ profile, progress, reward, arrivedFrom, onPlay, onP
         </span>
       </div>
 
-      <AnimatePresence>
-        {picking && (
-          <motion.div className="reward-picker" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div className="reward-mascot">
-              <Mascot mood="happy" />
-            </div>
-            <div className="reward-options">
-              {picking.map((k, i) => (
-                <motion.button
-                  key={k}
-                  className="reward-option"
-                  data-kind={k}
-                  initial={{ scale: 0, rotate: -20 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: 'spring', delay: 0.15 * i }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => choose(k)}
-                >
-                  <DecorArt kind={k} />
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {placing && (
-        <motion.div className="placing-hint" initial={{ y: -100 }} animate={{ y: 0 }}>
-          <motion.div className="placing-item" animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 1 }}>
-            <DecorArt kind={placing} />
-          </motion.div>
-          <motion.svg viewBox="0 0 40 40" className="art placing-finger" animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 0.8 }}>
-            <path d="M20 36L6 18H14V4H26V18H34Z" fill="#fff" stroke="#3d2c1e" strokeWidth={3} strokeLinejoin="round" />
-          </motion.svg>
-        </motion.div>
-      )}
+      {/* Albom va hovli: sovg'alar shu yerlarga tushadi */}
+      <div className="map-collect">
+        <motion.button className="collect-btn" whileTap={{ scale: 0.9 }} onClick={() => (sfx.tap(), onAlbum())} aria-label="Albom">
+          <span>📒</span>
+          <small>{progress.stickers?.length ?? 0}</small>
+        </motion.button>
+        <motion.button className="collect-btn" whileTap={{ scale: 0.9 }} onClick={() => (sfx.tap(), onYard())} aria-label="Hovli">
+          <span>🏡</span>
+          {(progress.yardInbox?.length ?? 0) > 0 && (
+            <motion.small className="collect-new" animate={{ scale: [1, 1.25, 1] }} transition={{ repeat: Infinity, duration: 1 }}>
+              🎁 {progress.yardInbox!.length}
+            </motion.small>
+          )}
+        </motion.button>
+      </div>
     </div>
   )
 }

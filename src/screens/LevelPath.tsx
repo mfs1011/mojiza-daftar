@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Icon } from '../art/Icon'
-import { StationIcon } from '../art/Scenery'
+import { StationIcon, type DecorKind } from '../art/Scenery'
+import { RewardReveal } from '../components/RewardReveal'
+import type { Sticker } from '../lib/stickers'
 import { Hero } from '../components/Hero'
 import { sfx } from '../lib/audio'
 import { AUTHORED_LEVELS, STATIONS } from '../lib/stations'
@@ -21,6 +23,9 @@ interface Props {
   justDone?: number
   onPlay: (level: number) => void
   onBack: () => void
+  /** Hozirgina olingan mukofot (stiker, hovli sovg'asi) */
+  reward?: { sticker: Sticker; gifts: DecorKind[] | null } | null
+  onRewardDone?: (gift?: DecorKind) => void
 }
 
 /** Tugunlar orasidagi masofa va to'lqin (vmin) */
@@ -45,7 +50,14 @@ const THEME: Record<GameStation, [string, string]> = {
   sher: ['#fff8e7', '#e9c46a'],
 }
 
-export function LevelPath({ profile, station, unlocked, stars, justDone, onPlay, onBack }: Props) {
+export function LevelPath({ profile, station, unlocked, stars, justDone, onPlay, onBack, reward, onRewardDone }: Props) {
+  // Mukofot oynasi qahramon keyingi tugunga yurib bo'lgach chiqadi
+  const [showReward, setShowReward] = useState(false)
+  useEffect(() => {
+    if (!reward) return
+    const t = setTimeout(() => setShowReward(true), 2600)
+    return () => clearTimeout(t)
+  }, [reward])
   const scrollRef = useRef<HTMLDivElement>(null)
   const info = STATIONS.find((s) => s.id === station)!
   // Ochiq tugundan keyin yana 6 tasi (qulfda) ko'rinib turadi: oldinda nima borligini ko'rsin
@@ -152,6 +164,16 @@ export function LevelPath({ profile, station, unlocked, stars, justDone, onPlay,
           </motion.div>
         </div>
       </div>
+      {reward && showReward && (
+        <RewardReveal
+          sticker={reward.sticker}
+          gifts={reward.gifts}
+          onDone={(g) => {
+            setShowReward(false)
+            onRewardDone?.(g)
+          }}
+        />
+      )}
     </div>
   )
 }

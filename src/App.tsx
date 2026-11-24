@@ -27,6 +27,9 @@ import { Sleep } from './screens/Sleep'
 import { VillageMap } from './screens/VillageMap'
 import type { GameProps, GameResult, GameStation, PlacedDecor, Profile, Progress, Screen, StationId } from './types'
 import { LevelPath } from './screens/LevelPath'
+import { Album } from './screens/Album'
+import { Yard } from './screens/Yard'
+import { nextSticker, YARD_GIFT_EVERY, type Sticker } from './lib/stickers'
 
 const GAMES: Record<GameStation, ComponentType<GameProps>> = {
   bog: Garden,
@@ -43,9 +46,9 @@ const GAMES: Record<GameStation, ComponentType<GameProps>> = {
   sher: PoemsGame,
 }
 
-/** Sovg'a variantlari: hali qishloqda yo'q narsalar birinchi navbatda taklif qilinadi */
+/** Hovli sovg'asi variantlari: hali hovlida yo'q narsalar birinchi navbatda taklif qilinadi */
 function rewardOptions(progress: Progress): DecorKind[] {
-  const owned = new Set(progress.village.map((d) => d.kind))
+  const owned = new Set([...progress.village.map((d) => d.kind), ...(progress.yardInbox ?? [])])
   const fresh = shuffle(DECOR_POOL.filter((k) => !owned.has(k)))
   return [...fresh, ...shuffle(DECOR_POOL)].filter((k, i, a) => a.indexOf(k) === i).slice(0, 3)
 }
@@ -55,7 +58,8 @@ export default function App() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [progress, setProgress] = useState<Progress | null>(null)
   const [screen, setScreen] = useState<Screen>({ name: 'profiles' })
-  const [reward, setReward] = useState<DecorKind[] | null>(null)
+  /** Daraja o'tilgach ko'rsatiladigan mukofot: stiker va (har 5-darajada) hovli sovg'asi */
+  const [reward, setReward] = useState<{ sticker: Sticker; gifts: DecorKind[] | null } | null>(null)
   const [arrivedFrom, setArrivedFrom] = useState<StationId | null>(null)
 
   useEffect(() => {
@@ -70,7 +74,7 @@ export default function App() {
 
   // Har ekran o'z musiqasi va muhit ovozi bilan
   const musicId: MusicId | null =
-    screen.name === 'profiles' || screen.name === 'map'
+    screen.name === 'profiles' || screen.name === 'map' || screen.name === 'album' || screen.name === 'yard'
       ? 'map'
       : screen.name === 'game' || screen.name === 'path'
         ? (screen.station as MusicId)
@@ -124,7 +128,7 @@ export default function App() {
         recordRef.current(sc.station, sc.level, false)
         openPath(sc.station)
       }
-      else if (s === 'path' || s === 'studio') backToMap()
+      else if (s === 'path' || s === 'studio' || s === 'album' || s === 'yard') backToMap()
       else if (s === 'map' || s === 'sleep' || s === 'parent') goHome()
       else void CapApp.minimizeApp()
     })
@@ -210,24 +214,33 @@ export default function App() {
       levels: { ...progress.levels, [station]: Math.max(unlocked, level + 1) },
       stars: { ...progress.stars, [station]: stars },
     }
+    // Mukofot: har darajada stiker; yangi daraja har 5-chisiga yetganda — hovliga sovg'a
+    const sticker = nextSticker(progress.stickers ?? [])
+    next.stickers = [...new Set([...(progress.stickers ?? []), sticker.id])]
+    const newLevel = level + 1 > unlocked
+    setReward({ sticker, gifts: newLevel && (level + 1) % YARD_GIFT_EVERY === 0 ? rewardOptions(next) : null })
     await saveProgress(next)
     setProgress(next)
-    // Bekatdagi bugungi birinchi g'alaba — qishloqqa sovg'a (xaritaga qaytganda tanlanadi)
-    if (firstToday) {
-      setReward(rewardOptions(next))
-      setArrivedFrom(station)
-    }
+    if (firstToday) setArrivedFrom(station)
     if (next.dayDone) setScreen({ name: 'map' })
     else openPath(station, level)
   }
 
-  async function placeDecor(d: PlacedDecor) {
-    if (!progress) return
-    const next = { ...progress, village: [...progress.village, d] }
-    jingle('sticker')
+  /** Mukofot oynasi yopildi: tanlangan hovli sovg'asi kutish qutisiga tushadi */
+  async function rewardDone(gift?: DecorKind) {
+    setReward(null)
+    if (!gift || !progress) return
+    const next = { ...progress, yardInbox: [...(progress.yardInbox ?? []), gift] }
     await saveProgress(next)
     setProgress(next)
-    setReward(null)
+  }
+
+  /** Hovli: narsani joylash (kutish qutisidan) yoki joyini o'zgartirish */
+  async function saveYard(village: PlacedDecor[], yardInbox: DecorKind[]) {
+    if (!progress) return
+    const next = { ...progress, village, yardInbox }
+    await saveProgress(next)
+    setProgress(next)
   }
 
   let view = null
@@ -251,14 +264,13 @@ export default function App() {
           key={`map-${progress.stationsDone.length}-${arrivedFrom}`}
           profile={profile}
           progress={progress}
-          reward={reward}
           arrivedFrom={arrivedFrom}
           onPlay={(s) => {
-            setReward(null)
             if (s === 'rasm') setScreen({ name: 'studio' })
             else openPath(s)
           }}
-          onPlace={(d) => void placeDecor(d)}
+          onAlbum={() => setScreen({ name: 'album' })}
+          onYard={() => setScreen({ name: 'yard' })}
           onHome={goHome}
           onSleep={() => setScreen({ name: 'sleep' })}
         />
@@ -287,6 +299,20 @@ export default function App() {
           stars={progress.stars?.[station] ?? []}
           justDone={screen.justDone}
           onPlay={(level) => setScreen({ name: 'game', station, level })}
+          onBack={backToMap}
+          reward={reward}
+          onRewardDone={(g) => void rewardDone(g)}
+        />
+      )
+    } else if (screen.name === 'album') {
+      view = <Album owned={progress.stickers ?? []} onBack={backToMap} />
+    } else if (screen.name === 'yard') {
+      view = (
+        <Yard
+          profile={profile}
+          village={progress.village}
+          inbox={progress.yardInbox ?? []}
+          onSave={(v, inbox) => void saveYard(v, inbox)}
           onBack={backToMap}
         />
       )

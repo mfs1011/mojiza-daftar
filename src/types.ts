@@ -41,6 +41,10 @@ export interface Progress {
   stars?: Partial<Record<StationId, number[]>>
   /** Bugun o'ynalgan vaqt (ms): kunlik chegarani ota-ona sozlaydi */
   playedMs?: number
+  /** Albomdagi stikerlar (Sticker.id) */
+  stickers?: string[]
+  /** Hovli uchun tanlangan, hali joylanmagan sovg'alar */
+  yardInbox?: DecorKind[]
 }
 
 export interface GameResult {
@@ -94,3 +98,5 @@ export type Screen =
   | { name: 'studio' }
   | { name: 'sleep' }
   | { name: 'parent' }
+  | { name: 'album' }
+  | { name: 'yard' }
