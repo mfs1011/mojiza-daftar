@@ -4809,3 +4809,29 @@ button {
   width: 100%;
   height: 100%;
 }
+
+/* Albom va sovg'a kartasi: rasm proportsiyasini buzmasdan sig'adi (baland odam ham, keng hayvon ham) */
+.album-art,
+.reward-sticker {
+  container-type: size;
+}
+
+.album-art .sprite-box,
+.reward-sticker .sprite-box {
+  width: 100%;
+  height: 100%;
+}
+
+.album-art .sprite,
+.reward-sticker .sprite {
+  width: min(100cqw, calc(100cqh * var(--a)));
+  max-height: none;
+  flex-shrink: 0;
+}
+
+.album-art .art-img,
+.reward-sticker .art-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
