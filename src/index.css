@@ -3696,7 +3696,14 @@ button {
   background: #fffaf0;
   border-radius: 0 3vmin 3vmin 3vmin;
   box-shadow: 0 1.4vmin 0 #0002;
-  overflow: auto;
+  /* Stiker silkinganda chegaradan chiqadi: scrollbar paydo bo'lib, sahifa qaltiramasin */
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.album-page::-webkit-scrollbar {
+  display: none;
 }
 
 .album-title {
@@ -3708,6 +3715,8 @@ button {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(19vmin, 1fr));
   gap: 2.5vmin;
+  /* Silkinish (1.15 marta kattalashish) uchun joy */
+  padding: 2vmin;
 }
 
 .album-slot {
