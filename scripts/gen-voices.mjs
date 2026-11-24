@@ -42,11 +42,27 @@ function wav(pcm, rate) {
   return Buffer.concat([h, pcm])
 }
 
-const TEACHER =
-  'You are a native Uzbek speaker from Tashkent. Read the following Uzbek (Latin script) phrase aloud ' +
+/** Hamma odam ovozlari uchun: o'zbekcha talaffuz qoidalari */
+const UZBEK =
+  'Read the following Uzbek (Latin script) phrase aloud as a native Uzbek speaker from Tashkent, ' +
   'with natural Uzbek pronunciation, rhythm and word stress (in Uzbek the stress is usually on the LAST syllable of a word). ' +
-  "Do not use a Russian, Turkish or English accent. \"o'\" and \"g'\" are distinct Uzbek sounds. " +
-  'Speak like a warm, cheerful kindergarten teacher talking to a 4-year-old: unhurried, clear, smiling.'
+  "Do not use a Russian, Turkish or English accent. \"o'\" and \"g'\" are distinct Uzbek sounds; \"q\" is a deep uvular sound, \"x\" is like Scottish \"loch\", \"h\" is soft. "
+
+const TEACHER = UZBEK + 'Speak like a warm, cheerful kindergarten teacher talking to a 4-year-old: unhurried, clear, smiling.'
+
+/** Bozor mijozlari: har biri o'z xarakterida, lekin baribir sof o'zbekcha */
+const PERSONA = {
+  bobo: 'an elderly Uzbek grandfather (about 70) from a village: deep, slow, slightly raspy, very kind',
+  buvi: 'an elderly Uzbek grandmother (about 65): warm, soft, loving, a little slow',
+  aka: 'a friendly Uzbek young man (about 20): cheerful and lively',
+  opa: 'a friendly Uzbek young woman (about 18): bright and gentle',
+  bola: 'a playful Uzbek boy (about 8): high-pitched, excited',
+}
+const styleFor = (key) => {
+  const m = /^mijoz_([a-z]+)_/.exec(key)
+  if (!m || !PERSONA[m[1]]) return TEACHER
+  return `You are ${PERSONA[m[1]]}, buying fruit from a small child at a village bazaar. ` + UZBEK + 'Speak naturally in that character.'
+}
 
 async function speak(text, file, style = TEACHER, voice = VOICE) {
   // Gemini 3.x TTS uslub ko'rsatmasini ham ovoz chiqarib o'qib yuboradi (systemInstruction ham yo'q):
@@ -90,7 +106,8 @@ if (test) {
 // ---------- Sahnadagi qahramonning jonli ovozlari (sintez "pip-pip" o'rniga) ----------
 // Ilova ularni sfx/voice-<nom> dan oladi (audio.ts → voiceFx).
 const CHARACTER =
-  'You are a cute, playful cartoon character (like a small animated toy) with a bright, expressive, child-like voice. ' +
+  'You are a cute, playful cartoon character (like a small animated toy) with a bright, expressive, child-like voice, ' +
+  'and you are Uzbek: say Uzbek words with native Uzbek pronunciation, no Russian or English accent. ' +
   'Perform this short vocal reaction with big emotion, very expressive, like in an animated movie. No extra words.'
 const REACTIONS = {
   bonk: 'Voy!',
@@ -142,7 +159,7 @@ for (const p of prompts) {
   // Bepul tarifda daqiqalik so'rov limiti bor: GEN_DELAY_MS bilan sekinlashtirish mumkin
   if (process.env.GEN_DELAY_MS) await new Promise((r) => setTimeout(r, Number(process.env.GEN_DELAY_MS)))
   try {
-    await speak(text, join(dir, `${p.key}.wav`), TEACHER, p.voice ?? VOICE)
+    await speak(text, join(dir, `${p.key}.wav`), styleFor(p.key), p.voice ?? VOICE)
     ok++
     console.log(`✓ ${p.key}: ${text}`)
   } catch (e) {
