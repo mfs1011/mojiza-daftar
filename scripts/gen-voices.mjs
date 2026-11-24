@@ -222,7 +222,9 @@ for (const p of prompts) {
   // Bepul tarifda daqiqalik so'rov limiti bor: GEN_DELAY_MS bilan sekinlashtirish mumkin
   if (process.env.GEN_DELAY_MS) await new Promise((r) => setTimeout(r, Number(process.env.GEN_DELAY_MS)))
   try {
-    made[p.key] = await speak(text, join(dir, `${p.key}.wav`), styleFor(p.key), p.voice ?? VOICE, needStyle(p.key))
+    // GEN_ALLOW_PLAIN=mijoz_ — bu kalitlar vaqtincha uslubsiz modelda ham yaratiladi (keyin --redo sifatlisiga almashtiradi)
+    const plainOk = (process.env.GEN_ALLOW_PLAIN ?? '').split(',').filter(Boolean).some((pre) => p.key.startsWith(pre))
+    made[p.key] = await speak(text, join(dir, `${p.key}.wav`), styleFor(p.key), p.voice ?? VOICE, needStyle(p.key) && !plainOk)
     writeFileSync(madeFile, JSON.stringify(made, null, 1))
     ok++
     console.log(`✓ ${p.key}: ${text}`)
