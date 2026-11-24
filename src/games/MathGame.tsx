@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
+import { useHowTo } from '../components/useHowTo'
 import { CountGroup, numberOptions, NumberChoices } from '../components/NumberBits'
 import { say, sfx } from '../lib/audio'
 import { ALL_FRUITS, type FruitKind } from '../lib/names'
@@ -99,7 +100,7 @@ const answerOf = (r: Round): number | string =>
               ? '<'
               : '='
 
-export function MathGame({ level, onComplete, onExit }: GameProps) {
+export function MathGame({ profile, level, onComplete, onExit }: GameProps) {
   const rounds = useMemo(() => {
     const endless = level >= MATH_LEVELS.length
     const cfg = levelRow(MATH_LEVELS, level)
@@ -114,23 +115,20 @@ export function MathGame({ level, onComplete, onExit }: GameProps) {
   const boardRef = useRef<HTMLDivElement>(null)
   const r = rounds[idx]
   const answer = answerOf(r)
+  // "Qanday bajariladi?": qo'l to'g'ri javobni bosib ko'rsatadi
+  const howto = useHowTo(profile.id, 'hisob', () => howto.tap(`.num-card[data-value="${answer}"]`))
 
   useEffect(() => {
-    const intro: Record<RType, string> = {
-      qosh: 'hisob_qosh',
-      ayir: 'hisob_ayir',
-      misol: 'hisob_misol',
-      tushgan: 'hisob_tushgan',
-      belgi: 'hisob_belgi',
-    }
     // Ayirishda mevalar ketib bo'lgach savol beriladi
-    const t = setTimeout(() => void say(intro[r.type]), r.type === 'ayir' ? 1600 : 300)
+    const t = setTimeout(() => howto.start(r.type, [`hisob_${r.type}`]), r.type === 'ayir' ? 1600 : 300)
     return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [r])
 
   function pickAnswer(v: number | string) {
     if (solved) return
     if (v === answer) {
+      howto.done()
       sfx.success()
       react('happy', 1800)
       burstAt(boardRef.current)
@@ -146,6 +144,7 @@ export function MathGame({ level, onComplete, onExit }: GameProps) {
       }, 1900)
     } else {
       mistakes.current++
+      howto.miss()
       sfx.wrong()
       react('oops')
       setWrong(v)
@@ -215,6 +214,7 @@ export function MathGame({ level, onComplete, onExit }: GameProps) {
         onPick={pickAnswer}
       />
 
+      {!solved && howto.overlay}
       {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.length })} />}
     </GameShell>
   )

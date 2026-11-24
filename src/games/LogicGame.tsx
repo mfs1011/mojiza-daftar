@@ -6,6 +6,7 @@ import { PAINT_ORDER, SHAPE_ORDER, ShapeArt, type PaintId, type ShapeId } from '
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
+import { useHowTo } from '../components/useHowTo'
 import { Hero } from '../components/Hero'
 import { say, sfx } from '../lib/audio'
 import { ALL_ANIMALS, ALL_FRUITS, type AnimalId, type FruitKind } from '../lib/names'
@@ -161,6 +162,32 @@ function makeMaze(w: number, h: number): Maze {
   return { w, h, wallR, wallB }
 }
 
+/** Labirint yechimi (BFS): boshidan (0,0) uyigacha kataklar */
+function solveMaze(m: Maze): [number, number][] {
+  const goal = `${m.w - 1},${m.h - 1}`
+  const prev = new Map<string, string | null>([['0,0', null]])
+  const q: [number, number][] = [[0, 0]]
+  while (q.length) {
+    const [x, y] = q.shift()!
+    if (`${x},${y}` === goal) break
+    for (const [nx, ny] of [
+      [x + 1, y],
+      [x - 1, y],
+      [x, y + 1],
+      [x, y - 1],
+    ] as [number, number][]) {
+      const k = `${nx},${ny}`
+      if (!prev.has(k) && canMove(m, x, y, nx, ny)) {
+        prev.set(k, `${x},${y}`)
+        q.push([nx, ny])
+      }
+    }
+  }
+  const path: [number, number][] = []
+  for (let k: string | null | undefined = goal; k; k = prev.get(k)) path.unshift(k.split(',').map(Number) as [number, number])
+  return path
+}
+
 function canMove(m: Maze, x: number, y: number, nx: number, ny: number) {
   if (nx < 0 || ny < 0 || nx >= m.w || ny >= m.h) return false
   if (Math.abs(nx - x) + Math.abs(ny - y) !== 1) return false
@@ -215,11 +242,42 @@ export function LogicGame({ profile, level, onComplete, onExit }: GameProps) {
   const boardRef = useRef<HTMLDivElement>(null)
   const r = rounds[idx]
 
+  // "Qanday bajariladi?"
+  const howto = useHowTo(profile.id, 'mantiq', () => {
+    if (r.type === 'ortiqcha') return howto.tap(`.odd-card[data-i="${r.odd}"]`)
+    if (r.type === 'tiz') {
+      const items = [...document.querySelectorAll<HTMLElement>('.size-item')]
+      const min = items.sort((a, b) => Number(a.dataset.scale) - Number(b.dataset.scale))[0]
+      if (min) howto.tap(`.size-item[data-scale="${min.dataset.scale}"]`)
+      return
+    }
+    if (r.type === 'juft') {
+      // Bir xil ikki kartani bog'lab ko'rsatadi
+      const cards = [...document.querySelectorAll<HTMLElement>('.mem-card:not(.matched)')]
+      const a = cards[0]
+      const b = cards.find((c) => c !== a && c.dataset.key === a?.dataset.key)
+      if (!a || !b) return
+      const ra = a.getBoundingClientRect()
+      const rb = b.getBoundingClientRect()
+      const p0 = { x: ra.left + ra.width / 2, y: ra.top + ra.height / 2 }
+      const p1 = { x: rb.left + rb.width / 2, y: rb.top + rb.height / 2 }
+      return howto.drag(Array.from({ length: 14 }, (_, i) => ({ x: p0.x + ((p1.x - p0.x) * i) / 13, y: p0.y + ((p1.y - p0.y) * i) / 13 })))
+    }
+    // Labirint: boshidan uyigacha yo'lni chizib ko'rsatadi
+    const el = document.querySelector('.maze')
+    if (!el || r.type !== 'labirint') return
+    const b = el.getBoundingClientRect()
+    const m = r.maze
+    howto.drag(solveMaze(m).map(([x, y]) => ({ x: b.left + ((x + 0.5) / m.w) * b.width, y: b.top + ((y + 0.5) / m.h) * b.height })))
+  })
+
   useEffect(() => {
-    void say(`mantiq_${r.type}`)
+    howto.start(r.type, [`mantiq_${r.type}`])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [r])
 
   function solved() {
+    howto.done()
     sfx.success()
     react('happy', 1800)
     burstAt(boardRef.current)
@@ -235,6 +293,7 @@ export function LogicGame({ profile, level, onComplete, onExit }: GameProps) {
 
   function oops() {
     mistakes.current++
+    howto.miss()
     sfx.wrong()
     react('oops')
   }
@@ -243,10 +302,11 @@ export function LogicGame({ profile, level, onComplete, onExit }: GameProps) {
     <GameShell className="logic" mascot={mascot} round={idx} rounds={rounds.length} onExit={onExit} data={{ 'data-type': r.type }}>
       <div className="logic-board" ref={boardRef} key={`l-${idx}`}>
         {r.type === 'ortiqcha' && <OddOne round={r} onWin={solved} onMiss={oops} />}
-        {r.type === 'juft' && <Memory cards={r.cards} preview={r.preview} onWin={solved} onMiss={() => (mistakes.current += 0.5)} />}
+        {r.type === 'juft' && <Memory cards={r.cards} preview={r.preview} onWin={solved} onMiss={() => ((mistakes.current += 0.5), howto.miss())} />}
         {r.type === 'tiz' && <SizeOrder fruit={r.fruit} scales={r.scales} onWin={solved} onMiss={oops} />}
         {r.type === 'labirint' && <MazeView maze={r.maze} profile={profile} onWin={solved} />}
       </div>
+      {!finished && howto.overlay}
       {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: Math.floor(mistakes.current), tasks: rounds.length })} />}
     </GameShell>
   )

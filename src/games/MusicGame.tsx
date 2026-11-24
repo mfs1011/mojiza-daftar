@@ -2,6 +2,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Celebration } from '../components/Celebration'
 import { GameShell, useMascot } from '../components/GameShell'
+import { useHowTo } from '../components/useHowTo'
+import { isNewTask } from '../lib/howto'
 import { say, setMusic, sfx } from '../lib/audio'
 import { getSettings } from '../lib/settings'
 import { INSTRUMENTS, NOTE_COLORS, NOTE_NAMES, PAD_COLORS, PADS, playNote, type InstrumentId } from '../lib/instruments'
@@ -64,7 +66,7 @@ interface Note {
   drift: number
 }
 
-export function MusicGame({ level, onComplete, onExit }: GameProps) {
+export function MusicGame({ profile, level, onComplete, onExit }: GameProps) {
   const cfg = useMemo(() => levelRow(MUSIC_LEVELS, level), [level])
   const songs = useMemo(() => Array.from({ length: ROUNDS }, () => melody(cfg)), [cfg])
   const [inst, setInst] = useState<InstrumentId>(cfg.inst)
@@ -113,9 +115,16 @@ export function MusicGame({ level, onComplete, onExit }: GameProps) {
     void say('musiqa_sen')
   }
 
+  // "Qanday bajariladi?": yordam — kuyni qayta chalib ko'rsatish (birinchi marta oldin tushuntiriladi)
+  const howto = useHowTo(profile.id, 'musiqa', () => void demo())
+
   useEffect(() => {
-    if (mode === 'takrorla') void demo()
-    else {
+    if (mode === 'takrorla') {
+      const fresh = isNewTask(profile.id, 'musiqa_takrorla')
+      howto.start('takrorla', [])
+      if (!fresh) void demo()
+    } else {
+      howto.done()
       token.current++
       setLit(null)
       void say('musiqa_erkin')
@@ -141,6 +150,7 @@ export function MusicGame({ level, onComplete, onExit }: GameProps) {
       const next = pos + 1
       setPos(next)
       if (next === song.length) {
+        howto.done()
         setPhase('solved')
         react('happy', 1800)
         setTimeout(() => {
@@ -156,6 +166,7 @@ export function MusicGame({ level, onComplete, onExit }: GameProps) {
       mistakes.current++
       react('oops')
       setPhase('listen')
+      howto.miss()
       // Qayta tinglaymiz
       setTimeout(() => void demo(), 900)
     }
@@ -292,6 +303,7 @@ export function MusicGame({ level, onComplete, onExit }: GameProps) {
         </AnimatePresence>
       </div>
 
+      {mode === 'takrorla' && phase === 'input' && howto.overlay}
       {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: songs.reduce((a, s) => a + s.length, 0) })} />}
     </GameShell>
   )

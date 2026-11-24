@@ -5,6 +5,7 @@ import { FruitArt } from '../art/Fruit'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
+import { useHowTo } from '../components/useHowTo'
 import { say, sayAnimal, sfx } from '../lib/audio'
 import { ALL_ANIMALS, ALL_FRUITS } from '../lib/names'
 import { RIDDLES, type Riddle, type RiddleAnswer } from '../lib/poems'
@@ -56,7 +57,7 @@ function Pic({ a }: { a: RiddleAnswer }) {
   return a.k === 'animal' ? <AnimalArt id={a.id} /> : <FruitArt kind={a.id} />
 }
 
-export function PoemsGame({ level, onComplete, onExit }: GameProps) {
+export function PoemsGame({ profile, level, onComplete, onExit }: GameProps) {
   const cfg = useMemo(() => levelRow(POEM_LEVELS, level), [level])
   // Darajalar bo'ylab topishmoqlar navbatma-navbat almashadi (bir xil she'r ketma-ket kelmasin)
   const rounds = useMemo(() => {
@@ -78,11 +79,20 @@ export function PoemsGame({ level, onComplete, onExit }: GameProps) {
     setListening(true)
     void say(`sher_${riddle.id}`, 'sher_top').then(() => setListening(false))
   }
-  useEffect(listen, [idx]) // eslint-disable-line react-hooks/exhaustive-deps
+  // "Qanday bajariladi?": birinchi marta — tushuntirish, keyin she'r; qo'l to'g'ri rasmni ko'rsatadi
+  const howto = useHowTo(profile.id, 'sher', () => howto.tap(`.poem-opt[data-key="${keyOf(riddle.answer)}"]`))
+  useEffect(() => {
+    setListening(true)
+    howto.start('topishmoq', [`sher_${riddle.id}`, 'sher_top'])
+    const t = setTimeout(() => setListening(false), 9000)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idx])
 
   function choose(a: RiddleAnswer) {
     if (solved) return
     if (keyOf(a) === keyOf(riddle.answer)) {
+      howto.done()
       sfx.success()
       react('happy', 2000)
       burstAt(boardRef.current)
@@ -102,6 +112,7 @@ export function PoemsGame({ level, onComplete, onExit }: GameProps) {
       }, 3200)
     } else {
       mistakes.current++
+      howto.miss()
       sfx.wrong()
       react('oops')
       setWrong(keyOf(a))
@@ -146,6 +157,7 @@ export function PoemsGame({ level, onComplete, onExit }: GameProps) {
         ))}
       </div>
 
+      {!solved && howto.overlay}
       {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.length })} />}
     </GameShell>
   )

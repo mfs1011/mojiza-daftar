@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Celebration } from '../components/Celebration'
 import { GameShell, useMascot } from '../components/GameShell'
 import { TraceBoard } from '../components/TraceBoard'
+import { useHowTo } from '../components/useHowTo'
+import type { HandPath } from '../components/HandHint'
 import { say, sfx } from '../lib/audio'
 import { levelRow } from '../lib/stations'
 import { ALPHABET, letterVoice, STROKE_LABELS } from '../lib/letters'
@@ -81,7 +83,7 @@ function itemsFor(pools: Pool[]): Item[] {
   })
 }
 
-export function WritingGame({ level, onComplete, onExit }: GameProps) {
+export function WritingGame({ profile, level, onComplete, onExit }: GameProps) {
   const cfg = useMemo(() => levelRow(WRITE_LEVELS, level), [level])
   const items = useMemo(() => itemsFor(level >= WRITE_LEVELS.length ? shuffle(cfg.rounds) : cfg.rounds), [cfg, level])
   const [idx, setIdx] = useState(0)
@@ -91,12 +93,17 @@ export function WritingGame({ level, onComplete, onExit }: GameProps) {
   const traces = useRef<TraceStat[]>([])
   const it = items[idx]
 
+  const guide = useRef<HandPath>([])
+  // "Qanday bajariladi?": qo'l chiziq (harf) bo'ylab yurib ko'rsatadi
+  const howto = useHowTo(profile.id, 'yozuv', () => howto.drag(guide.current))
   useEffect(() => {
-    if (it.kind === 'chiziq') void say('yozuv_chiz', `yozuv_${it.id}`)
-    else void say('yozuv_harf', it.voice)
+    if (it.kind === 'chiziq') howto.start('chiziq', ['yozuv_chiz', `yozuv_${it.id}`])
+    else howto.start('belgi', ['yozuv_harf', it.voice])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [it])
 
   function done() {
+    howto.done()
     sfx.magic()
     react('happy', 1800)
     void say(...(it.kind === 'belgi' ? [it.voice] : []), 'barakalla')
@@ -120,12 +127,15 @@ export function WritingGame({ level, onComplete, onExit }: GameProps) {
             traces.current.push({ glyph: it.kind === 'chiziq' ? STROKE_LABELS[it.id] : it.text, ...st })
             done()
           }}
+          onGuide={(pts) => (guide.current = pts)}
           onMistake={() => {
             mistakes.current++
+            howto.miss()
             react('oops')
           }}
         />
       </div>
+      {!finished && howto.overlay}
       {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: items.length, traces: traces.current })} />}
     </GameShell>
   )

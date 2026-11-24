@@ -4,6 +4,7 @@ import { MIXES, PAINT_ORDER, PaintBlob, SHAPE_ORDER, ShapeArt, type PaintId, typ
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
+import { pathBetween, useHowTo } from '../components/useHowTo'
 import { say, sfx } from '../lib/audio'
 import { levelRow } from '../lib/stations'
 import { pick, shuffle } from '../lib/util'
@@ -95,7 +96,7 @@ function makeRound(type: RType, cfg: ShapeCfg): Round {
   }
 }
 
-export function ShapesGame({ level, onComplete, onExit }: GameProps) {
+export function ShapesGame({ profile, level, onComplete, onExit }: GameProps) {
   const rounds = useMemo(() => {
     const endless = level >= SHAPE_LEVELS.length
     const cfg = levelRow(SHAPE_LEVELS, level)
@@ -112,14 +113,37 @@ export function ShapesGame({ level, onComplete, onExit }: GameProps) {
   const holeRefs = useRef<(HTMLDivElement | null)[]>([])
   const r = rounds[idx]
 
-  function instruct() {
-    if (r.type === 'shakl') void say(`shakl_${r.target}`, 'shakl_qani')
-    else if (r.type === 'rang') void say(`rang_${r.target}`, 'shakl_qani')
-    else if (r.type === 'ikkalasi') void say(`rang_${r.target.color}`, `shakl_${r.target.shape}`, 'shakl_qani')
-    else if (r.type === 'teshik') void say('shakl_teshik')
-    else void say(`rang_${r.mix[0]}`, `rang_${r.mix[1]}`, 'rang_aralash')
-  }
-  useEffect(instruct, [r]) // eslint-disable-line react-hooks/exhaustive-deps
+  const keys = (): string[] =>
+    r.type === 'shakl'
+      ? [`shakl_${r.target}`, 'shakl_qani']
+      : r.type === 'rang'
+        ? [`rang_${r.target}`, 'shakl_qani']
+        : r.type === 'ikkalasi'
+          ? [`rang_${r.target.color}`, `shakl_${r.target.shape}`, 'shakl_qani']
+          : r.type === 'teshik'
+            ? ['shakl_teshik']
+            : [`rang_${r.mix[0]}`, `rang_${r.mix[1]}`, 'rang_aralash']
+  const instruct = () => void say(...keys())
+
+  // "Qanday bajariladi?": to'g'ri javobni bosib yoki shaklni uyasiga sudrab ko'rsatadi
+  const answerIdx = () =>
+    r.type === 'shakl'
+      ? r.options.findIndex((o) => o.shape === r.target)
+      : r.type === 'rang'
+        ? r.options.indexOf(r.target)
+        : r.type === 'ikkalasi'
+          ? r.options.findIndex((o) => same(o, r.target))
+          : r.type === 'aralash'
+            ? r.options.indexOf(r.mix[2])
+            : -1
+  const howto = useHowTo(profile.id, 'shakl', () => {
+    if (r.type !== 'teshik') return howto.tap(`.shape-choices > :nth-child(${answerIdx() + 1})`)
+    const i = r.holes.findIndex((_, k) => !placed.has(k))
+    if (i < 0) return
+    const hole = r.holes.findIndex((s, k) => s === r.holes[i] && !placed.has(k))
+    howto.drag(pathBetween(`.shape-piece[data-shape="${r.holes[i]}"]`, `.sorter-hole:nth-child(${hole + 1})`))
+  })
+  useEffect(() => howto.start(r.type, keys()), [r]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function next() {
     setTimeout(() => {
@@ -134,6 +158,7 @@ export function ShapesGame({ level, onComplete, onExit }: GameProps) {
   }
 
   function good(i: number, spoken: string[]) {
+    howto.done()
     sfx.success()
     react('happy', 1800)
     burstAt(boardRef.current)
@@ -144,6 +169,7 @@ export function ShapesGame({ level, onComplete, onExit }: GameProps) {
 
   function bad(i: number) {
     mistakes.current++
+    howto.miss()
     sfx.wrong()
     react('oops')
     setWrong(i)
@@ -283,6 +309,7 @@ export function ShapesGame({ level, onComplete, onExit }: GameProps) {
         </div>
       )}
 
+      {solved === null && howto.overlay}
       {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.reduce((a, r) => a + (r.type === 'teshik' ? r.holes.length : 1), 0) })} />}
     </GameShell>
   )
