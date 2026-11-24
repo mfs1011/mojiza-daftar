@@ -9,6 +9,7 @@ import { say, sfx } from '../lib/audio'
 import { pick, shuffle } from '../lib/util'
 import { levelRow } from '../lib/stations'
 import type { GameProps } from '../types'
+import { Garden3D, hasWebGL } from './Garden3D'
 
 // 🍎 Bog' — saralash (#2).
 // Har raund: daraxtni silkitish (bosish yoki telefonni silkitish) → mevalar yerga tushadi →
@@ -138,6 +139,8 @@ export function Garden({ level, onComplete, onExit }: GameProps) {
   const [phase, setPhase] = useState<'tree' | 'ground' | 'next' | 'finished'>('tree')
   const [sorted, setSorted] = useState<Set<number>>(new Set())
   const [shakeTree, setShakeTree] = useState(0)
+  // 3D sahna (WebGL bo'lsa); aks holda eski 2D ko'rinish
+  const [gl] = useState(hasWebGL)
   const [shakeBasket, setShakeBasket] = useState<string | null>(null)
   const [mascot, react] = useMascot()
   const mistakes = useRef(0)
@@ -173,6 +176,27 @@ export function Garden({ level, onComplete, onExit }: GameProps) {
     window.addEventListener('devicemotion', onMotion)
     return () => window.removeEventListener('devicemotion', onMotion)
   }, [])
+
+  // 3D sahna: savatga tashlandi — to'g'rimi?
+  function dropTo(item: Item, groupId: string): boolean {
+    const hit = round.groups.find((g) => g.id === groupId)
+    if (!hit) return false
+    if (hit.id === item.group) {
+      sfx.pop()
+      react('happy')
+      const next = new Set(sorted).add(item.id)
+      setSorted(next)
+      if (cfg.type === 'rang' && hit.color) void say(`rang_${hit.color}`)
+      else if (cfg.type === 'tur') void say(`meva_${item.kind}`)
+      if (next.size === round.items.length) finishRound()
+      return true
+    }
+    mistakes.current++
+    sfx.wrong()
+    react('oops')
+    void say('yana')
+    return false
+  }
 
   function handleDrop(item: Item, info: PanInfo) {
     const { x, y } = info.point
@@ -217,6 +241,35 @@ export function Garden({ level, onComplete, onExit }: GameProps) {
   }
 
   const showHint = level <= 1 || cfg.type !== 'rang'
+
+  if (gl)
+    return (
+      <GameShell className="garden g3" mascot={mascot} round={roundIdx} rounds={rounds.length} onExit={onExit} data={{ 'data-phase': phase, 'data-round': cfg.type }}>
+        <Garden3D
+          key={`g3-${roundIdx}`}
+          items={round.items}
+          groups={round.groups}
+          // Daraja oshgan sari mevalar shoxda mahkamroq turadi (ko'proq silkitish kerak)
+          holdMax={level < 2 ? 1 : level < 5 ? 2 : level < 10 ? 3 : 4}
+          showHint={showHint}
+          onShake={() => {
+            if (phase === 'tree') react('happy', 700)
+          }}
+          onAllDown={() => {
+            if (phase !== 'tree') return
+            setPhase('ground')
+            void say(INTRO[cfg.type])
+          }}
+          onDrop={(id, groupId) => dropTo(round.items.find((it) => it.id === id)!, groupId)}
+        />
+        {phase === 'finished' && (
+          <Celebration
+            voice={['barakalla']}
+            onDone={() => onComplete({ mistakes: mistakes.current, fruits: totalFruits.current, tasks: totalFruits.current })}
+          />
+        )}
+      </GameShell>
+    )
 
   return (
     <GameShell

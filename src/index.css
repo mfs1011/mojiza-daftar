@@ -4181,3 +4181,45 @@ button {
 .mode-btn {
   white-space: nowrap;
 }
+
+/* ---------- 🌳 Bog' (3D) ---------- */
+
+.garden.g3 {
+  background: #cfe9f7;
+}
+
+.garden3d {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+}
+
+.garden3d canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Daraxtga ishora: "meni bos/silkit" — yumshoq pulsatsiya */
+.g3-hint {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+.g3-hint span {
+  position: absolute;
+  width: 16vmin;
+  height: 16vmin;
+  margin: -8vmin 0 0 -8vmin;
+  border-radius: 50%;
+  border: 1vmin solid #fff;
+  box-shadow: 0 0 2vmin #fff;
+  animation: g3pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes g3pulse {
+  0%, 100% { transform: scale(0.85); opacity: 0.9; }
+  50% { transform: scale(1.15); opacity: 0.4; }
+}
