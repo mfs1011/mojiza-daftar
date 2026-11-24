@@ -129,7 +129,16 @@ export function makeMask(glyph: Glyph, w: number, h: number): TraceMask {
   return { w, h, letter: mask, near, count, layout }
 }
 
-export function scoreTrace(m: TraceMask, user: Uint8ClampedArray): { coverage: number; outside: number; userCount: number } {
+export function scoreTrace(
+  m: TraceMask,
+  user: Uint8ClampedArray,
+): { coverage: number; outside: number; userCount: number; parts: number } {
+  // Harf kichik kataklarga (≈ chiziq qalinligi) bo'linadi: HAR bir qismi chizilgan bo'lishi kerak —
+  // umumiy foizgina yetarli emas (aks holda harfning bir bo'lagini tashlab ketsa ham o'tib ketardi)
+  const cell = Math.max(10, Math.round((m.layout.lineWidth ?? 24) * 1.2))
+  const cols = Math.ceil(m.w / cell)
+  const cellLetter = new Map<number, number>()
+  const cellCovered = new Map<number, number>()
   let covered = 0
   let letterSeen = 0
   let userCount = 0
@@ -141,7 +150,12 @@ export function scoreTrace(m: TraceMask, user: Uint8ClampedArray): { coverage: n
       const u = user[i * 4 + 3] > 40
       if (m.letter[i]) {
         letterSeen++
-        if (u) covered++
+        const c = Math.floor(y / cell) * cols + Math.floor(x / cell)
+        cellLetter.set(c, (cellLetter.get(c) ?? 0) + 1)
+        if (u) {
+          covered++
+          cellCovered.set(c, (cellCovered.get(c) ?? 0) + 1)
+        }
       }
       if (u) {
         userCount++
@@ -149,10 +163,20 @@ export function scoreTrace(m: TraceMask, user: Uint8ClampedArray): { coverage: n
       }
     }
   }
+  // Katakning ozgina qismi harf bo'lsa (chet) — hisobga olinmaydi; qolganlarining ≥25% bo'yalgan bo'lsa — "chizilgan"
+  let partsTotal = 0
+  let partsDone = 0
+  const minPx = (cell / 2) * (cell / 2) * 0.15
+  for (const [c, n] of cellLetter) {
+    if (n < minPx) continue
+    partsTotal++
+    if ((cellCovered.get(c) ?? 0) / n >= 0.25) partsDone++
+  }
   return {
     coverage: letterSeen ? covered / letterSeen : 0,
     outside: userCount ? outside / userCount : 0,
     userCount,
+    parts: partsTotal ? partsDone / partsTotal : 0,
   }
 }
 

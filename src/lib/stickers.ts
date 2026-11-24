@@ -1,6 +1,6 @@
 import { ALL_ANIMALS, ALL_FRUITS } from './names.ts'
 import { SHAPE_ORDER } from './shapes.ts'
-import { ALL_THINGS, THINGS } from './things.ts'
+import { ALL_THINGS, THINGS, type ThingId } from './things.ts'
 
 // Stiker albomi: har o'tilgan darajada bitta stiker. Avval hali yo'q stikerlar beriladi —
 // bola albomni to'ldirishga intiladi. Ovoz: stiker nomi (hayvon_*, meva_*, shakl_*, odam_*).
@@ -44,11 +44,19 @@ export const STICKER_PAGES: { kind: StickerPage; title: string }[] = [
   { kind: 'shape', title: 'Shakllar' },
 ]
 
+/** Rasmi tayyor stikerlar (yangi narsaning rasmi hali yaratilmagan bo'lsa — albomda ham, sovg'ada ham ko'rinmaydi) */
+let readyCheck: (id: ThingId) => boolean = () => true
+export function setThingReady(fn: (id: ThingId) => boolean) {
+  readyCheck = fn
+}
+export const visibleStickers = () => STICKERS.filter((s) => s.kind !== 'thing' || readyCheck(s.ref as ThingId))
+
 /** Keyingi stiker: avval yo'qlaridan tasodifiy, hammasi yig'ilgan bo'lsa — istalgani */
 export function nextSticker(owned: string[]): Sticker {
   const have = new Set(owned)
-  const fresh = STICKERS.filter((s) => !have.has(s.id))
-  const pool = fresh.length ? fresh : STICKERS
+  const all = visibleStickers()
+  const fresh = all.filter((s) => !have.has(s.id))
+  const pool = fresh.length ? fresh : all
   return pool[Math.floor(Math.random() * pool.length)]
 }
 

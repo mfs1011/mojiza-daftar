@@ -123,7 +123,8 @@ export function TraceBoard({
     if (!m || doneRef.current) return
     const data = userRef.current!.getContext('2d')!.getImageData(0, 0, m.w, m.h).data
     const s = scoreTrace(m, data)
-    if (s.coverage >= threshold && s.outside <= 0.45) {
+    // Umumiy qamrov + harfning har bir qismi (≥90% kataklar) chizilgan bo'lishi kerak
+    if (s.coverage >= threshold && s.parts >= 0.9 && s.outside <= 0.45) {
       doneRef.current = true
       setDone(true)
       const g = guideRef.current!.getContext('2d')!

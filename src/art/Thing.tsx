@@ -1,4 +1,5 @@
 import { animOf, artUrl } from '../lib/assets'
+import { setThingReady } from '../lib/stickers'
 import { THINGS, type ThingId } from '../lib/things'
 import { ArtImg, ArtSprite } from './ArtImg'
 
@@ -21,3 +22,6 @@ export function ThingArt({ id, className }: { id: ThingId; className?: string })
 
 /** Rasmi tayyormi (rasm kelmaguncha topishmoq/variantlarda chiqmaydi) */
 export const thingReady = (id: ThingId) => !!(animOf(THINGS[id].art) || artUrl(THINGS[id].art))
+
+// Stiker tizimi rasmi tayyor narsalarnigina ko'rsatadi
+setThingReady(thingReady)

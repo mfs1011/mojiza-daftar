@@ -54,8 +54,14 @@ const PAUSE = ' Read every line as a separate short phrase and make a long pause
 /** Ovozga ketadigan matn: rasmiy oʻ/gʻ, tovush taqlidlari va harf yozuvlari tozalanadi */
 function sayText(p) {
   const raw = p.key.startsWith('tovush_') ? p.text.split(': ').slice(1).join(': ').replace(/"/g, '') : p.text.replace(/^"(.+)" harfi$/, '$1')
-  return raw.replace(/([OoGg])['‘’`]/g, '$1ʻ').trim()
+  const text = raw.replace(/([OoGg])['‘’`]/g, '$1ʻ').trim()
+  // Harf nomi yolg'iz bo'g'in bo'lsa ("Be", "E") model uni inglizcha o'qishi mumkin: o'zbekcha gap ichida
+  // o'qitiladi, keyin aligner faqat «…» ichidagi nomni kesib oladi
+  if (/^harf_(?!chiz$|top$)/.test(p.key)) return `Bu «${text}» harfi.`
+  return text
 }
+/** Tekshiruv uchun: kesib olinadigan qism uzunligi */
+const spokenLen = (say) => (/«([^»]+)»/.exec(say)?.[1] ?? say).length
 
 /** Kim va qanday ohangda gapiradi */
 function roleOf(p) {
@@ -192,10 +198,14 @@ function splitAligned(wavBuf, x, items) {
   for (let i = 0; i < items.length; i++) {
     const { a0, a1 } = t[i]
     // Nutq davomiyligi matnga mos bo'lishi kerak (model jumlani tashlab ketgan bo'lsa — qayta so'raladi)
-    const chars = items[i].say.length
-    if (a1 - a0 < 0.12 + chars * 0.02 || a1 - a0 > 1.5 + chars * 0.2) return null
-    const from = i === 0 ? Math.max(0, a0 - 0.15) : (t[i - 1].a1 + a0) / 2
-    const to = i === items.length - 1 ? Math.min(total, a1 + 0.3) : (a1 + t[i + 1].a0) / 2
+    const chars = spokenLen(items[i].say)
+    const marked = items[i].say.includes('«')
+    // Gap ichidan kesilgan bitta harf juda qisqa bo'lishi mumkin ("A" ≈ 0,1 s)
+    const min = marked ? 0.05 : 0.12 + chars * 0.02
+    if (a1 - a0 < min || a1 - a0 > 1.5 + chars * 0.2) return null
+    // Gap ichidan so'z kesilsa — aniq chegarada (atrofidagi gap kirmasin), aks holda qo'shni jumlalar o'rtasidan
+    const from = marked ? Math.max(0, a0 - 0.05) : i === 0 ? Math.max(0, a0 - 0.15) : (t[i - 1].a1 + a0) / 2
+    const to = marked ? Math.min(total, a1 + 0.12) : i === items.length - 1 ? Math.min(total, a1 + 0.3) : (a1 + t[i + 1].a0) / 2
     segs.push(x.subarray(Math.round(from * SR), Math.round(to * SR)))
   }
   return segs
@@ -257,7 +267,8 @@ async function run(items) {
   const style = items[0].style + (items.length > 1 ? PAUSE : '')
   const wav = await tts(text, style, items[0].voice)
   const x = decode(wav)
-  const segs = items.length === 1 ? [x] : HAS_ALIGN ? splitAligned(wav, x, items) : split(x, items)
+  const needAlign = items.length > 1 || items[0].say.includes('«')
+  const segs = !needAlign ? [x] : HAS_ALIGN ? splitAligned(wav, x, items) : split(x, items)
   if (!segs) {
     if (items.length === 1) throw new Error('nutq uzunligi matnga mos emas')
     console.log(`  ✂ ${items.length} ta jumla aniq kesilmadi — ikkiga bo'lib qayta so'rayman`)

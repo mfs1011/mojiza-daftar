@@ -74,11 +74,20 @@ def main():
     sec_per_frame = wave.shape[1] / frames / SR
 
     # (jumla raqami yoki None, token): boshida, jumlalar orasida va oxirida `*`
+    # «…» ichidagi qism bo'lsa — faqat o'sha so'z(lar)ning vaqti qaytariladi
+    # (masalan harf nomi o'zbekcha gap ichida o'qitiladi: "Bu «Be» harfi." → faqat "Be")
     units = [(None, "*")]
+    target = {}
     for i, line in enumerate(lines):
         if i:
             units.append((None, "*"))
-        toks = tokens_of(line)
+        m = re.search(r"«([^»]+)»", line)
+        if m:
+            before, inner, after = tokens_of(line[: m.start()]), tokens_of(m.group(1)), tokens_of(line[m.end():])
+            toks = before + inner + after
+            target[i] = (len(before), len(before) + len(inner))
+        else:
+            toks = tokens_of(line)
         if not toks:
             # Faqat belgi/raqam — istalgan nutqni yutadigan `*`
             toks = ["*"]
@@ -87,8 +96,13 @@ def main():
 
     spans = aligner(emission[0], tokenizer([t for _, t in units]))
     result = [None] * len(lines)
+    pos = {}
     for (i, _), span in zip(units, spans):
         if i is None:
+            continue
+        k = pos.get(i, 0)
+        pos[i] = k + 1
+        if i in target and not (target[i][0] <= k < target[i][1]):
             continue
         a0 = max(0.0, span[0].start * sec_per_frame - 0.08)
         a1 = span[-1].end * sec_per_frame

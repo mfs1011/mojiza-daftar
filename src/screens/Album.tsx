@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Icon } from '../art/Icon'
 import { StickerArt } from '../components/RewardReveal'
 import { say, sfx } from '../lib/audio'
-import { STICKER_PAGES, STICKERS } from '../lib/stickers'
+import { STICKER_PAGES, visibleStickers } from '../lib/stickers'
 
 // 📒 Stiker albomi: yig'ilgan stikerlar rangli, yig'ilmaganlari — soya (bola nimani yig'ishi kerakligini ko'radi).
 // Stikerga bosilsa — nomi aytiladi.
@@ -13,8 +13,8 @@ export function Album({ owned, onBack }: { owned: string[]; onBack: () => void }
   const [page, setPage] = useState(0)
   const [poked, setPoked] = useState<string | null>(null)
   const { kind, title } = STICKER_PAGES[page]
-  const list = STICKERS.filter((s) => s.page === kind)
-  const got = STICKERS.filter((s) => have.has(s.id)).length
+  const list = visibleStickers().filter((s) => s.page === kind)
+  const got = visibleStickers().filter((s) => have.has(s.id)).length
 
   return (
     <div className="screen album">
@@ -28,7 +28,7 @@ export function Album({ owned, onBack }: { owned: string[]; onBack: () => void }
         </button>
         <div className="lp-title">📒 Albom</div>
         <div className="lp-total">
-          {got} / {STICKERS.length}
+          {got} / {visibleStickers().length}
         </div>
       </div>
 
@@ -44,7 +44,7 @@ export function Album({ owned, onBack }: { owned: string[]; onBack: () => void }
           >
             {p.title}
             <small>
-              {STICKERS.filter((s) => s.page === p.kind && have.has(s.id)).length}/{STICKERS.filter((s) => s.page === p.kind).length}
+              {visibleStickers().filter((s) => s.page === p.kind && have.has(s.id)).length}/{visibleStickers().filter((s) => s.page === p.kind).length}
             </small>
           </button>
         ))}
