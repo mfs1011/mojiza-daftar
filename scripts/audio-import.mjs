@@ -30,11 +30,11 @@ const INPUT = new Set(['.wav', '.mp3', '.ogg', '.oga', '.opus', '.m4a', '.aac', 
 const TYPES = {
   music: { dir: 'music', lufs: -18, tp: -1.5, ch: 2, kbps: 96, loop: true },
   animal: { dir: 'sfx/animals', lufs: -16, tp: -1.5, ch: 1, kbps: 96, loop: false },
-  sfx: { dir: 'sfx', lufs: -13, tp: -1, ch: 1, kbps: 96, loop: false },
+  sfx: { dir: 'sfx', lufs: -13, tp: -1, ch: 1, kbps: 96, loop: false, speech: true },
   ambience: { dir: 'ambience', lufs: -30, tp: -1.5, ch: 2, kbps: 64, loop: true },
   // TTS vokoderi yuqori chastotada "shitirlaydi" (bijillash): 6.5 kHz dan yuqorisi yumshoq kesiladi —
   // nutq tushunarliligiga ta'sir qilmaydi, quloqqa tozaroq eshitiladi
-  voice: { dir: 'voices', lufs: -16, tp: -1.5, ch: 1, kbps: 64, loop: false, tone: 'lowpass=f=6500:poles=2,highshelf=f=4000:g=-4' },
+  voice: { dir: 'voices', lufs: -16, tp: -1.5, ch: 1, kbps: 64, loop: false, speech: true, tone: 'lowpass=f=6500:poles=2,highshelf=f=4000:g=-4' },
 }
 
 /** Loop bo'lmagan musiqa: jingle'lar va alla (oxirida so'nadi) */
@@ -51,8 +51,60 @@ const TRIM = 'silenceremove=start_periods=1:start_threshold=-50dB:start_silence=
 const trimBoth = `${TRIM},areverse,${TRIM},areverse`
 const fades = 'afade=t=in:d=0.01,areverse,afade=t=in:d=0.01,areverse'
 
+/**
+ * TTS artefaktlarini kesish: Gemini TTS ba'zan faylning boshida va oxirida qisqa, baland, keng polosali
+ * "chirsillash" qoldiradi (spektrogrammada vertikal tasma). U nutqdan sukut bilan ajralgan — shuning uchun:
+ *   nutqni sukut bilan ajralgan orolchalarga bo'lamiz va chetlardagi 100 ms dan qisqa orolchalarni tashlaymiz
+ *   (so'z bunchalik qisqa bo'lmaydi; "t" portlashi, "s" shivirlashi so'zga yopishgan — saqlanadi).
+ * Natija: [start, end] soniyalarda yoki null (nutq topilmasa).
+ */
+function speechSpan(src) {
+  const R = 16000
+  const r = spawnSync('ffmpeg', ['-v', 'error', '-i', src, '-ac', '1', '-ar', String(R), '-f', 'f32le', '-'], { maxBuffer: 1 << 28 })
+  if (r.status !== 0) return null
+  const x = new Float32Array(r.stdout.buffer, r.stdout.byteOffset, r.stdout.length / 4)
+  const N = R / 100 // 10 ms
+  const db = []
+  const zcr = []
+  for (let i = 0; i + N <= x.length; i += N) {
+    let e = 0
+    let z = 0
+    for (let k = i; k < i + N; k++) {
+      e += x[k] * x[k]
+      if (k > i && (x[k] >= 0) !== (x[k - 1] >= 0)) z++
+    }
+    db.push(10 * Math.log10(e / N + 1e-12))
+    zcr.push(z / N)
+  }
+  const peak = Math.max(...db)
+  // Sukut (cho'qqidan 42 dB past) bilan ajratilgan "orolchalar"; 20 ms dan qisqa sukut orolchani bo'lmaydi
+  const loud = db.map((d) => d > peak - 42)
+  const isl = []
+  for (let i = 0; i < loud.length; i++) {
+    if (!loud[i]) continue
+    const last = isl[isl.length - 1]
+    if (last && i - last[1] <= 2) last[1] = i
+    else isl.push([i, i])
+  }
+  // Chetdagi artefakt: qisqa (160 ms dan kam) orolcha, yonida RAQAMLI jimlik (-95 dB dan past — tabiiy pauza
+  // hech qachon bunchalik toza bo'lmaydi) yoki o'zi 30 ms dan qisqa chirsillash. "Hi-hi-hi" kabi kulgi
+  // bo'g'inlari qisqa bo'lsa ham saqlanadi: ular orasida tabiiy (shovqinli) pauza bor.
+  const zeroNear = (from, to) => db.slice(Math.max(0, from), Math.max(0, to)).some((d) => d < -95)
+  const artefact = ([x, y]) => y - x + 1 < 16 && (y - x + 1 <= 3 || zeroNear(x - 4, x) || zeroNear(y + 1, y + 5))
+  while (isl.length > 1 && artefact(isl[0])) isl.shift()
+  while (isl.length > 1 && artefact(isl[isl.length - 1])) isl.pop()
+  if (!isl.length) return null
+  const a = isl[0][0]
+  const b = isl[isl.length - 1][1]
+  // Kichik zaxira: so'z boshi va oxiri kesilib qolmasin
+  return [Math.max(0, (a - 3) / 100), Math.min(db.length / 100, (b + 6) / 100)]
+}
+
 function convert(src, out, t, loop) {
-  const pre = [...(loop ? [] : [trimBoth]), ...(t.tone ? [t.tone] : [])]
+  // Ovozlar: artefaktlar sukut bilan ajratilgan joydan kesiladi (sukutni kesish ularni olib tashlay olmaydi)
+  const span = t.speech ? speechSpan(src) : null
+  const cut = span ? [`atrim=start=${span[0].toFixed(3)}:end=${span[1].toFixed(3)}`, 'asetpts=PTS-STARTPTS'] : []
+  const pre = [...cut, ...(loop ? [] : [trimBoth]), ...(t.tone ? [t.tone] : [])]
   const norm = `loudnorm=I=${t.lufs}:TP=${t.tp}:LRA=11`
   // 1-bosqich: o'lchash
   const log = ffmpeg(['-i', src, '-af', [...pre, `${norm}:print_format=json`].join(','), '-f', 'null', '-'])
