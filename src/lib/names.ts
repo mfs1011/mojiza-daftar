@@ -38,6 +38,9 @@ export const FRUIT_NAMES: Record<FruitKind, string> = {
 
 export const ALL_FRUITS = Object.keys(FRUIT_NAMES) as FruitKind[]
 
+/** Bozorda sotiladigan mevalar (mijozlar shularni so'raydi) */
+export const MARKET_FRUITS: FruitKind[] = ['olma', 'anor', 'orik', 'nok', 'behi', 'uzum']
+
 export type AnimalId = 'sigir' | 'qoy' | 'echki' | 'xoroz' | 'it' | 'mushuk' | 'ordak' | 'eshak'
 
 export const ANIMAL_NAMES: Record<AnimalId, string> = {

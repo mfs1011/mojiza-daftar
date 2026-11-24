@@ -2,7 +2,7 @@ import type { Profile } from '../types.ts'
 import { PAINT_NAMES, PAINT_ORDER, SHAPE_NAMES, SHAPE_ORDER } from './shapes.ts'
 import { ALPHABET, letterVoice } from './letters.ts'
 import { RIDDLES } from './poems.ts'
-import { ALL_ANIMALS, ALL_FRUITS, ANIMAL_NAMES, ANIMAL_SOUNDS, FRUIT_NAMES } from './names.ts'
+import { ALL_ANIMALS, ALL_FRUITS, ANIMAL_NAMES, ANIMAL_SOUNDS, FRUIT_NAMES, MARKET_FRUITS } from './names.ts'
 
 export interface VoicePrompt {
   key: string
@@ -22,6 +22,9 @@ export const CUSTOMER_VOICES = {
   bola: 'Puck', // sho'x bola
 } as const
 export type CustomerId = keyof typeof CUSTOMER_VOICES
+
+/** "Menga beshta" — son "-ta" qo'shimchasi bilan (buyurtmaning birinchi yarmi) */
+const COUNT_WORDS = ['bitta', 'ikkita', 'uchta', "to'rtta", 'beshta', 'oltita', 'yettita', 'sakkizta', "to'qqizta", "o'nta"]
 
 const CUSTOMER_LINES: Record<CustomerId, Record<'salom' | 'kam' | 'kop' | 'rahmat', string>> = {
   bobo: { salom: 'Assalomu alaykum, bolam!', kam: 'Yana bering, bolam.', kop: "Voy, ko'payib ketdi-ku!", rahmat: 'Barakalla, bolam! Mana tanga.' },
@@ -111,6 +114,16 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
         voice: CUSTOMER_VOICES[c],
       })),
     ),
+    // Buyurtmani mijozning o'zi aytadi: "Menga beshta" + "olma bering!"
+    ...(Object.keys(CUSTOMER_LINES) as CustomerId[]).flatMap((c) => [
+      ...COUNT_WORDS.map((w, i) => ({ key: `mijoz_${c}_son_${i + 1}`, text: `Menga ${w}`, group: 'Bozor mijozlari', voice: CUSTOMER_VOICES[c] })),
+      ...MARKET_FRUITS.map((f) => ({
+        key: `mijoz_${c}_meva_${f}`,
+        text: `${FRUIT_NAMES[f].toLowerCase()} bering!`,
+        group: 'Bozor mijozlari',
+        voice: CUSTOMER_VOICES[c],
+      })),
+    ]),
     { key: 'son_0', text: 'Nol', group: 'Sonlar' },
     ...NUMBERS.map((n, i) => ({ key: `son_${i + 1}`, text: n, group: 'Sonlar' })),
 

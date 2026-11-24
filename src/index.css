@@ -3333,3 +3333,25 @@ button {
     0 0 0 1.4vmin #06d6a0,
     0 1.4vmin 0 #0002;
 }
+
+/* Mijozlar: sprite bo'yi bo'yicha o'lchanadi — xursand kadr kengroq (qo'llar ko'tarilgan),
+   eni bo'yicha o'lchansa personaj kichrayib, "uzoqlashib" ketgandek ko'rinardi */
+.person .sprite-box {
+  height: 100%;
+  overflow: visible;
+}
+
+.person .sprite {
+  width: auto;
+  height: 100%;
+  max-height: none;
+  flex-shrink: 0;
+}
+
+.person .art-img,
+.person img {
+  height: 100%;
+  width: auto;
+  max-width: none;
+  object-fit: contain;
+}

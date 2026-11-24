@@ -6,6 +6,7 @@ import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
 import { hasVoice, say, sfx } from '../lib/audio'
+import { MARKET_FRUITS } from '../lib/names'
 import { pick, randInt } from '../lib/util'
 import { levelRow } from '../lib/stations'
 import type { GameProps } from '../types'
@@ -48,7 +49,6 @@ const MARKET_LEVELS: MarketCfg[] = [
 const marketCfg = (level: number) => levelRow(MARKET_LEVELS, level)
 
 const ROUNDS = 3
-const MARKET_FRUITS: FruitKind[] = ['olma', 'anor', 'orik', 'nok', 'behi', 'uzum']
 
 interface Customer {
   person: PersonId
@@ -70,6 +70,13 @@ function customerLine(person: PersonId, line: 'salom' | 'kam' | 'kop' | 'rahmat'
   return hasVoice(key) ? [key] : fallback ? [fallback] : []
 }
 
+/** Buyurtmani mijozning o'zi aytadi: "Menga beshta" + "olma bering!"; ovozi bo'lmasa — tarbiyachi */
+function customerOrder(person: PersonId, want: number, fruit: FruitKind): string[] {
+  const n = `mijoz_${person}_son_${want}`
+  const f = `mijoz_${person}_meva_${fruit}`
+  return hasVoice(n) && hasVoice(f) ? [n, f] : [`son_${want}`, `meva_${fruit}`]
+}
+
 export function Market({ level, onComplete, onExit }: GameProps) {
   // Endless'da tasodifiy tanlanadi: bitta o'yin davomida o'zgarmasin
   const [cfg] = useState(() => marketCfg(level))
@@ -87,7 +94,7 @@ export function Market({ level, onComplete, onExit }: GameProps) {
   const { want, fruit } = customer
 
   useEffect(() => {
-    void say(...(round === 0 ? ['bozor_intro'] : []), ...customerLine(customer.person, 'salom'), `son_${want}`, `meva_${fruit}`)
+    void say(...(round === 0 ? ['bozor_intro'] : []), ...customerLine(customer.person, 'salom'), ...customerOrder(customer.person, want, fruit))
     // Har yangi mijoz kelganda
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [round])
@@ -159,7 +166,7 @@ export function Market({ level, onComplete, onExit }: GameProps) {
             <motion.button
               className="bubble"
               whileTap={{ scale: 0.95 }}
-              onClick={() => void say(`son_${want}`, `meva_${fruit}`)}
+              onClick={() => void say(...customerOrder(customer.person, want, fruit))}
               animate={{ y: [0, -4, 0] }}
               transition={{ repeat: Infinity, duration: 2 }}
             >
