@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
-import { say } from '../lib/audio'
+import { say, speaking } from '../lib/audio'
 import { isNewTask, markTaskSeen } from '../lib/howto'
 import { centerOf, HandHint, type HandPath } from './HandHint'
 
@@ -39,6 +39,7 @@ export function useHowTo(profileId: string, prefix: string, demo: () => void): H
   const lastAct = useRef(Date.now())
   const task = useRef('')
   const startedAt = useRef(0)
+  const fresh = useRef(false)
   const instr = useRef<string[]>([])
   const demoRef = useRef(demo)
   useEffect(() => {
@@ -64,7 +65,12 @@ export function useHowTo(profileId: string, prefix: string, demo: () => void): H
     const touch = () => (lastAct.current = Date.now())
     window.addEventListener('pointerdown', touch)
     const id = window.setInterval(() => {
-      if (!hint && Date.now() - lastAct.current > 9000) runDemo()
+      // Birinchi marta: tushuntirish ovozi tugashi bilan (yoki 4 s dan keyin) ko'rsatamiz
+      const wait = fresh.current ? 4000 : 9000
+      if (!hint && !speaking() && Date.now() - lastAct.current > wait) {
+        fresh.current = false
+        runDemo()
+      }
     }, 1000)
     return () => {
       window.removeEventListener('pointerdown', touch)
@@ -100,6 +106,8 @@ export function useHowTo(profileId: string, prefix: string, demo: () => void): H
       const key = `${prefix}_${t}`
       if (!isNewTask(profileId, key)) return []
       markTaskSeen(profileId, key)
+      // Tushuntirish tugagach (o'yin aytadi) — qo'l darhol ko'rsatadi
+      fresh.current = true
       return [`${key}_t`]
     },
     miss() {

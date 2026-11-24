@@ -638,6 +638,11 @@ function playUrl(url: string): Promise<void> {
  * Kalitlarni ketma-ket aytadi. Yangi `say` chaqirilsa, eskisi to'xtaydi.
  * Yozilmagan kalitlar jimgina o'tkazib yuboriladi.
  */
+/** Hozir ko'rsatma/ovoz aytilyaptimi (yordamchi qo'l gapni bo'lmasin) */
+export function speaking(): boolean {
+  return !!current && !current.paused && !current.ended
+}
+
 export async function say(...keys: string[]): Promise<void> {
   stopVoice()
   const my = token
