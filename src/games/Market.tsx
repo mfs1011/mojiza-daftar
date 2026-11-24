@@ -75,8 +75,8 @@ function customerLine(person: PersonId, line: 'salom' | 'kam' | 'kop' | 'rahmat'
 function customerOrder(person: PersonId, want: number, fruit: FruitKind): string[] {
   const n = `mijoz_${person}_son_${want}`
   const f = `mijoz_${person}_meva_${fruit}`
-  // Har yarmini iloji boricha mijozning o'zi aytadi; yo'q qismini tarbiyachi to'ldiradi
-  return [hasVoice(n) ? n : `son_${want}`, hasVoice(f) ? f : `meva_${fruit}`]
+  // Buyurtmani bitta ovoz aytadi: mijozda ikkala qism ham bo'lsa — mijoz, aks holda tarbiyachi (yarmi-yarmi g'alati)
+  return hasVoice(n) && hasVoice(f) ? [n, f] : [`son_${want}`, `meva_${fruit}`]
 }
 
 export function Market({ profile, level, onComplete, onExit }: GameProps) {
