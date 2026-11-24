@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Mascot, type Mood } from '../art/Mascot'
 import { Icon } from '../art/Icon'
+import { mascotCall } from '../lib/audio'
 
 /** Popishakning kayfiyati: react('happy') -> bir oz quvonadi, keyin tinchlanadi */
 export function useMascot() {
@@ -41,7 +42,8 @@ export function GameShell({ className, mascot, round, rounds, onExit, children, 
           <span key={i} className={`pip ${i < round ? 'done' : i === round ? 'now' : ''}`} />
         ))}
       </div>
-      <div className="mascot-corner">
+      {/* Popishak (hudhud) bosilsa — haqiqiy hudhud sayraydi */}
+      <div className="mascot-corner" onClick={mascotCall}>
         <Mascot key={mascot.key} mood={mascot.mood} />
       </div>
     </div>

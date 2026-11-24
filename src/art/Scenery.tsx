@@ -268,6 +268,80 @@ const STATION_ICONS: Record<StationId, React.ReactNode> = {
       </text>
     </>
   ),
+  raqam: (
+    <>
+      <rect x={10} y={26} width={80} height={56} rx={6} fill="#3d5a80" />
+      <rect x={16} y={32} width={68} height={44} rx={3} fill="#98c1d9" />
+      <text x={50} y={66} textAnchor="middle" fontSize={30} fontWeight={900} fill="#fff" stroke="none" fontFamily="system-ui">
+        123
+      </text>
+      <path d="M30 82L24 94M70 82L76 94" fill="none" strokeWidth={4} />
+    </>
+  ),
+  hisob: (
+    <>
+      <rect x={12} y={12} width={76} height={76} rx={14} fill="#f4a261" />
+      <path d="M32 26V50M20 38H44" fill="none" stroke="#fff" strokeWidth={8} />
+      <path d="M58 38H82" fill="none" stroke="#fff" strokeWidth={8} />
+      <path d="M22 70H44M22 80H44" fill="none" stroke="#fff" strokeWidth={6} />
+      <circle cx={70} cy={64} r={6} fill="#fff" />
+      <circle cx={70} cy={80} r={6} fill="#fff" />
+    </>
+  ),
+  shakl: (
+    <>
+      <circle cx={34} cy={36} r={22} fill="#e63946" />
+      <path d="M66 14L90 56H42Z" fill="#ffd166" />
+      <rect x={22} y={60} width={30} height={30} rx={3} fill="#3a86ff" />
+      <path d="M72 62L86 76L72 90L58 76Z" fill="#52b788" />
+    </>
+  ),
+  mantiq: (
+    <>
+      <path d="M50 10C30 10 20 26 22 40C24 50 32 54 34 64H66C68 54 76 50 78 40C80 26 70 10 50 10Z" fill="#ffd166" />
+      <path d="M36 70H64M38 79H62M42 88H58" fill="none" strokeWidth={5} />
+      <path d="M42 46L50 36L58 46M50 36V60" fill="none" stroke="#f77f00" strokeWidth={4} />
+    </>
+  ),
+  yozuv: (
+    <>
+      <rect x={14} y={14} width={72} height={72} rx={6} fill="#fff" />
+      <path d="M24 34H76M24 50H76M24 66H60" fill="none" stroke="#83c5be" strokeWidth={3} />
+      <path d="M70 84L88 28L96 31L80 88Z" fill="#ffd166" />
+      <path d="M70 84L80 88L72 96Z" fill="#3d2c1e" />
+    </>
+  ),
+  sher: (
+    <>
+      <path d="M50 22C38 14 22 14 8 20V82C22 76 38 76 50 84Z" fill="#fefae0" />
+      <path d="M50 22C62 14 78 14 92 20V82C78 76 62 76 50 84Z" fill="#fff" />
+      <path d="M68 40V60M68 40L80 36V56" fill="none" stroke="#e76f51" strokeWidth={4} />
+      <circle cx={64} cy={60} r={5} fill="#e76f51" />
+      <circle cx={76} cy={56} r={5} fill="#e76f51" />
+      <path d="M18 40H40M18 52H40M18 64H36" fill="none" stroke="#adb5bd" strokeWidth={3} />
+    </>
+  ),
+  gaplash: (
+    <>
+      <path d="M14 18H80Q88 18 88 26V58Q88 66 80 66H46L28 82V66H14Q6 66 6 58V26Q6 18 14 18Z" fill="#8ecae6" />
+      <circle cx={34} cy={40} r={6} fill="#3d2c1e" stroke="none" />
+      <circle cx={60} cy={40} r={6} fill="#3d2c1e" stroke="none" />
+      <path d="M34 52Q47 62 60 52" fill="none" strokeWidth={4} />
+      <circle cx={36} cy={38} r={2} fill="#fff" stroke="none" />
+      <circle cx={62} cy={38} r={2} fill="#fff" stroke="none" />
+    </>
+  ),
+  musiqa: (
+    <>
+      <rect x={8} y={40} width={84} height={46} rx={6} fill="#3d2c1e" />
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <rect key={i} x={13 + i * 13} y={46} width={11} height={36} rx={2} fill={['#ef476f', '#f78c6b', '#ffd166', '#06d6a0', '#118ab2', '#8e5bd6'][i]} />
+      ))}
+      <path d="M58 30V10L78 6V26" fill="none" strokeWidth={4} />
+      <circle cx={54} cy={30} r={6} fill="#8e5bd6" />
+      <circle cx={74} cy={26} r={6} fill="#8e5bd6" />
+    </>
+  ),
 }
 
 export function StationIcon({ id, className }: { id: StationId; className?: string }) {

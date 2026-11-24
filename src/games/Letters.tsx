@@ -6,12 +6,12 @@ import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
 import { Hero } from '../components/Hero'
-import { say, sfx } from '../lib/audio'
+import { say, sayAnimal, sfx } from '../lib/audio'
 import { EASY_LETTERS, initialOf, LETTERS, WORDS, type Word } from '../lib/letters'
-import { drawLetter, makeMask, maskPoints, scoreTrace, type TraceMask } from '../lib/trace'
+import { TraceBoard } from '../components/TraceBoard'
 import { pick, shuffle } from '../lib/util'
-import type { GameProps, Profile } from '../types'
-import { Icon } from '../art/Icon'
+import { levelRow } from '../lib/stations'
+import type { GameProps, Profile, TraceStat } from '../types'
 
 // 🔤 Harflar uyi — harflar bilan tanishish (#5), faqat 5 yoshga.
 // "Chiz" raundi: harfni barmoq bilan bo'r taxtaga chizish.
@@ -21,20 +21,53 @@ type LRound =
   | { type: 'chiz'; letter: string; word?: Word }
   | { type: 'top'; word: Word; options: string[] }
 
-function lettersRounds(level: number, name: string): LRound[] {
-  const pool = level <= 2 ? WORDS.filter((w) => EASY_LETTERS.includes(w.letter)) : WORDS
+interface LettersCfg {
+  /** Faqat oson harflar (O, U, T, N, A, M) */
+  easy: boolean
+  /** "Top" raundidagi variantlar soni (ekranga 4 tagacha sig'adi) */
+  options: number
+  /** 3-raund: so'z harfini chizish, o'z ismining bosh harfini chizish yoki yana bir "top" */
+  third: 'word' | 'name' | 'top'
+  /** Chizish qanchalik aniq bo'lishi kerak (harf yuzasining ulushi) */
+  threshold: number
+}
+
+const L = (easy: boolean, options: number, third: LettersCfg['third'], threshold: number): LettersCfg => ({ easy, options, third, threshold })
+const LETTERS_LEVELS: LettersCfg[] = [
+  L(true, 2, 'word', 0.6),
+  L(true, 2, 'word', 0.62),
+  L(true, 3, 'word', 0.62),
+  L(true, 3, 'name', 0.62),
+  L(true, 3, 'name', 0.64),
+  L(false, 3, 'word', 0.64),
+  L(false, 3, 'name', 0.66),
+  L(false, 3, 'top', 0.66),
+  L(false, 4, 'name', 0.68),
+  L(false, 4, 'top', 0.68),
+  L(false, 4, 'word', 0.7),
+  L(false, 4, 'top', 0.7),
+  L(false, 4, 'name', 0.72),
+  L(false, 4, 'top', 0.73),
+  L(false, 4, 'word', 0.75),
+]
+
+function topRound(word: Word, n: number): LRound {
+  const options = shuffle([word.letter, ...shuffle(LETTERS.filter((l) => l !== word.letter)).slice(0, n - 1)])
+  return { type: 'top', word, options }
+}
+
+function lettersRounds(cfg: LettersCfg, name: string): LRound[] {
+  const pool = cfg.easy ? WORDS.filter((w) => EASY_LETTERS.includes(w.letter)) : WORDS
   const w1 = pick(pool)
   const w2 = pick(WORDS.filter((w) => w.letter !== w1.letter))
-  const nOpt = level <= 1 ? 2 : level <= 3 ? 3 : 4
-  const options = shuffle([w2.letter, ...shuffle(LETTERS.filter((l) => l !== w2.letter)).slice(0, nOpt - 1)])
+  const w3 = pick(pool.filter((w) => w.letter !== w1.letter && w.letter !== w2.letter))
   const third: LRound =
-    level >= 2
+    cfg.third === 'name'
       ? { type: 'chiz', letter: initialOf(name) }
-      : (() => {
-          const w3 = pick(pool.filter((w) => w.letter !== w1.letter))
-          return { type: 'chiz' as const, letter: w3.letter, word: w3 }
-        })()
-  return [{ type: 'chiz', letter: w1.letter, word: w1 }, { type: 'top', word: w2, options }, third]
+      : cfg.third === 'top'
+        ? topRound(w3, cfg.options)
+        : { type: 'chiz', letter: w3.letter, word: w3 }
+  return [{ type: 'chiz', letter: w1.letter, word: w1 }, topRound(w2, cfg.options), third]
 }
 
 function WordPicture({ word, profile }: { word?: Word; profile: Profile }) {
@@ -44,148 +77,18 @@ function WordPicture({ word, profile }: { word?: Word; profile: Profile }) {
 
 // ---------------- Chizish raundi ----------------
 
-function TraceBoard({ letter, level, onDone, onMistake }: { letter: string; level: number; onDone: () => void; onMistake: () => void }) {
-  const wrapRef = useRef<HTMLDivElement>(null)
-  const guideRef = useRef<HTMLCanvasElement>(null)
-  const drawRef = useRef<HTMLCanvasElement>(null)
-  const userRef = useRef<HTMLCanvasElement | null>(null)
-  const maskRef = useRef<TraceMask | null>(null)
-  const last = useRef<{ x: number; y: number } | null>(null)
-  const [done, setDone] = useState(false)
-  const doneRef = useRef(false)
-  const threshold = level >= 3 ? 0.7 : 0.62
-
-  // Taxtani tayyorlash
-  useEffect(() => {
-    const wrap = wrapRef.current!
-    const w = Math.round(wrap.clientWidth)
-    const h = Math.round(wrap.clientHeight)
-    const dpr = window.devicePixelRatio || 1
-    for (const c of [guideRef.current!, drawRef.current!]) {
-      c.width = w * dpr
-      c.height = h * dpr
-      c.style.width = `${w}px`
-      c.style.height = `${h}px`
-      c.getContext('2d')!.setTransform(dpr, 0, 0, dpr, 0, 0)
-    }
-    const mask = makeMask(letter, w, h)
-    maskRef.current = mask
-    const user = document.createElement('canvas')
-    user.width = w
-    user.height = h
-    userRef.current = user
-
-    const g = guideRef.current!.getContext('2d')!
-    // Avval punktir kontur, ustidan to'liq bo'yoq: shriftning ichki chiziqlari yopiladi,
-    // faqat tashqi punktir ko'rinadi
-    drawLetter(g, letter, mask.layout, { stroke: 'rgba(255,255,255,0.85)', dash: [12, 10], strokeWidth: 7 })
-    drawLetter(g, letter, mask.layout, { fill: '#3f8565' })
-
-    if (import.meta.env.DEV) {
-      const r = wrap.getBoundingClientRect()
-      ;(window as unknown as { __traceTargets?: [number, number][] }).__traceTargets = maskPoints(mask, r.left, r.top, 8)
-    }
-  }, [letter])
-
-  function pos(e: React.PointerEvent) {
-    const r = drawRef.current!.getBoundingClientRect()
-    return { x: e.clientX - r.left, y: e.clientY - r.top }
-  }
-
-  function line(a: { x: number; y: number }, b: { x: number; y: number }) {
-    const lw = maskRef.current!.layout.lineWidth
-    for (const [ctx, color] of [
-      [drawRef.current!.getContext('2d')!, '#ffe066'],
-      [userRef.current!.getContext('2d')!, '#000'],
-    ] as const) {
-      ctx.strokeStyle = color
-      ctx.lineWidth = lw
-      ctx.lineCap = 'round'
-      ctx.lineJoin = 'round'
-      ctx.beginPath()
-      ctx.moveTo(a.x, a.y)
-      ctx.lineTo(b.x, b.y)
-      ctx.stroke()
-    }
-  }
-
-  function clear(countMistake: boolean) {
-    const m = maskRef.current
-    if (!m) return
-    const d = drawRef.current!
-    d.getContext('2d')!.clearRect(0, 0, d.width, d.height)
-    userRef.current!.getContext('2d')!.clearRect(0, 0, m.w, m.h)
-    if (countMistake) onMistake()
-  }
-
-  function evaluate() {
-    const m = maskRef.current
-    if (!m || doneRef.current) return
-    const data = userRef.current!.getContext('2d')!.getImageData(0, 0, m.w, m.h).data
-    const s = scoreTrace(m, data)
-    if (s.coverage >= threshold && s.outside <= 0.45) {
-      doneRef.current = true
-      setDone(true)
-      const g = guideRef.current!.getContext('2d')!
-      drawLetter(g, letter, m.layout, { fill: '#ffd166' })
-      burstAt(wrapRef.current, ['#ffd166', '#fff', '#06d6a0'], 22)
-      onDone()
-    } else if (s.outside > 0.6 && s.userCount > 200) {
-      // Juda ko'p chetga chiqdi: tozalab, qaytadan
-      sfx.wrong()
-      setTimeout(() => clear(true), 500)
-    }
-  }
-
-  return (
-    <div className="chalkboard" ref={wrapRef}>
-      <canvas ref={guideRef} className="trace-canvas" />
-      <motion.canvas
-        ref={drawRef}
-        className="trace-canvas draw"
-        animate={done ? { opacity: 0 } : { opacity: 1 }}
-        onPointerDown={(e) => {
-          if (doneRef.current) return
-          e.currentTarget.setPointerCapture(e.pointerId)
-          last.current = pos(e)
-          line(last.current, last.current)
-        }}
-        onPointerMove={(e) => {
-          if (!last.current) return
-          const p = pos(e)
-          line(last.current, p)
-          last.current = p
-        }}
-        onPointerUp={() => {
-          last.current = null
-          evaluate()
-        }}
-        onPointerCancel={() => (last.current = null)}
-      />
-      {!done && (
-        <button className="sponge" onClick={() => clear(true)} aria-label="Tozalash">
-          <Icon name="sponge"><svg viewBox="0 0 100 70" className="art">
-            <rect x={6} y={10} width={88} height={50} rx={12} fill="#ffd166" stroke="#3d2c1e" strokeWidth={3} />
-            <circle cx={30} cy={30} r={5} fill="#e9b949" />
-            <circle cx={60} cy={40} r={6} fill="#e9b949" />
-            <circle cx={74} cy={24} r={4} fill="#e9b949" />
-          </svg></Icon>
-        </button>
-      )}
-    </div>
-  )
-}
-
 // ---------------- O'yin ----------------
 
 export function Letters({ profile, level, onComplete, onExit }: GameProps) {
-  const rounds = useMemo(() => lettersRounds(level, profile.name), [level, profile.name])
+  const cfg = useMemo(() => levelRow(LETTERS_LEVELS, level), [level])
+  const rounds = useMemo(() => lettersRounds(cfg, profile.name), [cfg, profile.name])
   const [idx, setIdx] = useState(0)
   const [wrong, setWrong] = useState<string | null>(null)
   const [solved, setSolved] = useState(false)
   const [finished, setFinished] = useState(false)
   const [mascot, react] = useMascot()
   const mistakes = useRef(0)
+  const traces = useRef<TraceStat[]>([])
   const cardRef = useRef<HTMLDivElement>(null)
   const r = rounds[idx]
 
@@ -250,7 +153,12 @@ export function Letters({ profile, level, onComplete, onExit }: GameProps) {
         className="word-card"
         initial={{ x: -80, opacity: 0, rotate: -6 }}
         animate={{ x: 0, opacity: 1, rotate: -3 }}
-        onClick={() => word && void say(word.voice)}
+        onClick={() => {
+          if (!word) return
+          // Hayvon bo'lsa — avval o'z ovozi, keyin nomi
+          if (word.pic.type === 'animal') void sayAnimal(word.pic.id).then(() => say(word.voice))
+          else void say(word.voice)
+        }}
       >
         <div className="word-pic">
           <WordPicture word={word} profile={profile} />
@@ -268,7 +176,7 @@ export function Letters({ profile, level, onComplete, onExit }: GameProps) {
       </motion.div>
 
       {r.type === 'chiz' ? (
-        <TraceBoard key={`board-${idx}`} letter={r.letter} level={level} onDone={traced} onMistake={() => (mistakes.current++, react('oops'))} />
+        <TraceBoard key={`board-${idx}`} glyph={r.letter} threshold={cfg.threshold} onDone={(st) => (traces.current.push({ glyph: r.letter, ...st }), traced())} onMistake={() => (mistakes.current++, react('oops'))} />
       ) : (
         <div className="letter-options">
           {r.options.map((l) => (
@@ -288,7 +196,7 @@ export function Letters({ profile, level, onComplete, onExit }: GameProps) {
         </div>
       )}
 
-      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current })} />}
+      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.length, traces: traces.current })} />}
     </GameShell>
   )
 }

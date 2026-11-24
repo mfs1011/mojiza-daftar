@@ -19,6 +19,41 @@ export function apiKey() {
   process.exit(1)
 }
 
+/**
+ * .env.local dagi barcha GEMINI_API_KEY lar (izohga olinganlari ham).
+ * Bepul tarifda har kalit (loyiha) uchun kunlik limit alohida: biri tugasa, keyingisiga o'tiladi.
+ */
+export function keyPool() {
+  const keys = []
+  if (process.env.GEMINI_API_KEY) keys.push(process.env.GEMINI_API_KEY)
+  const f = join(ROOT, '.env.local')
+  if (existsSync(f)) {
+    for (const line of readFileSync(f, 'utf8').split('\n')) {
+      const m = line.match(/^\s*#?\s*GEMINI_API_KEY\s*=\s*"?([^"\s]+)"?\s*$/)
+      if (m && !keys.includes(m[1])) keys.push(m[1])
+    }
+  }
+  if (!keys.length) apiKey()
+  let i = 0
+  return {
+    get key() {
+      return keys[i]
+    },
+    get label() {
+      return `${i + 1}/${keys.length}`
+    },
+    /** Keyingi kalitga o'tish; qolmagan bo'lsa false */
+    next() {
+      if (i + 1 >= keys.length) return false
+      i++
+      return true
+    },
+  }
+}
+
+/** Kunlik limit tugadi (kutish foyda bermaydi) */
+export const isDailyLimit = (e) => /429/.test(e.message) && /PerDay/.test(e.message)
+
 export async function gemini(model, body, key, tries = 4) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
   for (let i = 1; ; i++) {
@@ -30,13 +65,15 @@ export async function gemini(model, body, key, tries = 4) {
     if (res.ok) return res.json()
     const text = await res.text()
     // Limit oshsa yoki server band bo'lsa — kutib, qayta urinamiz
-    if ((res.status === 429 || res.status >= 500) && i < tries) {
+    if ((res.status === 429 || res.status >= 500) && i < tries && !/PerDay/.test(text)) {
       // Server aytgan kutish vaqti (retryDelay: "23s") bo'lsa — shunga amal qilamiz
       const wait = Number(/"retryDelay":\s*"(\d+)s"/.exec(text)?.[1] ?? 4 * i) * 1000
       await new Promise((r) => setTimeout(r, Math.min(wait + 1000, 70000)))
       continue
     }
-    throw new Error(`${model}: HTTP ${res.status} ${text.slice(0, 300)}`)
+    // Qaysi limit tugaganini xabar boshiga chiqaramiz (u JSON ichida chuqurda turadi)
+    const quota = [...text.matchAll(/"quotaId":\s*"([^"]+)"/g)].map((m) => m[1]).join(',')
+    throw new Error(`${model}: HTTP ${res.status}${quota ? ` [${quota}]` : ''} ${text.slice(0, 300)}`)
   }
 }
 

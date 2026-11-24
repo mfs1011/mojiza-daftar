@@ -5,8 +5,11 @@ import { ALL_PEOPLE, CoinArt, PersonArt, type PersonId } from '../art/Scenery'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
-import { say, sfx } from '../lib/audio'
+import { useHowTo } from '../components/useHowTo'
+import { hasVoice, say, sfx } from '../lib/audio'
+import { MARKET_FRUITS } from '../lib/names'
 import { pick, randInt } from '../lib/util'
+import { levelRow } from '../lib/stations'
 import type { GameProps } from '../types'
 import { Icon } from '../art/Icon'
 
@@ -19,20 +22,34 @@ interface MarketCfg {
   min: number
   max: number
   auto: boolean
+  /** Necha xatodan keyin 10 lik ramkada rasmli yordam paydo bo'ladi (auto bo'lmasa) */
+  hintAfter: number
 }
 
-function marketCfg(level: number): MarketCfg {
-  return [
-    { min: 1, max: 3, auto: true },
-    { min: 1, max: 5, auto: true },
-    { min: 2, max: 6, auto: false },
-    { min: 3, max: 8, auto: false },
-    { min: 4, max: 10, auto: false },
-  ][Math.min(level, 4)]
-}
+const NEVER = 99
+// 0–3: avtomatik (savatga solgan zahoti tekshiradi), 4+: bola o'zi "tayyor" deydi.
+// Yuqorida son oralig'i kengayadi va rasmli yordam kechroq chiqadi.
+const MARKET_LEVELS: MarketCfg[] = [
+  { min: 1, max: 3, auto: true, hintAfter: 0 },
+  { min: 1, max: 4, auto: true, hintAfter: 0 },
+  { min: 1, max: 5, auto: true, hintAfter: 0 },
+  { min: 2, max: 5, auto: true, hintAfter: 0 },
+  { min: 1, max: 5, auto: false, hintAfter: 1 },
+  { min: 2, max: 6, auto: false, hintAfter: 1 },
+  { min: 2, max: 6, auto: false, hintAfter: 2 },
+  { min: 3, max: 7, auto: false, hintAfter: 2 },
+  { min: 3, max: 8, auto: false, hintAfter: 2 },
+  { min: 4, max: 8, auto: false, hintAfter: 2 },
+  { min: 4, max: 9, auto: false, hintAfter: 3 },
+  { min: 5, max: 9, auto: false, hintAfter: 3 },
+  { min: 5, max: 10, auto: false, hintAfter: 3 },
+  { min: 6, max: 10, auto: false, hintAfter: 3 },
+  { min: 6, max: 10, auto: false, hintAfter: NEVER },
+]
+
+const marketCfg = (level: number) => levelRow(MARKET_LEVELS, level)
 
 const ROUNDS = 3
-const MARKET_FRUITS: FruitKind[] = ['olma', 'anor', 'orik', 'nok', 'behi', 'uzum']
 
 interface Customer {
   person: PersonId
@@ -48,8 +65,22 @@ function newCustomer(cfg: MarketCfg, prev?: Customer): Customer {
   }
 }
 
-export function Market({ level, onComplete, onExit }: GameProps) {
-  const cfg = marketCfg(level)
+/** Mijoz o'z ovozida gapiradi (voices/mijoz_<kim>_<gap>); fayl bo'lmasa — umumiy ko'rsatma */
+function customerLine(person: PersonId, line: 'salom' | 'kam' | 'kop' | 'rahmat', fallback?: string): string[] {
+  const key = `mijoz_${person}_${line}`
+  return hasVoice(key) ? [key] : fallback ? [fallback] : []
+}
+
+/** Buyurtmani mijozning o'zi aytadi: "Menga beshta" + "olma bering!"; ovozi bo'lmasa — tarbiyachi */
+function customerOrder(person: PersonId, want: number, fruit: FruitKind): string[] {
+  const n = `mijoz_${person}_son_${want}`
+  const f = `mijoz_${person}_meva_${fruit}`
+  return hasVoice(n) && hasVoice(f) ? [n, f] : [`son_${want}`, `meva_${fruit}`]
+}
+
+export function Market({ profile, level, onComplete, onExit }: GameProps) {
+  // Endless'da tasodifiy tanlanadi: bitta o'yin davomida o'zgarmasin
+  const [cfg] = useState(() => marketCfg(level))
   const [round, setRound] = useState(0)
   const [customer, setCustomer] = useState(() => newCustomer(cfg))
   const [given, setGiven] = useState(0)
@@ -60,22 +91,27 @@ export function Market({ level, onComplete, onExit }: GameProps) {
   const [mascot, react] = useMascot()
   const mistakes = useRef(0)
   const bagRef = useRef<HTMLDivElement>(null)
-  const showPictures = cfg.auto || tries >= 2
+  const showPictures = cfg.auto || tries >= cfg.hintAfter
   const { want, fruit } = customer
 
+  // "Qanday bajariladi?": kam bo'lsa — mevani bosadi, ko'p bo'lsa — savatdan qaytaradi, teng bo'lsa — "Berish"
+  const howto = useHowTo(profile.id, 'bozor', () =>
+    howto.tap(given < want ? '.crate-fruit' : given > want ? '.cell-fruit:last-of-type' : '.give-btn'),
+  )
   useEffect(() => {
-    void say(...(round === 0 ? ['bozor_intro'] : []), `son_${want}`, `meva_${fruit}`)
+    void say(...howto.arm(cfg.auto ? 'oddiy' : 'sana'), ...(round === 0 ? ['bozor_intro'] : []), ...customerLine(customer.person, 'salom'), ...customerOrder(customer.person, want, fruit))
     // Har yangi mijoz kelganda
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [round])
 
   function complete() {
+    howto.done()
     setHappy(true)
     sfx.coin()
     react('happy', 2000)
     burstAt(bagRef.current, ['#f6bd60', '#ffd166', '#fff'], 18)
     setEarned((e) => e + want)
-    void say('bozor_rahmat')
+    void say(...customerLine(customer.person, 'rahmat', 'bozor_rahmat'))
     setTimeout(() => {
       if (round + 1 >= ROUNDS) {
         setFinished(true)
@@ -110,10 +146,11 @@ export function Market({ level, onComplete, onExit }: GameProps) {
     if (happy) return
     if (given === want) return complete()
     mistakes.current++
+    howto.miss()
     sfx.wrong()
     react('oops')
     setTries((t) => t + 1)
-    void say(given > want ? 'bozor_kop' : 'bozor_kam')
+    void say(...(given > want ? customerLine(customer.person, 'kop', 'bozor_kop') : customerLine(customer.person, 'kam', 'bozor_kam')))
   }
 
   const cells = cfg.max <= 5 ? 5 : 10
@@ -136,7 +173,7 @@ export function Market({ level, onComplete, onExit }: GameProps) {
             <motion.button
               className="bubble"
               whileTap={{ scale: 0.95 }}
-              onClick={() => void say(`son_${want}`, `meva_${fruit}`)}
+              onClick={() => void say(...customerOrder(customer.person, want, fruit))}
               animate={{ y: [0, -4, 0] }}
               transition={{ repeat: Infinity, duration: 2 }}
             >
@@ -224,7 +261,8 @@ export function Market({ level, onComplete, onExit }: GameProps) {
         </div>
       )}
 
-      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, coins: earned })} />}
+      {!happy && !finished && howto.overlay}
+      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, coins: earned, tasks: ROUNDS })} />}
     </GameShell>
   )
 }

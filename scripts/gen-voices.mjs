@@ -7,12 +7,21 @@
 //   GEN_TTS_VOICE=Leda GEN_TTS_MODEL=gemini-2.5-pro-preview-tts npm run gen:voices
 //
 // Ota-ona panelida yozilgan ovoz har doim ustun turadi; bu fayllar faqat zaxira.
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { voicePrompts } from '../src/lib/voices.ts'
-import { apiKey, ASSETS_DIR, gemini, inlineData, writeManifest } from './lib.mjs'
+import { ASSETS_DIR, gemini, inlineData, isDailyLimit, keyPool, writeManifest } from './lib.mjs'
 
-const MODEL = process.env.GEN_TTS_MODEL ?? 'gemini-2.5-flash-preview-tts'
+// Modellar navbati: bepul limit har model uchun alohida (kuniga ~10 ta × kalit). Biri tugasa — keyingisi.
+// Birinchisi uslub ko'rsatmasini tushunadi (o'zbekcha talaffuz); Gemini 3.x faqat toza matn oladi.
+//   GEN_TTS_MODELS=gemini-2.5-flash-preview-tts,gemini-3.8-flash-tts npm run gen:voices
+const MODELS = (process.env.GEN_TTS_MODELS ?? process.env.GEN_TTS_MODEL ?? 'gemini-2.5-flash-preview-tts,gemini-3.8-flash-tts,gemini-3.1-flash-tts-preview,gemini-3.8-flash-lite-tts').split(',').map((m) => m.trim()).filter(Boolean)
+let mi = 0
+const MODEL = MODELS[0]
+const styled = (m) => !/gemini-3/.test(m)
+/** Qaysi ovoz qaysi model bilan yaratilgani (--redo tayyorini qayta yaratmasin) */
+const madeFile = new URL('./voice-models.json', import.meta.url)
+const made = existsSync(madeFile) ? JSON.parse(readFileSync(madeFile, 'utf8')) : {}
 const VOICE = process.env.GEN_TTS_VOICE ?? 'Leda'
 const args = process.argv.slice(2)
 const test = args.includes('--test')
@@ -20,7 +29,7 @@ const test = args.includes('--test')
 const only = args.includes('--only') ? args[args.indexOf('--only') + 1].split(',') : null
 const want = (k) => !only || only.includes(k)
 const force = args.includes('--force')
-const key = apiKey()
+let pool = keyPool()
 const dir = join(ASSETS_DIR, 'voices')
 mkdirSync(dir, { recursive: true })
 
@@ -42,23 +51,86 @@ function wav(pcm, rate) {
   return Buffer.concat([h, pcm])
 }
 
-const TEACHER =
-  'You are a native Uzbek speaker from Tashkent. Read the following Uzbek (Latin script) phrase aloud ' +
+/** Hamma odam ovozlari uchun: o'zbekcha talaffuz qoidalari */
+const UZBEK =
+  'Read the following Uzbek (Latin script) phrase aloud as a native Uzbek speaker from Tashkent, ' +
   'with natural Uzbek pronunciation, rhythm and word stress (in Uzbek the stress is usually on the LAST syllable of a word). ' +
-  "Do not use a Russian, Turkish or English accent. \"o'\" and \"g'\" are distinct Uzbek sounds. " +
-  'Speak like a warm, cheerful kindergarten teacher talking to a 4-year-old: unhurried, clear, smiling.'
+  "Do not use a Russian, Turkish or English accent. \"o'\" and \"g'\" are distinct Uzbek sounds; \"q\" is a deep uvular sound, \"x\" is like Scottish \"loch\", \"h\" is soft. "
 
-async function speak(text, file, style = TEACHER, voice = VOICE) {
-  const body = {
-    contents: [{ parts: [{ text: `${style} Say only this: "${text}"` }] }],
+const TEACHER = UZBEK + 'Speak like a warm, cheerful kindergarten teacher talking to a 4-year-old: unhurried, clear, smiling.'
+
+/** Bozor mijozlari: har biri o'z xarakterida, lekin baribir sof o'zbekcha */
+const PERSONA = {
+  bobo: 'an elderly Uzbek grandfather (about 70) from a village: deep, slow, slightly raspy, very kind',
+  buvi: 'an elderly Uzbek grandmother (about 65): warm, soft, loving, a little slow',
+  aka: 'a friendly Uzbek young man (about 20): cheerful and lively',
+  opa: 'a friendly Uzbek young woman (about 18): bright and gentle',
+  bola: 'a playful Uzbek boy (about 8): high-pitched, excited',
+}
+/** Harf nomi: o'zbek maktabidagidek ("Be", "Qe", "She"), inglizcha "bi", "kyu" emas */
+const LETTER =
+  UZBEK +
+  'This is the NAME of a letter of the Uzbek Latin alphabet, said by a kindergarten teacher. Pronounce it the Uzbek way, ' +
+  'NOT as an English letter name: "Be" = [be], "Ka" = [ka], "Qe" = [qe] with a deep uvular q, "Xe" = [χe], "She" = [ʃe], "Che" = [tʃe], ' +
+  'single vowels short and pure ("A" = [a], "O" = [o], "U" = [u], "I" = [i]). Clear and slow.'
+
+const styleFor = (key) => {
+  if (/^harf_(?!chiz$|top$)/.test(key)) return LETTER
+  const m = /^mijoz_([a-z]+)_/.exec(key)
+  if (!m || !PERSONA[m[1]]) return TEACHER
+  return `You are ${PERSONA[m[1]]}, buying fruit from a small child at a village bazaar. ` + UZBEK + 'Speak naturally in that character.'
+}
+
+class Skip extends Error {}
+class AllDone extends Error {}
+
+async function speak(text, file, style = TEACHER, voice = VOICE, needStyle = false) {
+  let json
+  let model
+  for (;;) {
+    model = MODELS[mi]
+    // Harf nomlari va personajlar faqat uslubni tushunadigan modelda (aks holda inglizcha o'qiladi)
+    if (needStyle && !styled(model)) throw new Skip('uslubli model limiti tugagan')
+    try {
+      json = await gemini(model, bodyFor(model, text, style, voice), pool.key)
+      break
+    } catch (e) {
+      if (!isDailyLimit(e)) throw e
+      if (pool.next()) {
+        console.log(`  ↻ ${model}: kunlik limit tugadi, kalit ${pool.label} ga o'tildi`)
+        continue
+      }
+      if (++mi >= MODELS.length) throw new AllDone('Hamma model va kalitlarning kunlik limiti tugadi')
+      pool = keyPool()
+      console.log(`  ⇄ ${model} tugadi → ${MODELS[mi]} modeliga o'tildi`)
+    }
+  }
+  return finish(json, text, file, model)
+}
+
+function bodyFor(model, text, style, voice) {
+  // Gemini 3.x TTS uslub ko'rsatmasini ham ovoz chiqarib o'qib yuboradi (systemInstruction ham yo'q):
+  // ularga faqat toza matn beriladi
+  const plain = !styled(model)
+  return {
+    contents: [{ parts: [{ text: plain ? text : `${style} Say only this: "${text}"` }] }],
     generationConfig: {
       responseModalities: ['AUDIO'],
       speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } },
     },
   }
-  const data = inlineData(await gemini(MODEL, body, key))
+}
+
+function finish(json, text, file, model) {
+  const data = inlineData(json)
   const rate = Number(/rate=(\d+)/.exec(data.mimeType ?? '')?.[1] ?? 24000)
-  writeFileSync(file, wav(Buffer.from(data.data, 'base64'), rate))
+  const pcm = Buffer.from(data.data, 'base64')
+  // Sog'lomlik tekshiruvi: model ko'rsatmani o'qib yuborsa, ovoz matndan ancha uzun chiqadi
+  const secs = pcm.length / 2 / rate
+  const limit = 3 + text.length * 0.15
+  if (secs > limit) throw new Error(`ovoz juda uzun (${secs.toFixed(1)} s > ${limit.toFixed(1)} s): model ko'rsatmani o'qigan bo'lishi mumkin`)
+  writeFileSync(file, wav(pcm, rate))
+  return model
 }
 
 if (test) {
@@ -71,7 +143,8 @@ if (test) {
 // ---------- Sahnadagi qahramonning jonli ovozlari (sintez "pip-pip" o'rniga) ----------
 // Ilova ularni sfx/voice-<nom> dan oladi (audio.ts → voiceFx).
 const CHARACTER =
-  'You are a cute, playful cartoon character (like a small animated toy) with a bright, expressive, child-like voice. ' +
+  'You are a cute, playful cartoon character (like a small animated toy) with a bright, expressive, child-like voice, ' +
+  'and you are Uzbek: say Uzbek words with native Uzbek pronunciation, no Russian or English accent. ' +
   'Perform this short vocal reaction with big emotion, very expressive, like in an animated movie. No extra words.'
 const REACTIONS = {
   bonk: 'Voy!',
@@ -102,7 +175,7 @@ for (const [k, text] of charTodo) {
   } catch (e) {
     console.error(`✗ voice-${k}: ${e.message.slice(0, 120)}`)
     if (/429/.test(e.message)) {
-      console.error('Kunlik limit tugadi — ertaga davom ettiring (borlari o\'tkazib yuboriladi).')
+      console.error('Hamma kalitlarning kunlik limiti tugadi — ertaga davom ettiring (borlari o\'tkazib yuboriladi).')
       writeManifest()
       process.exit(2)
     }
@@ -113,24 +186,54 @@ for (const [k, text] of charTodo) {
 // .wav (yangi) yoki .m4a (siqilgan) bo'lsa — bor deb hisoblanadi
 const exists = (k) => existsSync(join(dir, `${k}.wav`)) || existsSync(join(dir, `${k}.m4a`))
 // reak_* — ota-ona o'zi yozadigan qahramon ovozlari, ular uchun TTS kerak emas
-const prompts = voicePrompts([]).filter((p) => !p.key.startsWith('reak_') && want(p.key) && (force || !exists(p.key)))
-console.log(`Model: ${MODEL}, ovoz: ${VOICE}. Yaratiladi: ${prompts.length} ta`)
+// tovush_* — hayvon taqlidi: TTS (odam ovozi) bilan yaratilmaydi, haqiqiy yozuvlar sfx/animals/ da
+/**
+ * --redo: o'zbekcha talaffuz ko'rsatmasisiz yaratilgan (Gemini 3 TTS, toza matn) yoki inglizcha o'qilgan ovozlar —
+ * fayli bo'lsa ham qayta yaratiladi
+ */
+const REDO = new Set([
+  'hayvon_eshak', 'ustaxona_intro', 'qora_intro', 'qora_tun', 'harf_chiz', 'harf_top', 'son_1',
+])
+const redo = args.includes('--redo')
+const needStyle = (k) => REDO.has(k) || /^harf_(?!chiz$|top$)/.test(k) || /^mijoz_/.test(k)
+// Uslubli model bilan allaqachon qayta yaratilganlari o'tkazib yuboriladi
+const needs = (k) => force || !exists(k) || (redo && needStyle(k) && !(made[k] && styled(made[k])))
+
+/** Ustuvorlik: avval o'yin ko'rsatmalari (ularsiz bola nima qilishni bilmaydi), keyin nomlar, harflar, mijozlar */
+const PRIORITY = [
+  'Raqamlar uyi', 'Hisob maktabi', 'Shakllar', 'Ranglar', 'Mantiq', 'Yozuv maktabi', 'Musiqa uyi', "She'rlar",
+  'Sonlar', 'Umumiy', 'Kechki qo\'ra', 'Ustaxona', 'Harflar uyi', 'Harflar', 'Hayvonlar', 'Odamlar', 'Hovli', 'Bozor mijozlari',
+]
+const rank = (g) => {
+  const i = PRIORITY.indexOf(g)
+  return i < 0 ? PRIORITY.length : i
+}
+const prompts = voicePrompts([])
+  .filter((p) => !p.key.startsWith('reak_') && !p.key.startsWith('tovush_') && want(p.key) && needs(p.key))
+  .sort((a, b) => rank(a.group) - rank(b.group))
+console.log(`Modellar: ${MODELS.join(' → ')}, ovoz: ${VOICE}. Yaratiladi: ${prompts.length} ta`)
 let ok = 0
+let skipped = 0
 for (const p of prompts) {
   // "Sigir: "Mo'-o'"" kabi matnlarda faqat tovushning o'zi aytiladi
   const text = p.key.startsWith('tovush_') ? p.text.split(': ').slice(1).join(': ').replace(/"/g, '') : p.text.replace(/^"(.+)" harfi$/, '$1')
   // Bepul tarifda daqiqalik so'rov limiti bor: GEN_DELAY_MS bilan sekinlashtirish mumkin
   if (process.env.GEN_DELAY_MS) await new Promise((r) => setTimeout(r, Number(process.env.GEN_DELAY_MS)))
   try {
-    await speak(text, join(dir, `${p.key}.wav`))
+    made[p.key] = await speak(text, join(dir, `${p.key}.wav`), styleFor(p.key), p.voice ?? VOICE, needStyle(p.key))
+    writeFileSync(madeFile, JSON.stringify(made, null, 1))
     ok++
     console.log(`✓ ${p.key}: ${text}`)
   } catch (e) {
+    if (e instanceof Skip) {
+      skipped++
+      continue
+    }
     console.error(`✗ ${p.key}: ${e.message.slice(0, 120)}`)
-    if (/429/.test(e.message)) {
-      console.error('Kunlik limit tugadi — ertaga davom ettiring (borlari o\'tkazib yuboriladi).')
+    if (e instanceof AllDone || /429/.test(e.message)) {
+      console.error('Hamma kalitlarning kunlik limiti tugadi — ertaga davom ettiring (borlari o\'tkazib yuboriladi).')
       break
     }
   }
 }
-console.log(`\nTayyor: ${ok}/${prompts.length}. Manifest: ${writeManifest()} ta fayl`)
+console.log(`\nTayyor: ${ok}/${prompts.length} (uslubli model kutayotgani: ${skipped}). Manifest: ${writeManifest()} ta fayl`)

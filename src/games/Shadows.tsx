@@ -4,8 +4,10 @@ import { AnimalArt, type AnimalId } from '../art/Animal'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
-import { say, sfx } from '../lib/audio'
-import { shuffle } from '../lib/util'
+import { pathBetween, useHowTo } from '../components/useHowTo'
+import { say, sayAnimal, sfx } from '../lib/audio'
+import { shuffle, wait } from '../lib/util'
+import { levelRow } from '../lib/stations'
 import type { GameProps } from '../types'
 
 // 🌙 Kechki qo'ra — soya topish (#3).
@@ -16,18 +18,31 @@ import type { GameProps } from '../types'
 interface ShadowCfg {
   count: number
   similar: boolean
-  flips: boolean
+  /** Soyaning teskari qarash ehtimoli (0..1) */
+  flips: number
 }
 
-function shadowCfg(level: number): ShadowCfg {
-  return [
-    { count: 3, similar: false, flips: false },
-    { count: 4, similar: false, flips: false },
-    { count: 4, similar: true, flips: false },
-    { count: 5, similar: true, flips: true },
-    { count: 6, similar: true, flips: true },
-  ][Math.min(level, 4)]
-}
+// Hayvonlar soni (7 tagacha sig'adi), o'xshash juftlik (qo'y/echki) va teskari soyalar
+// navbat bilan qo'shiladi: bola bir vaqtda faqat bitta yangi qiyinchilikka duch keladi.
+const SHADOW_LEVELS: ShadowCfg[] = [
+  { count: 3, similar: false, flips: 0 },
+  { count: 4, similar: false, flips: 0 },
+  { count: 4, similar: true, flips: 0 },
+  { count: 5, similar: false, flips: 0 },
+  { count: 5, similar: true, flips: 0 },
+  { count: 4, similar: false, flips: 0.3 },
+  { count: 5, similar: true, flips: 0.3 },
+  { count: 6, similar: false, flips: 0.3 },
+  { count: 6, similar: true, flips: 0.3 },
+  { count: 6, similar: true, flips: 0.5 },
+  { count: 7, similar: false, flips: 0.5 },
+  { count: 7, similar: true, flips: 0.5 },
+  { count: 7, similar: true, flips: 0.6 },
+  { count: 7, similar: true, flips: 0.7 },
+  { count: 7, similar: true, flips: 0.8 },
+]
+
+const shadowCfg = (level: number) => levelRow(SHADOW_LEVELS, level)
 
 const ROUNDS = 2
 const DISTINCT: AnimalId[] = ['sigir', 'xoroz', 'ordak', 'eshak', 'mushuk', 'it']
@@ -52,13 +67,13 @@ function makeRound(cfg: ShadowCfg): { spots: Spot[]; tray: AnimalId[] } {
       id,
       x: 22 + (col + 0.5) * (58 / n) + (row ? 3 : -3),
       y: ids.length <= 3 ? 38 : 26 + row * 24,
-      flip: cfg.flips && Math.random() < 0.5,
+      flip: Math.random() < cfg.flips,
     }
   })
   return { spots, tray: shuffle(ids) }
 }
 
-export function Shadows({ level, onComplete, onExit }: GameProps) {
+export function Shadows({ profile, level, onComplete, onExit }: GameProps) {
   const [roundIdx, setRoundIdx] = useState(0)
   const rounds = useMemo(() => Array.from({ length: ROUNDS }, () => makeRound(shadowCfg(level))), [level])
   const round = rounds[roundIdx]
@@ -68,9 +83,18 @@ export function Shadows({ level, onComplete, onExit }: GameProps) {
   const [mascot, react] = useMascot()
   const mistakes = useRef(0)
   const spotRefs = useRef<Partial<Record<AnimalId, HTMLDivElement | null>>>({})
+  /** Har joylashtirishda +1: eski ovoz ketma-ketligi yangisini bosib ketmasin */
+  const speech = useRef(0)
 
+  // "Qanday bajariladi?": qo'l hayvonni o'z soyasiga sudrab ko'rsatadi
+  const howto = useHowTo(profile.id, 'qora', () => {
+    const id = round.tray.find((a) => !placed.has(a))
+    if (id) howto.drag(pathBetween(`.tray-animal[data-id="${id}"]`, `.silhouette[data-id="${id}"]`))
+  })
   useEffect(() => {
-    if (roundIdx === 0) void say('qora_intro')
+    const first = howto.arm('soya')
+    if (roundIdx === 0 || first.length) void say(...first, ...(roundIdx === 0 ? ['qora_intro'] : []))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roundIdx])
 
   function handleDrop(id: AnimalId, info: PanInfo) {
@@ -91,20 +115,27 @@ export function Shadows({ level, onComplete, onExit }: GameProps) {
       burstAt(spotRefs.current[id], ['#ffd166', '#fff6b0', '#a2d2ff'])
       const next = new Set(placed).add(id)
       setPlaced(next)
-      void say(`hayvon_${id}`)
-      if (next.size === round.spots.length) {
-        setTimeout(() => void say('qora_tun'), 700)
-        setTimeout(() => {
-          if (roundIdx + 1 >= ROUNDS) setFinished(true)
-          else {
-            sfx.whoosh()
-            setPlaced(new Set())
-            setRoundIdx((i) => i + 1)
-          }
-        }, 2400)
-      }
+      const last = next.size === round.spots.length
+      if (last) howto.done()
+      const my = ++speech.current
+      // Hayvon o'z ovozida "javob beradi", keyin ismi aytiladi; oxirgisidan keyin "Xayrli tun"
+      void (async () => {
+        await sayAnimal(id)
+        if (my !== speech.current) return
+        await say(`hayvon_${id}`)
+        if (!last || my !== speech.current) return
+        await say('qora_tun')
+        await wait(600)
+        if (roundIdx + 1 >= ROUNDS) setFinished(true)
+        else {
+          sfx.whoosh()
+          setPlaced(new Set())
+          setRoundIdx((i) => i + 1)
+        }
+      })()
     } else {
       mistakes.current++
+      howto.miss()
       sfx.wrong()
       react('oops')
       setWrongSpot(best.id)
@@ -175,7 +206,8 @@ export function Shadows({ level, onComplete, onExit }: GameProps) {
           ))}
       </div>
 
-      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current })} />}
+      {!finished && howto.overlay}
+      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.reduce((a, r) => a + r.spots.length, 0) })} />}
     </GameShell>
   )
 }

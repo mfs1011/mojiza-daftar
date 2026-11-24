@@ -7,7 +7,9 @@ import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
 import { say, sfx } from '../lib/audio'
 import { pick, shuffle } from '../lib/util'
+import { levelRow } from '../lib/stations'
 import type { GameProps } from '../types'
+import { Garden3D, hasWebGL } from './Garden3D'
 
 // 🍎 Bog' — saralash (#2).
 // Har raund: daraxtni silkitish (bosish yoki telefonni silkitish) → mevalar yerga tushadi →
@@ -52,39 +54,30 @@ const KIND_SETS_3: FruitKind[][] = [
 ]
 const SIZES: Record<number, number[]> = { 2: [1.3, 0.72], 3: [1.35, 1, 0.68] }
 
+// Har daraja — 3 raund. Daraxtga 12 tagacha meva sig'adi (rang ≤4 guruh, kattalik va tur ≤3).
+const R = (type: RoundType, groups: number, perGroup: number): RoundCfg => ({ type, groups, perGroup })
+const GARDEN_LEVELS: RoundCfg[][] = [
+  [R('rang', 2, 2), R('kattalik', 2, 2), R('rang', 2, 3)],
+  [R('rang', 2, 3), R('kattalik', 2, 2), R('rang', 2, 3)],
+  [R('rang', 2, 3), R('kattalik', 2, 3), R('rang', 3, 2)],
+  [R('rang', 3, 2), R('kattalik', 2, 3), R('tur', 2, 2)],
+  [R('rang', 3, 3), R('kattalik', 2, 3), R('tur', 2, 3)],
+  [R('rang', 3, 3), R('kattalik', 3, 2), R('tur', 2, 3)],
+  [R('rang', 3, 3), R('kattalik', 3, 2), R('tur', 3, 2)],
+  [R('rang', 4, 2), R('kattalik', 3, 2), R('tur', 3, 3)],
+  [R('rang', 4, 2), R('kattalik', 3, 3), R('tur', 3, 3)],
+  [R('rang', 4, 3), R('kattalik', 3, 3), R('tur', 3, 3)],
+  [R('tur', 3, 3), R('rang', 4, 3), R('kattalik', 3, 3)],
+  [R('rang', 3, 4), R('kattalik', 3, 3), R('tur', 3, 4)],
+  [R('rang', 4, 3), R('kattalik', 3, 4), R('tur', 3, 4)],
+  [R('tur', 3, 4), R('rang', 4, 3), R('kattalik', 3, 4)],
+  [R('rang', 4, 3), R('tur', 3, 4), R('kattalik', 3, 4)],
+]
+
+/** Endless'da har raund yuqori darajalardan alohida tanlanadi */
 function gardenRounds(level: number): RoundCfg[] {
-  switch (level) {
-    case 0:
-      return [
-        { type: 'rang', groups: 2, perGroup: 2 },
-        { type: 'kattalik', groups: 2, perGroup: 2 },
-        { type: 'rang', groups: 2, perGroup: 3 },
-      ]
-    case 1:
-      return [
-        { type: 'rang', groups: 2, perGroup: 3 },
-        { type: 'kattalik', groups: 2, perGroup: 3 },
-        { type: 'rang', groups: 3, perGroup: 2 },
-      ]
-    case 2:
-      return [
-        { type: 'rang', groups: 3, perGroup: 3 },
-        { type: 'kattalik', groups: 2, perGroup: 3 },
-        { type: 'tur', groups: 2, perGroup: 3 },
-      ]
-    case 3:
-      return [
-        { type: 'rang', groups: 3, perGroup: 3 },
-        { type: 'kattalik', groups: 3, perGroup: 2 },
-        { type: 'tur', groups: 3, perGroup: 3 },
-      ]
-    default:
-      return [
-        { type: 'rang', groups: 4, perGroup: 3 },
-        { type: 'kattalik', groups: 3, perGroup: 3 },
-        { type: 'tur', groups: 3, perGroup: 3 },
-      ]
-  }
+  if (level < GARDEN_LEVELS.length) return GARDEN_LEVELS[level]
+  return shuffle([0, 1, 2].map((i) => levelRow(GARDEN_LEVELS, level)[i]))
 }
 
 function makeRound(cfg: RoundCfg): { groups: Group[]; items: Item[] } {
@@ -146,6 +139,8 @@ export function Garden({ level, onComplete, onExit }: GameProps) {
   const [phase, setPhase] = useState<'tree' | 'ground' | 'next' | 'finished'>('tree')
   const [sorted, setSorted] = useState<Set<number>>(new Set())
   const [shakeTree, setShakeTree] = useState(0)
+  // 3D sahna (WebGL bo'lsa); aks holda eski 2D ko'rinish
+  const [gl] = useState(hasWebGL)
   const [shakeBasket, setShakeBasket] = useState<string | null>(null)
   const [mascot, react] = useMascot()
   const mistakes = useRef(0)
@@ -181,6 +176,27 @@ export function Garden({ level, onComplete, onExit }: GameProps) {
     window.addEventListener('devicemotion', onMotion)
     return () => window.removeEventListener('devicemotion', onMotion)
   }, [])
+
+  // 3D sahna: savatga tashlandi — to'g'rimi?
+  function dropTo(item: Item, groupId: string): boolean {
+    const hit = round.groups.find((g) => g.id === groupId)
+    if (!hit) return false
+    if (hit.id === item.group) {
+      sfx.pop()
+      react('happy')
+      const next = new Set(sorted).add(item.id)
+      setSorted(next)
+      if (cfg.type === 'rang' && hit.color) void say(`rang_${hit.color}`)
+      else if (cfg.type === 'tur') void say(`meva_${item.kind}`)
+      if (next.size === round.items.length) finishRound()
+      return true
+    }
+    mistakes.current++
+    sfx.wrong()
+    react('oops')
+    void say('yana')
+    return false
+  }
 
   function handleDrop(item: Item, info: PanInfo) {
     const { x, y } = info.point
@@ -225,6 +241,35 @@ export function Garden({ level, onComplete, onExit }: GameProps) {
   }
 
   const showHint = level <= 1 || cfg.type !== 'rang'
+
+  if (gl)
+    return (
+      <GameShell className="garden g3" mascot={mascot} round={roundIdx} rounds={rounds.length} onExit={onExit} data={{ 'data-phase': phase, 'data-round': cfg.type }}>
+        <Garden3D
+          key={`g3-${roundIdx}`}
+          items={round.items}
+          groups={round.groups}
+          // Daraja oshgan sari mevalar shoxda mahkamroq turadi (ko'proq silkitish kerak)
+          holdMax={level < 2 ? 1 : level < 5 ? 2 : level < 10 ? 3 : 4}
+          showHint={showHint}
+          onShake={() => {
+            if (phase === 'tree') react('happy', 700)
+          }}
+          onAllDown={() => {
+            if (phase !== 'tree') return
+            setPhase('ground')
+            void say(INTRO[cfg.type])
+          }}
+          onDrop={(id, groupId) => dropTo(round.items.find((it) => it.id === id)!, groupId)}
+        />
+        {phase === 'finished' && (
+          <Celebration
+            voice={['barakalla']}
+            onDone={() => onComplete({ mistakes: mistakes.current, fruits: totalFruits.current, tasks: totalFruits.current })}
+          />
+        )}
+      </GameShell>
+    )
 
   return (
     <GameShell
@@ -343,7 +388,7 @@ export function Garden({ level, onComplete, onExit }: GameProps) {
       {phase === 'finished' && (
         <Celebration
           voice={['barakalla']}
-          onDone={() => onComplete({ mistakes: mistakes.current, fruits: totalFruits.current })}
+          onDone={() => onComplete({ mistakes: mistakes.current, fruits: totalFruits.current, tasks: totalFruits.current })}
         />
       )}
     </GameShell>

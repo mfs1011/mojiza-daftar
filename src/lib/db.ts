@@ -1,5 +1,5 @@
 import { openDB, type DBSchema } from 'idb'
-import type { PlacedDecor, Profile, Progress } from '../types'
+import type { PlacedDecor, PlayRecord, Profile, Progress } from '../types'
 import type { Landmarks } from './landmarks'
 import { today } from './util'
 
@@ -14,6 +14,8 @@ interface QishloqDB extends DBSchema {
   artworks: { key: number; value: Artwork }
   /** Sahna qahramonlarining belgilari (ko'z, og'iz, qo'l, oyoq); kalit = rasm mazmuni xeshi */
   rigs: { key: string; value: Landmarks }
+  /** O'yinlar tarixi (ota-ona statistikasi) */
+  plays: { key: number; value: PlayRecord; indexes: { profile: string } }
 }
 
 export interface Artwork {
@@ -26,7 +28,7 @@ export interface Artwork {
 }
 
 // Ichki baza nomi eski nomda qoladi: o'zgartirilsa, qurilmadagi ma'lumotlar yo'qoladi
-const dbp = openDB<QishloqDB>('bizning-qishloq', 4, {
+const dbp = openDB<QishloqDB>('bizning-qishloq', 5, {
   upgrade(db, oldVersion) {
     if (oldVersion < 1) {
       db.createObjectStore('profiles', { keyPath: 'id' })
@@ -36,6 +38,7 @@ const dbp = openDB<QishloqDB>('bizning-qishloq', 4, {
     if (oldVersion < 2) db.createObjectStore('heroes')
     if (oldVersion < 3) db.createObjectStore('artworks', { keyPath: 'id', autoIncrement: true })
     if (oldVersion < 4) db.createObjectStore('rigs')
+    if (oldVersion < 5) db.createObjectStore('plays', { keyPath: 'id', autoIncrement: true }).createIndex('profile', 'profileId')
   },
 })
 
@@ -68,6 +71,7 @@ export function emptyProgress(profileId: string): Progress {
     stationsDone: [],
     dayDone: false,
     levels: {},
+    levelScale: 15,
   }
 }
 
@@ -77,7 +81,13 @@ export async function getProgress(profileId: string): Promise<Progress> {
   const p: Progress = { ...emptyProgress(profileId), ...saved }
   p.village = (p.village as unknown[]).filter((v): v is PlacedDecor => typeof v === 'object' && v !== null)
   p.levels ??= {}
-  if (p.day !== today()) return { ...p, day: today(), stationsDone: [], dayDone: false }
+  // Eski 5 darajali shkala (0..4) → yangi 15 darajali: 0,3,6,9,12
+  if (saved && !saved.levelScale) {
+    p.levels = Object.fromEntries(Object.entries(p.levels).map(([k, v]) => [k, (v ?? 0) * 3]))
+    p.levelScale = 15
+  }
+  p.stars ??= {}
+  if (p.day !== today()) return { ...p, day: today(), stationsDone: [], dayDone: false, playedMs: 0 }
   return p
 }
 
@@ -128,4 +138,16 @@ export async function getRig(key: string) {
 
 export async function saveRig(key: string, marks: Landmarks) {
   await (await dbp).put('rigs', marks, key)
+}
+
+// ---------- Statistika ----------
+
+export async function addPlay(r: PlayRecord) {
+  await (await dbp).add('plays', r)
+}
+
+/** Bolaning barcha o'yinlari, eng yangisi birinchi */
+export async function getPlays(profileId: string): Promise<PlayRecord[]> {
+  const all = await (await dbp).getAllFromIndex('plays', 'profile', profileId)
+  return all.sort((a, b) => b.ts - a.ts)
 }

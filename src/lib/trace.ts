@@ -64,17 +64,64 @@ function alphaMask(c: HTMLCanvasElement): Uint8Array {
   return out
 }
 
-export function makeMask(letter: string, w: number, h: number): TraceMask {
+// ---------- Chiziq shakllari (yozuvga tayyorgarlik: tik, to'lqin, aylana...) ----------
+
+/** Harf/raqam (matn) yoki SVG yo'li: 0..100 kvadrat ichida, bola uning ustidan yurib chizadi */
+export type Glyph = string | { path: string; /** Boshlanish nuqtasi (0..100) */ start: [number, number] }
+
+function strokeLayout(w: number, h: number): LetterLayout {
+  const size = Math.min(w, h) * 0.8
+  return { size, x: (w - size) / 2, y: (h - size) / 2, lineWidth: Math.max(14, size * 0.085) }
+}
+
+export function layoutGlyph(ctx: CanvasRenderingContext2D, g: Glyph, w: number, h: number): LetterLayout {
+  return typeof g === 'string' ? layoutLetter(ctx, g, w, h) : strokeLayout(w, h)
+}
+
+/**
+ * Glyph chizish. Matn uchun — harf shrifti; yo'l uchun — `fill` qalin tasma (bola bo'yashi kerak bo'lgan joy),
+ * `stroke` — ingichka (punktir) markaziy chiziq.
+ */
+export function drawGlyph(
+  ctx: CanvasRenderingContext2D,
+  g: Glyph,
+  L: LetterLayout,
+  style: { fill?: string; stroke?: string; dash?: number[]; strokeWidth?: number; band?: number },
+) {
+  if (typeof g === 'string') return drawLetter(ctx, g, L, style)
+  const p = new Path2D(g.path)
+  ctx.save()
+  ctx.translate(L.x, L.y)
+  ctx.scale(L.size / 100, L.size / 100)
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  const k = 100 / L.size
+  if (style.fill) {
+    ctx.strokeStyle = style.fill
+    ctx.lineWidth = L.lineWidth * (style.band ?? 1.15) * k
+    ctx.stroke(p)
+  }
+  if (style.stroke) {
+    ctx.strokeStyle = style.stroke
+    ctx.lineWidth = (style.strokeWidth ?? 3) * k
+    ctx.setLineDash((style.dash ?? []).map((v) => v * k))
+    ctx.stroke(p)
+  }
+  ctx.restore()
+}
+
+export function makeMask(glyph: Glyph, w: number, h: number): TraceMask {
   const c = document.createElement('canvas')
   c.width = w
   c.height = h
   const ctx = c.getContext('2d')!
-  const layout = layoutLetter(ctx, letter, w, h)
-  drawLetter(ctx, letter, layout, { fill: '#000' })
+  const layout = layoutGlyph(ctx, glyph, w, h)
+  drawGlyph(ctx, glyph, layout, { fill: '#000' })
   const mask = alphaMask(c)
 
   ctx.clearRect(0, 0, w, h)
-  drawLetter(ctx, letter, layout, { fill: '#000', stroke: '#000', strokeWidth: layout.lineWidth * 1.3 })
+  if (typeof glyph === 'string') drawLetter(ctx, glyph, layout, { fill: '#000', stroke: '#000', strokeWidth: layout.lineWidth * 1.3 })
+  else drawGlyph(ctx, glyph, layout, { fill: '#000', band: 2.6 })
   const near = alphaMask(c)
 
   let count = 0

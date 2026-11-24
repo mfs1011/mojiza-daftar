@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { useEffect, useMemo } from 'react'
 import { Mascot } from '../art/Mascot'
-import { say, sfx } from '../lib/audio'
+import { jingle, say, sfx } from '../lib/audio'
 import { wait } from '../lib/util'
 
 interface Props {
@@ -29,6 +29,7 @@ export function Celebration({ voice, onDone }: Props) {
   useEffect(() => {
     let cancelled = false
     sfx.success()
+    jingle('win')
     void Promise.all([say(...voice), wait(2600)]).then(() => {
       if (!cancelled) onDone()
     })

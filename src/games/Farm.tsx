@@ -1,11 +1,13 @@
 import { motion } from 'framer-motion'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { ALL_ANIMALS, AnimalArt, type AnimalId } from '../art/Animal'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
+import { useHowTo } from '../components/useHowTo'
 import { say, sayAnimal, sfx } from '../lib/audio'
 import { pick, shuffle, wait } from '../lib/util'
+import { levelRow } from '../lib/stations'
 import type { GameProps } from '../types'
 
 // 🐑 Ferma — eshitish va xotira (#8).
@@ -20,16 +22,28 @@ interface FarmCfg {
   length: number
 }
 
-function farmCfg(level: number): FarmCfg {
-  const table: FarmCfg[] = [
-    { mode: 'kim', animals: 2, length: 1 },
-    { mode: 'kim', animals: 3, length: 1 },
-    { mode: 'takrorla', animals: 3, length: 2 },
-    { mode: 'takrorla', animals: 4, length: 3 },
-    { mode: 'takrorla', animals: 4, length: 4 },
-  ]
-  return table[Math.min(level, 4)]
-}
+// 0–4: "Kim gapiryapti?" (bitta ovoz, tanlov kengayadi).
+// 5+: "Eshit va takrorla" — ketma-ketlik uzayadi, hayvonlar ko'payadi (ekranga 6 tagacha sig'adi).
+// Endless band (10–14) hammasi "takrorla": bitta o'yin ichida rejim almashmasligi uchun.
+const FARM_LEVELS: FarmCfg[] = [
+  { mode: 'kim', animals: 2, length: 1 },
+  { mode: 'kim', animals: 2, length: 1 },
+  { mode: 'kim', animals: 3, length: 1 },
+  { mode: 'kim', animals: 3, length: 1 },
+  { mode: 'kim', animals: 4, length: 1 },
+  { mode: 'takrorla', animals: 2, length: 2 },
+  { mode: 'takrorla', animals: 3, length: 2 },
+  { mode: 'takrorla', animals: 3, length: 3 },
+  { mode: 'takrorla', animals: 4, length: 3 },
+  { mode: 'takrorla', animals: 4, length: 4 },
+  { mode: 'takrorla', animals: 5, length: 4 },
+  { mode: 'takrorla', animals: 5, length: 5 },
+  { mode: 'takrorla', animals: 6, length: 5 },
+  { mode: 'takrorla', animals: 6, length: 6 },
+  { mode: 'takrorla', animals: 6, length: 7 },
+]
+
+const farmCfg = (level: number) => levelRow(FARM_LEVELS, level)
 
 const ROUNDS = 3
 
@@ -48,10 +62,14 @@ function makeRound(cfg: FarmCfg): Round {
   return { animals, seq }
 }
 
-export function Farm({ level, onComplete, onExit }: GameProps) {
-  const cfg = farmCfg(level)
+export function Farm({ profile, level, onComplete, onExit }: GameProps) {
+  // Rejim (kim/takrorla) butun o'yin uchun bitta; raundlar endless'da har xil bo'lishi mumkin
+  const cfg = useMemo(() => farmCfg(level), [level])
   const [roundIdx, setRoundIdx] = useState(0)
-  const rounds = useMemo(() => Array.from({ length: ROUNDS }, () => makeRound(farmCfg(level))), [level])
+  const rounds = useMemo(
+    () => Array.from({ length: ROUNDS }, (_, i) => makeRound(i === 0 ? cfg : { ...farmCfg(level), mode: cfg.mode })),
+    [level, cfg],
+  )
   const round = rounds[roundIdx]
   const [phase, setPhase] = useState<'listen' | 'input' | 'solved' | 'finished'>('listen')
   const [lit, setLit] = useState<AnimalId | null>(null)
@@ -69,16 +87,23 @@ export function Farm({ level, onComplete, onExit }: GameProps) {
     }
   }, [])
 
+  // "Qanday bajariladi?": qo'l navbatdagi to'g'ri hayvonni bosib ko'rsatadi
+  const howto = useHowTo(profile.id, 'ferma', () => howto.tap(`.farm-animal[data-id="${round.seq[progressRef.current]}"]`))
+  const progressRef = useRef(0)
+  progressRef.current = progress
+
   async function playSequence(first: boolean) {
     setPhase('listen')
     setProgress(0)
+    const explain = first ? howto.arm(cfg.mode) : []
+    if (explain.length) await say(...explain)
     if (first && roundIdx === 0) await say(cfg.mode === 'kim' ? 'ferma_kim' : 'ferma_takrorla')
     else if (first && cfg.mode === 'kim') await say('ferma_kim')
     await wait(300)
     for (const a of round.seq) {
       if (!alive.current) return
       setLit(cfg.mode === 'kim' ? null : a)
-      await sayAnimal(a)
+      await sayAnimal(a, { steady: cfg.mode === 'takrorla' })
       setLit(null)
       await wait(250)
     }
@@ -92,6 +117,7 @@ export function Farm({ level, onComplete, onExit }: GameProps) {
   }, [roundIdx])
 
   function solved() {
+    howto.done()
     setPhase('solved')
     sfx.success()
     react('happy', 1800)
@@ -119,12 +145,13 @@ export function Farm({ level, onComplete, onExit }: GameProps) {
       sfx.pop()
       setLit(a)
       setTimeout(() => setLit((x) => (x === a ? null : x)), 400)
-      if (cfg.mode === 'takrorla') void sayAnimal(a)
+      if (cfg.mode === 'takrorla') void sayAnimal(a, { steady: true })
       const next = progress + 1
       setProgress(next)
       if (next === round.seq.length) solved()
     } else {
       mistakes.current++
+      howto.miss()
       sfx.wrong()
       react('oops')
       setWrong(a)
@@ -132,7 +159,7 @@ export function Farm({ level, onComplete, onExit }: GameProps) {
       // Bola noto'g'ri hayvon tovushini eshitib, farqni sezadi; keyin qayta eshitamiz
       void (async () => {
         setPhase('listen')
-        await sayAnimal(a)
+        await sayAnimal(a, { steady: cfg.mode === 'takrorla' })
         await wait(500)
         if (alive.current) await playSequence(false)
       })()
@@ -177,7 +204,7 @@ export function Farm({ level, onComplete, onExit }: GameProps) {
         </motion.button>
       )}
 
-      <div className={`farm-animals ${cfg.mode}`}>
+      <div className={`farm-animals ${cfg.mode}`} style={{ '--n': round.animals.length } as CSSProperties}>
         {round.animals.map((a) => (
           <motion.button
             key={`${roundIdx}-${a}`}
@@ -214,7 +241,8 @@ export function Farm({ level, onComplete, onExit }: GameProps) {
         </div>
       )}
 
-      {phase === 'finished' && <Celebration voice={[]} onDone={() => onComplete({ mistakes: mistakes.current })} />}
+      {phase === 'input' && howto.overlay}
+      {phase === 'finished' && <Celebration voice={[]} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.reduce((a, r) => a + r.seq.length, 0) })} />}
     </GameShell>
   )
 }

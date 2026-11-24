@@ -1,30 +1,77 @@
 import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics'
 import type { AnimalId } from '../art/Animal'
-import { audioUrl, musicTracks } from './assets'
+import { audioUrl } from './assets'
 import { getVoice } from './db'
 
 // ============ Audio grafi ============
-// master ─┬─ effektlar
-//         └─ musicGain ─ fon musiqasi (ovoz gapirganda pasayadi)
+// master ─┬─ fxBus ──────────────────── effektlar, qahramon reaksiyalari
+//         ├─ musicBus ─ musicDuck ───── fon musiqasi (ko'rsatma gapirganda pasayadi)
+//         ├─ jingleBus ──────────────── qisqa jingle'lar (musiqa slayderi bilan)
+//         └─ ambBus ─── ambDuck ─────── muhit ovozlari (ham pasayadi)
+// Ko'rsatmalar va hayvon ovozlari HTMLAudio orqali chalinadi, balandligi `voiceVol`.
+//
+// Darajalar docs/AUDIO.md (P6) bo'yicha: fayllar import paytida normallashtiriladi
+// (musiqa −18, ovoz −16, effekt −13, muhit −30 LUFS), bu yerda faqat nisbiy farq qoladi.
 
 let ctx: AudioContext | null = null
 let master: GainNode
-let musicGain: GainNode
-const MUSIC_VOL = 0.32
-const MUSIC_DUCKED = 0.08
+let fxBus: GainNode
+let musicBus: GainNode
+let musicDuck: GainNode
+let jingleBus: GainNode
+let ambBus: GainNode
+let ambDuck: GainNode
+
+const LEVEL = {
+  fx: 0.6, // ≈ −4 dB
+  music: 0.4, // −18 LUFS fayl → ko'rsatmadan ≈ 10 dB past
+  musicDucked: 0.08, // ≈ −24 dB
+  amb: 0.8, // fayl allaqachon −30 LUFS
+  ambDucked: 0.32,
+}
+const FADE = 1.2 // ekranlar orasida crossfade, s
+
+/** Ota-ona slayderlari (0..1) va tungi rejim */
+const mix = { music: 1, fx: 1, voice: 1, night: false }
 
 function ac(): AudioContext {
   if (!ctx) {
     ctx = new AudioContext()
-    master = ctx.createGain()
-    master.connect(ctx.destination)
-    musicGain = ctx.createGain()
-    musicGain.gain.value = 0
-    musicGain.connect(master)
+    const g = (dest: AudioNode, v = 1) => {
+      const n = ctx!.createGain()
+      n.gain.value = v
+      n.connect(dest)
+      return n
+    }
+    master = g(ctx.destination, mix.night ? 0.5 : 1)
+    fxBus = g(master, LEVEL.fx * mix.fx)
+    musicBus = g(master, mix.music)
+    musicDuck = g(musicBus, LEVEL.music)
+    jingleBus = g(master, LEVEL.music * 1.6 * mix.music)
+    ambBus = g(master, mix.fx)
+    ambDuck = g(ambBus, LEVEL.amb)
   }
   if (ctx.state === 'suspended') void ctx.resume()
   return ctx
 }
+
+/** Ota-ona panelidagi balandliklarni qo'llash */
+export function applyMix(m: { musicVol: number; fxVol: number; voiceVol: number; night: boolean }) {
+  mix.music = m.musicVol
+  mix.fx = m.fxVol
+  mix.voice = m.voiceVol
+  mix.night = m.night
+  if (current) current.volume = voiceVolume()
+  if (!ctx) return
+  const t = ctx.currentTime
+  master.gain.setTargetAtTime(mix.night ? 0.5 : 1, t, 0.05)
+  fxBus.gain.setTargetAtTime(LEVEL.fx * mix.fx, t, 0.05)
+  musicBus.gain.setTargetAtTime(mix.music, t, 0.05)
+  jingleBus.gain.setTargetAtTime(LEVEL.music * 1.6 * mix.music, t, 0.05)
+  ambBus.gain.setTargetAtTime(mix.fx, t, 0.05)
+}
+
+const voiceVolume = () => Math.min(1, mix.voice * (mix.night ? 0.5 : 1))
 
 function tone(freq: number, at: number, dur: number, type: OscillatorType = 'sine', vol = 0.18, dest?: AudioNode) {
   const c = ac()
@@ -36,7 +83,7 @@ function tone(freq: number, at: number, dur: number, type: OscillatorType = 'sin
   g.gain.setValueAtTime(0.0001, t0)
   g.gain.exponentialRampToValueAtTime(vol, t0 + 0.02)
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur)
-  o.connect(g).connect(dest ?? master)
+  o.connect(g).connect(dest ?? fxBus)
   o.start(t0)
   o.stop(t0 + dur + 0.05)
 }
@@ -58,7 +105,7 @@ function noise(at: number, dur: number, freq: number, vol: number, dest?: AudioN
   const g = c.createGain()
   g.gain.setValueAtTime(vol, t0)
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur)
-  src.connect(f).connect(g).connect(dest ?? master)
+  src.connect(f).connect(g).connect(dest ?? fxBus)
   src.start(t0)
   src.stop(t0 + dur + 0.02)
 }
@@ -101,7 +148,7 @@ function sample(name: string, vol = 0.8): boolean {
     const g = c.createGain()
     g.gain.value = vol
     src.buffer = buf
-    src.connect(g).connect(master)
+    src.connect(g).connect(fxBus)
     src.start()
   })
   return true
@@ -130,6 +177,7 @@ function withParentVoice<T extends Record<string, () => void>>(fx: T): T {
           if (u) {
             haptic.tap()
             const a = new Audio(u)
+            a.volume = Math.min(1, mix.fx * (mix.night ? 0.5 : 1))
             a.playbackRate = 1.15
             void a.play().catch(() => fn())
           } else fn()
@@ -204,7 +252,7 @@ function sweep(f0: number, f1: number, at: number, dur: number, type: Oscillator
   g.gain.exponentialRampToValueAtTime(vol, t0 + 0.02)
   g.gain.setValueAtTime(vol, t0 + dur * 0.7)
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur)
-  o.connect(g).connect(master)
+  o.connect(g).connect(fxBus)
   o.start(t0)
   o.stop(t0 + dur + 0.05)
 }
@@ -253,99 +301,286 @@ export const voiceFx = withParentVoice(withSamples('voice-', {
   squeeze: () => sweep(500, 1300, 0, 0.6, 'triangle', 0.12, 6),
 }))
 
-// ============ Fon musiqasi: doira + yengil kuy ============
+/** 3D robot: qahramon reaksiyalarining robotcha nusxasi (sfx/robot-*), bo'lmasa oddiy ovoz */
+export const robotFx = Object.fromEntries(
+  Object.entries(voiceFx).map(([k, fn]) => [
+    k,
+    () => {
+      if (sample(`robot-${k}`)) haptic.tap()
+      else fn()
+    },
+  ]),
+) as typeof voiceFx
 
-// Re-minor pentatonikaga yaqin, o'zbekona ohang uchun
-const SCALE = [293.66, 349.23, 392.0, 440.0, 523.25, 587.33, 698.46]
-const STEP = 0.3 // sekund, sakkizdan bir
-let musicOn = false
-let schedTimer: number | undefined
-let nextTime = 0
-let step = 0
-let note = 3
+/**
+ * Hovli narsasi bosilganda: o'z tovushi (sfx/obj-<nom> fayli yoki sintez), keyin nomi.
+ * Hayvon — haqiqiy ovozi.
+ */
+export async function objectSound(kind: string) {
+  if (kind.startsWith('hayvon_')) {
+    await sayAnimal(kind.slice(7) as AnimalId)
+    return void say(kind)
+  }
+  if (!sample(`obj-${kind}`)) {
+    const synth: Record<string, () => void> = {
+      // Daraxtlar — barglar shitirlaydi
+      terak: () => sfx.rustle(),
+      olma_daraxt: () => (sfx.rustle(), tone(660, 0.35, 0.12, 'triangle', 0.12)),
+      anor_daraxt: () => (sfx.rustle(), tone(587, 0.35, 0.12, 'triangle', 0.12)),
+      // Gullar — sehrli jiringlash
+      gul: () => [1047, 1319, 1568].forEach((f, i) => tone(f, i * 0.08, 0.3, 'sine', 0.08)),
+      kungaboqar: () => [784, 988, 1175].forEach((f, i) => tone(f, i * 0.09, 0.3, 'sine', 0.08)),
+      // Uy — eshik taqillaydi
+      uy: () => [0, 0.18].forEach((t) => (tone(180, t, 0.09, 'sine', 0.35), noise(t, 0.05, 900, 0.18))),
+      // So'ri — yog'och g'ichirlaydi
+      sori: () => noise(0, 0.25, 600, 0.15),
+      // Tandir — olov chirsillaydi
+      tandir: () => {
+        for (let i = 0; i < 7; i++) noise(i * 0.06 + Math.random() * 0.03, 0.04, 2500 + Math.random() * 2500, 0.2)
+      },
+      // Quduq — chelak suvga tushadi
+      quduq: () => (tone(300, 0, 0.12, 'sine', 0.25), noise(0.08, 0.4, 700, 0.25)),
+      // Ko'za — sopol jiringlaydi
+      koza: () => (tone(1480, 0, 0.35, 'sine', 0.14), tone(2220, 0.02, 0.3, 'sine', 0.07)),
+    }
+    synth[kind]?.()
+  }
+  haptic.tap()
+  await new Promise((r) => setTimeout(r, 450))
+  void say(`narsa_${kind}`)
+}
 
-function scheduleStep(s: number, t: number) {
-  const at = t - ac().currentTime
-  // Doira: "bum" (past) va "tak" (baland)
-  if (s % 8 === 0 || s % 8 === 5) {
+/** Popishak (hudhud): haqiqiy hudhud sayrashi, variantlardan tasodifiy */
+export function mascotCall() {
+  const v = ['popishak', 'popishak-2', 'popishak-3'].filter((n) => audioUrl(`sfx/${n}`))
+  if (v.length) sample(v[Math.floor(Math.random() * v.length)])
+}
+
+/** Musiqa uyi cholg'ulari uchun: audio konteksti va effektlar shinasi (slayder va tungi rejim amal qiladi) */
+export function instrumentOut(): { c: AudioContext; dest: AudioNode } {
+  const c = ac()
+  return { c, dest: fxBus }
+}
+
+/** Tayyor ovoz fayli bormi (ota-ona yozuvisiz): personaj ovozi yo'q bo'lsa umumiy ko'rsatmaga qaytish uchun */
+export const hasVoice = (key: string) => !!audioUrl(`voices/${key}`)
+
+// ============ Fon musiqasi va muhit ovozlari ============
+// Har ekran o'z trekini so'raydi (playMusic/playAmbience). Treklar AudioBufferSourceNode bilan
+// uzluksiz aylanadi, almashganda crossfade qilinadi. Fayl bo'lmasa — jimlik (sintez kuy yo'q).
+
+export type MusicId = 'map' | 'bog' | 'bozor' | 'ferma' | 'ustaxona' | 'qora' | 'harflar' | 'raqam' | 'hisob' | 'shakl' | 'mantiq' | 'yozuv' | 'sher' | 'musiqa' | 'rasm' | 'uyqu'
+export type AmbienceId = 'bog' | 'bozor' | 'ferma' | 'ustaxona' | 'qora' | 'harflar'
+
+/** Siqilgan fayl baytlari (kichik) keshlanadi; dekodlangan bufer katta, shuning uchun faqat oxirgi ikkitasi */
+const bytesCache = new Map<string, Promise<ArrayBuffer | null>>()
+const decoded = new Map<string, AudioBuffer>()
+
+function fetchBytes(url: string): Promise<ArrayBuffer | null> {
+  let p = bytesCache.get(url)
+  if (!p) {
+    p = fetch(url)
+      .then((r) => (r.ok ? r.arrayBuffer() : null))
+      .catch(() => null)
+    bytesCache.set(url, p)
+  }
+  return p
+}
+
+async function loadLoop(url: string): Promise<AudioBuffer | null> {
+  const hit = decoded.get(url)
+  if (hit) {
+    decoded.delete(url)
+    decoded.set(url, hit) // LRU: oxiriga
+    return hit
+  }
+  const bytes = await fetchBytes(url)
+  if (!bytes) return null
+  try {
+    // decodeAudioData buferni "olib qo'yadi", shuning uchun nusxasini beramiz
+    const buf = await ac().decodeAudioData(bytes.slice(0))
+    decoded.set(url, buf)
+    while (decoded.size > 2) decoded.delete(decoded.keys().next().value!)
+    return buf
+  } catch {
+    return null
+  }
+}
+
+/** Ekranga kirishdan oldin trek faylini yuklab qo'yish (dekodlanmaydi) */
+export function preloadMusic(...ids: MusicId[]) {
+  for (const id of ids) {
+    const u = audioUrl(`music/${id}`)
+    if (u) void fetchBytes(u)
+  }
+}
+
+/** Buferdagi haqiqiy tovush chegaralari (sekundda): boshdagi va oxirdagi deyarli jimlik tashlanadi */
+const boundsCache = new WeakMap<AudioBuffer, [number, number]>()
+function soundBounds(buf: AudioBuffer): [number, number] {
+  const hit = boundsCache.get(buf)
+  if (hit) return hit
+  const d = buf.getChannelData(0)
+  const thr = 0.002 // ≈ -54 dB
+  let a = 0
+  while (a < d.length && Math.abs(d[a]) < thr) a++
+  let b = d.length - 1
+  while (b > a && Math.abs(d[b]) < thr) b--
+  const r: [number, number] = b - a > buf.sampleRate * 0.5 ? [a / buf.sampleRate, (b + 1) / buf.sampleRate] : [0, buf.duration]
+  boundsCache.set(buf, r)
+  return r
+}
+
+/** Bitta uzluksiz qatlam (musiqa yoki muhit): bir vaqtda bitta trek, almashganda crossfade */
+class LoopLayer {
+  private wanted: string | null = null
+  private enabled = true
+  private playing: { id: string; src: AudioBufferSourceNode; gain: GainNode } | null = null
+  /** Loop bo'lmagan trek (alla) tugagan bo'lsa, qayta boshlanmaydi */
+  private finished: string | null = null
+  private seq = 0
+
+  private dir: string
+  private bus: () => GainNode
+  private once: (id: string) => boolean
+
+  constructor(dir: string, bus: () => GainNode, once: (id: string) => boolean = () => false) {
+    this.dir = dir
+    this.bus = bus
+    this.once = once
+  }
+
+  want(id: string | null) {
+    if (id !== this.wanted) this.finished = null
+    this.wanted = id
+    void this.refresh()
+  }
+
+  enable(on: boolean) {
+    this.enabled = on
+    void this.refresh()
+  }
+
+  private async refresh() {
+    const target = this.enabled ? this.wanted : null
+    if (this.playing?.id === target || (target && target === this.finished)) return
+    const my = ++this.seq
+    this.fadeOut()
+    if (!target) return
+    const url = audioUrl(`${this.dir}/${target}`)
+    if (!url) return
+    const buf = await loadLoop(url)
+    if (!buf || my !== this.seq) return
     const c = ac()
-    const o = c.createOscillator()
-    const g = c.createGain()
-    o.frequency.setValueAtTime(120, t)
-    o.frequency.exponentialRampToValueAtTime(55, t + 0.2)
-    g.gain.setValueAtTime(0.5, t)
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3)
-    o.connect(g).connect(musicGain)
-    o.start(t)
-    o.stop(t + 0.35)
+    const src = c.createBufferSource()
+    const gain = c.createGain()
+    src.buffer = buf
+    src.loop = !this.once(target)
+    if (src.loop) {
+      // Kodek bosh/oxirida qoldiradigan sukutni chetlab aylanamiz — loop chokida pauza bo'lmasin
+      const [a, b] = soundBounds(buf)
+      src.loopStart = a
+      src.loopEnd = b
+    }
+    gain.gain.setValueAtTime(0, c.currentTime)
+    gain.gain.linearRampToValueAtTime(1, c.currentTime + FADE)
+    src.connect(gain).connect(this.bus())
+    src.start()
+    const p = { id: target, src, gain }
+    this.playing = p
+    src.onended = () => {
+      if (this.playing !== p) return
+      this.playing = null
+      this.finished = target
+    }
   }
-  if (s % 8 === 2 || s % 8 === 3 || s % 8 === 6) noise(at, 0.07, 3200, 0.22, musicGain)
-  // Kuy: tasodifiy, lekin silliq (qo'shni notaga yuradi)
-  if (s % 16 < 14 && Math.random() < 0.55) {
-    note = Math.max(0, Math.min(SCALE.length - 1, note + [-1, -1, 0, 1, 1, 2, -2][Math.floor(Math.random() * 7)]))
-    tone(SCALE[note], at, STEP * 1.8, 'triangle', 0.09, musicGain)
+
+  private fadeOut() {
+    const p = this.playing
+    if (!p || !ctx) return
+    this.playing = null
+    const t = ctx.currentTime
+    p.gain.gain.cancelScheduledValues(t)
+    p.gain.gain.setValueAtTime(p.gain.gain.value, t)
+    p.gain.gain.linearRampToValueAtTime(0, t + FADE)
+    p.src.onended = null
+    p.src.stop(t + FADE + 0.05)
   }
 }
 
-function scheduler() {
-  const c = ac()
-  while (nextTime < c.currentTime + 0.5) {
-    scheduleStep(step, nextTime)
-    nextTime += STEP
-    step = (step + 1) % 16
-  }
+const music = new LoopLayer('music', () => (ac(), musicDuck), (id) => id === 'uyqu')
+const ambience = new LoopLayer('ambience', () => (ac(), ambDuck))
+
+/** Ekran musiqasi. Bir xil trek so'ralsa, qayta boshlanmaydi. `null` — jimlik */
+export function playMusic(id: MusicId | null) {
+  music.want(id)
 }
 
-// Haqiqiy musiqa fayllari (public/assets/music/*): navbat bilan, aylanma
-let track: HTMLAudioElement | null = null
-let trackIdx = 0
-function playTrack() {
-  const list = musicTracks()
-  if (!list.length) return false
-  track?.pause()
-  track = new Audio(list[trackIdx % list.length])
-  track.volume = MUSIC_FILE_VOL
-  track.onended = () => {
-    trackIdx++
-    if (musicOn) playTrack()
-  }
-  void track.play().catch(() => {})
-  return true
+/** Bekat muhit ovozi (qushlar, bozor shovqini...). `null` — jimlik */
+export function playAmbience(id: AmbienceId | null) {
+  ambience.want(id)
 }
-const MUSIC_FILE_VOL = 0.4
 
+/** Musiqani umuman yoqish/o'chirish (sozlama yoki sahna). Tanlangan trek eslab qolinadi */
 export function setMusic(on: boolean) {
-  if (on === musicOn) return
-  musicOn = on
-  if (musicTracks().length) {
-    if (on) playTrack()
-    else track?.pause()
-    return
-  }
-  const c = ac()
-  if (on) {
-    nextTime = c.currentTime + 0.1
-    schedTimer = window.setInterval(scheduler, 120)
-    musicGain.gain.setTargetAtTime(MUSIC_VOL, c.currentTime, 0.5)
-  } else {
-    window.clearInterval(schedTimer)
-    musicGain.gain.setTargetAtTime(0, c.currentTime, 0.1)
-  }
+  music.enable(on)
+}
+
+export function setAmbience(on: boolean) {
+  ambience.enable(on)
+}
+
+/** Qisqa jingle: musiqa bir zum pasayadi */
+export function jingle(id: 'win' | 'start' | 'sticker') {
+  const url = audioUrl(`music/jingle-${id}`)
+  if (!url) return
+  void loadSample(url).then((buf) => {
+    if (!buf) return
+    const c = ac()
+    const src = c.createBufferSource()
+    src.buffer = buf
+    src.connect(jingleBus)
+    duck(true)
+    src.onended = () => {
+      if (!current) duck(false)
+    }
+    src.start()
+  })
 }
 
 function duck(down: boolean) {
-  if (track && musicOn) track.volume = down ? MUSIC_FILE_VOL * 0.3 : MUSIC_FILE_VOL
-  if (!ctx || !musicOn) return
-  musicGain.gain.setTargetAtTime(down ? MUSIC_DUCKED : MUSIC_VOL, ctx.currentTime, 0.15)
+  if (!ctx) return
+  const t = ctx.currentTime
+  for (const [node, full, low] of [
+    [musicDuck, LEVEL.music, LEVEL.musicDucked],
+    [ambDuck, LEVEL.amb, LEVEL.ambDucked],
+  ] as const) {
+    node.gain.cancelScheduledValues(t)
+    node.gain.setValueAtTime(node.gain.value, t)
+    // Pasayish tez (0.15 s), qaytish silliq (0.4 s)
+    node.gain.linearRampToValueAtTime(down ? low : full, t + (down ? 0.15 : 0.4))
+  }
 }
 
-// Ilova orqa fonga o'tsa, hammasi jim bo'ladi
+// Mobil brauzer AudioContext'ni faqat foydalanuvchi tegingandan keyin ochadi
+document.addEventListener('pointerdown', () => {
+  if (ctx?.state === 'suspended' && !document.hidden) void ctx.resume()
+})
+
+// Ilova orqa fonga o'tsa, hammasi jim bo'ladi; qaytganda silliq ko'tariladi
 document.addEventListener('visibilitychange', () => {
   if (!ctx) return
   if (document.hidden) {
     stopVoice()
     void ctx.suspend()
-  } else void ctx.resume()
+  } else {
+    const t = ctx.currentTime
+    master.gain.setValueAtTime(0, t)
+    void ctx.resume().then(() => {
+      const now = ctx!.currentTime
+      master.gain.linearRampToValueAtTime(mix.night ? 0.5 : 1, now + 0.8)
+    })
+  }
 })
 
 // ============ Ota-onaning yozib olingan ovozi ============
@@ -389,6 +624,7 @@ export function stopVoice() {
 function playUrl(url: string): Promise<void> {
   return new Promise<void>((resolve) => {
     const a = new Audio(url)
+    a.volume = voiceVolume()
     current = a
     const done = () => resolve()
     a.onended = done
@@ -402,6 +638,11 @@ function playUrl(url: string): Promise<void> {
  * Kalitlarni ketma-ket aytadi. Yangi `say` chaqirilsa, eskisi to'xtaydi.
  * Yozilmagan kalitlar jimgina o'tkazib yuboriladi.
  */
+/** Hozir ko'rsatma/ovoz aytilyaptimi (yordamchi qo'l gapni bo'lmasin) */
+export function speaking(): boolean {
+  return !!current && !current.paused && !current.ended
+}
+
 export async function say(...keys: string[]): Promise<void> {
   stopVoice()
   const my = token
@@ -449,7 +690,7 @@ function voiceSynth(
     g.gain.exponentialRampToValueAtTime(vol, t + 0.04)
     g.gain.setValueAtTime(vol, t + s.dur * 0.7)
     g.gain.exponentialRampToValueAtTime(0.0001, t + s.dur)
-    o.connect(f).connect(g).connect(master)
+    o.connect(f).connect(g).connect(fxBus)
     o.start(t)
     o.stop(t + s.dur + 0.02)
     t += s.dur + 0.06
@@ -515,11 +756,23 @@ function synthAnimal(id: AnimalId): number {
   }
 }
 
-export async function sayAnimal(id: AnimalId): Promise<void> {
+/** Haqiqiy hayvon yozuvi: <id>, <id>-2, <id>-3 (bo'lganlari) */
+function animalVariants(id: AnimalId): string[] {
+  return [id, `${id}-2`, `${id}-3`].map((n) => audioUrl(`sfx/animals/${n}`)).filter((u): u is string => !!u)
+}
+
+/**
+ * Hayvon ovozi: haqiqiy yozuv → ota-ona taqlidi → sintez.
+ * Ferma o'yini bolaga haqiqiy hayvonni tanitadi, shuning uchun yozuv ota-ona taqlididan ustun.
+ * `steady` — doim asosiy variant ("Eshit va takrorla": xotira o'yini barqaror tovush talab qiladi).
+ */
+export async function sayAnimal(id: AnimalId, opts: { steady?: boolean } = {}): Promise<void> {
   stopVoice()
   const my = token
-  // Ota-ona taqlidi → haqiqiy hayvon yozuvi → yaratilgan ovoz → sintez
-  const url = (await parentUrl(`tovush_${id}`)) ?? audioUrl(`sfx/animals/${id}`) ?? audioUrl(`voices/tovush_${id}`)
+  const real = animalVariants(id)
+  const recorded = real.length ? (opts.steady ? real[0] : real[Math.floor(Math.random() * real.length)]) : null
+  // TTS (odam ovozidagi taqlid) ishlatilmaydi: bola haqiqiy hayvonni tanishi kerak
+  const url = recorded ?? (await parentUrl(`tovush_${id}`))
   if (my !== token) return
   duck(true)
   if (url) await playUrl(url)

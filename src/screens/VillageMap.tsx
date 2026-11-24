@@ -1,33 +1,31 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { FruitArt } from '../art/Fruit'
-import { Mascot } from '../art/Mascot'
-import { CoinArt, DecorArt, StationIcon, type DecorKind } from '../art/Scenery'
-import { burst } from '../components/Fx'
+import { CoinArt, StationIcon } from '../art/Scenery'
 import { artUrl } from '../lib/assets'
 import { Hero, useHeroUrl, type HeroMode } from '../components/Hero'
-import { say, sfx } from '../lib/audio'
-import { dailyFor, stationsFor, STATIONS } from '../lib/stations'
-import type { PlacedDecor, Profile, Progress, StationId } from '../types'
+import { sfx } from '../lib/audio'
+import { WORLDS, worldStations, type WorldId } from '../lib/stations'
+import type { Profile, Progress, StationId } from '../types'
 import { Icon } from '../art/Icon'
 
 interface Props {
+  /** Qaysi olam xaritasi (Qishloq, Maktab, Ijod) */
+  world: WorldId
   profile: Profile
   progress: Progress
-  /** Bekat tugagach bola tanlaydigan 3 ta sovg'a (yoki null) */
-  reward: DecorKind[] | null
   /** Qahramon qaysi bekatdan qaytdi (yurish animatsiyasi shu yerdan boshlanadi) */
   arrivedFrom: StationId | null
   onPlay: (s: StationId) => void
-  onPlace: (d: PlacedDecor) => void
+  /** Olamlar ekraniga qaytish */
   onHome: () => void
   onSleep: () => void
 }
 
-const pathPoints = STATIONS.map((s) => `${s.x * 16},${s.y * 9}`).join(' ')
-
-function MapBackground() {
-  const img = artUrl('bg/map')
+function MapBackground({ world }: { world: WorldId }) {
+  const w = WORLDS.find((x) => x.id === world)!
+  const pathPoints = w.stations.map((s) => `${s.x * 16},${s.y * 9}`).join(' ')
+  const img = artUrl(`bg/${w.bg}`)
   if (img)
     // Tayyor xarita rasmi + ustida faqat bekatlarni bog'lovchi yo'l
     return (
@@ -92,28 +90,25 @@ function MapBackground() {
   )
 }
 
-export function VillageMap({ profile, progress, reward, arrivedFrom, onPlay, onPlace, onHome, onSleep }: Props) {
+export function VillageMap({ world, profile, progress, arrivedFrom, onPlay, onHome, onSleep }: Props) {
   const heroUrl = useHeroUrl(profile.id)
-  const stations = stationsFor(profile.age)
+  const stations = worldStations(world, profile.age)
   const done = new Set(progress.stationsDone)
   const needsHero = heroUrl === null
-  const next: StationId | null = needsHero ? 'rasm' : (dailyFor(profile.age).find((s) => !done.has(s.id))?.id ?? null)
+  // Tavsiya: shu olamda bugun hali o'ynalmagan birinchi bekat
+  const next: StationId | null = needsHero
+    ? stations.some((s) => s.id === 'rasm')
+      ? 'rasm'
+      : null
+    : (stations.find((s) => !done.has(s.id))?.id ?? null)
 
-  const [picking, setPicking] = useState<DecorKind[] | null>(reward)
-  const [placing, setPlacing] = useState<DecorKind | null>(null)
-  const [justPlaced, setJustPlaced] = useState<number | null>(null)
-  const [heroAt, setHeroAt] = useState<StationId>(arrivedFrom ?? next ?? dailyFor(profile.age).at(-1)!.id)
+  const [heroAt, setHeroAt] = useState<StationId>(
+    arrivedFrom && stations.some((s) => s.id === arrivedFrom) ? arrivedFrom : (next ?? stations[0].id),
+  )
   const [heroMode, setHeroMode] = useState<HeroMode>('idle')
   const stageRef = useRef<HTMLDivElement>(null)
-  const busy = !!picking || !!placing
-
-  // Ovoz: sovg'a tanlash yoki salomlashish
-  useEffect(() => {
-    if (reward) void say('sovga_tanla')
-    else if (progress.stationsDone.length === 0 && !arrivedFrom) void say(`ism_${profile.id}`, 'salom')
-    // Faqat xarita ochilganda
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  // Sovg'alar endi albom va hovliga tushadi — xarita doim toza va bosiladigan
+  const busy = false
 
   // Qahramon keyingi bekatga yurib boradi (sovg'a joylab bo'lingach)
   useEffect(() => {
@@ -137,32 +132,12 @@ export function VillageMap({ profile, progress, reward, arrivedFrom, onPlay, onP
     }
   }, [busy, next, heroAt, heroUrl, progress.dayDone, onSleep])
 
-  function choose(kind: DecorKind) {
-    sfx.pop()
-    setPicking(null)
-    setPlacing(kind)
-    void say('sovga_qoy')
-  }
-
-  function place(e: React.MouseEvent) {
-    if (!placing) return
-    const r = stageRef.current!.getBoundingClientRect()
-    const x = ((e.clientX - r.left) / r.width) * 100
-    const y = Math.max(30, Math.min(95, ((e.clientY - r.top) / r.height) * 100))
-    sfx.thump()
-    burst(e.clientX, e.clientY, ['#ffd166', '#06d6a0', '#ef476f'], 16)
-    setJustPlaced(progress.village.length)
-    onPlace({ kind: placing, x, y })
-    setPlacing(null)
-    void say('barakalla')
-  }
-
-  const hs = STATIONS.find((s) => s.id === heroAt)!
+  const hs = stations.find((s) => s.id === heroAt) ?? stations[0]
 
   return (
-    <div className="screen map">
-      <div className="stage" ref={stageRef} onClick={place}>
-        <MapBackground />
+    <div className={`screen map world-${world}`}>
+      <div className="stage" ref={stageRef}>
+        <MapBackground world={world} />
 
         <motion.div className="cloud" animate={{ x: ['0%', '120%', '0%'] }} transition={{ repeat: Infinity, duration: 40, ease: 'linear' }}>
           <svg viewBox="0 0 120 50" className="art">
@@ -170,31 +145,15 @@ export function VillageMap({ profile, progress, reward, arrivedFrom, onPlay, onP
           </svg>
         </motion.div>
 
-        {progress.village.map((d, i) => (
-          <div
-            key={i}
-            className={`decor ${d.kind.startsWith('hayvon_') ? 'animal' : ''}`}
-            style={{ left: `${d.x}%`, top: `${d.y}%`, zIndex: Math.round(d.y) }}
-          >
-            <motion.div
-              className="decor-inner"
-              initial={i === justPlaced ? { scale: 0, y: -80 } : false}
-              animate={{ scale: 1, y: 0 }}
-              transition={{ type: 'spring', stiffness: 220, damping: 12 }}
-            >
-              <DecorArt kind={d.kind} />
-            </motion.div>
-          </div>
-        ))}
-
         {stations.map((s) => {
           const isNext = s.id === next
           const isDone = done.has(s.id)
-          const tappable = !busy && (isNext || s.id === 'rasm')
+          // Hamma bekatlar ochiq; "next" — faqat tavsiya (bugun hali o'ynalmagan birinchisi)
+          const tappable = !busy && (s.id === 'rasm' || !needsHero)
           return (
             <motion.button
               key={s.id}
-              className={`station ${isDone ? 'done' : ''} ${isNext ? 'next' : ''} ${!isNext && !isDone && s.id !== 'rasm' ? 'later' : ''}`}
+              className={`station ${isDone ? 'done' : ''} ${isNext ? 'next' : ''} ${!tappable ? 'later' : ''}`}
               data-id={s.id}
               style={{ left: `${s.x}%`, top: `${s.y}%`, x: '-50%', y: '-50%' }}
               animate={isNext && !busy ? { scale: [1, 1.1, 1] } : { scale: 1 }}
@@ -240,7 +199,7 @@ export function VillageMap({ profile, progress, reward, arrivedFrom, onPlay, onP
         </motion.div>
       </div>
 
-      <button className="home-btn" onClick={onHome} aria-label="Bosh sahifa">
+      <button className="home-btn" onClick={onHome} aria-label="Olamlar">
         <Icon name="home"><svg viewBox="0 0 40 40" className="art">
           <path d="M6 20L20 7L34 20M10 17V33H30V17" fill="#ffd166" stroke="#3d2c1e" strokeWidth={3} strokeLinejoin="round" />
           <rect x={17} y={23} width={6} height={10} fill="#8d5524" />
@@ -261,42 +220,6 @@ export function VillageMap({ profile, progress, reward, arrivedFrom, onPlay, onP
         </span>
       </div>
 
-      <AnimatePresence>
-        {picking && (
-          <motion.div className="reward-picker" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div className="reward-mascot">
-              <Mascot mood="happy" />
-            </div>
-            <div className="reward-options">
-              {picking.map((k, i) => (
-                <motion.button
-                  key={k}
-                  className="reward-option"
-                  data-kind={k}
-                  initial={{ scale: 0, rotate: -20 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: 'spring', delay: 0.15 * i }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => choose(k)}
-                >
-                  <DecorArt kind={k} />
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {placing && (
-        <motion.div className="placing-hint" initial={{ y: -100 }} animate={{ y: 0 }}>
-          <motion.div className="placing-item" animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 1 }}>
-            <DecorArt kind={placing} />
-          </motion.div>
-          <motion.svg viewBox="0 0 40 40" className="art placing-finger" animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 0.8 }}>
-            <path d="M20 36L6 18H14V4H26V18H34Z" fill="#fff" stroke="#3d2c1e" strokeWidth={3} strokeLinejoin="round" />
-          </motion.svg>
-        </motion.div>
-      )}
     </div>
   )
 }
