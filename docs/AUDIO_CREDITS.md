@@ -70,3 +70,61 @@ CC BY-SA ostida tarqaladi; mualliflar ilovaning "Haqida" oynasida ko'rsatilishi 
 
 Popishak (hudhud) ovozi ham Commons'dan. `sfx/robot-*` — o'zimizning `sfx/voice-*` (Gemini TTS) dan ffmpeg bilan
 robotlashtirilgan nusxalar. `voices/*` — Gemini TTS bilan yaratilgan (tashqi manba emas).
+
+## Musiqa uyi cholg'ulari (Freesound, CC0)
+
+| Fayl | Manba | Litsenziya |
+|---|---|---|
+| instruments/pianino/93.m4a | [Upright Piano - A6 (Player_dyn2_rr1_036.wav)](https://freesound.org/s/374317/) — sgossner | CC0 |
+| instruments/pianino/85.m4a | [Upright Piano - C#6 (Player_dyn2_rr1_032.wav)](https://freesound.org/s/374315/) — sgossner | CC0 |
+| instruments/pianino/89.m4a | [Upright Piano - E#6 (Player_dyn2_rr1_034.wav)](https://freesound.org/s/374316/) — sgossner | CC0 |
+| instruments/pianino/81.m4a | [Upright Piano - A5 (Player_dyn2_rr1_030.wav)](https://freesound.org/s/374314/) — sgossner | CC0 |
+| instruments/pianino/77.m4a | [Upright Piano - E#5 (Player_dyn2_rr1_028.wav)](https://freesound.org/s/374313/) — sgossner | CC0 |
+| instruments/pianino/73.m4a | [Upright Piano - C#5 (Player_dyn2_rr1_026.wav)](https://freesound.org/s/374312/) — sgossner | CC0 |
+| instruments/pianino/69.m4a | [Upright Piano - A4 (Player_dyn2_rr1_024.wav)](https://freesound.org/s/374311/) — sgossner | CC0 |
+| instruments/pianino/65.m4a | [Upright Piano - E#4 (Player_dyn2_rr1_022.wav)](https://freesound.org/s/374310/) — sgossner | CC0 |
+| instruments/pianino/61.m4a | [Upright Piano - C#4 (Player_dyn2_rr1_020.wav)](https://freesound.org/s/374309/) — sgossner | CC0 |
+| instruments/pianino/57.m4a | [Upright Piano - A3 (Player_dyn2_rr1_018.wav)](https://freesound.org/s/374308/) — sgossner | CC0 |
+| instruments/pianino/53.m4a | [Upright Piano - E#3 (Player_dyn2_rr1_016.wav)](https://freesound.org/s/374307/) — sgossner | CC0 |
+| instruments/pianino/49.m4a | [Upright Piano - C#3 (Player_dyn2_rr1_014.wav)](https://freesound.org/s/374306/) — sgossner | CC0 |
+| instruments/pianino/45.m4a | [Upright Piano - A2 (Player_dyn2_rr1_012.wav)](https://freesound.org/s/374305/) — sgossner | CC0 |
+| instruments/ksilofon/67.m4a | [Xylophone - F#3 (Xylo_Medium_G3_ff_01_far.wav)](https://freesound.org/s/374703/) — sgossner | CC0 |
+| instruments/ksilofon/96.m4a | [Xylophone - C7 (Xylo_Medium_C7_ff_01_far.wav)](https://freesound.org/s/374702/) — sgossner | CC0 |
+| instruments/ksilofon/84.m4a | [Xylophone - C5 (Xylo_Medium_C5_ff_01_far.wav)](https://freesound.org/s/374700/) — sgossner | CC0 |
+| instruments/ksilofon/72.m4a | [Xylophone - C4 (Xylo_Medium_C4_ff_01_far.wav)](https://freesound.org/s/374699/) — sgossner | CC0 |
+| instruments/ksilofon/79.m4a | [Xylophone - F#4 (Xylo_Medium_G4_ff_01_far.wav)](https://freesound.org/s/374704/) — sgossner | CC0 |
+| instruments/ksilofon/91.m4a | [Xylophone - F#5 (Xylo_Medium_G5_ff_01_far.wav)](https://freesound.org/s/374705/) — sgossner | CC0 |
+| instruments/nay/76.m4a | [Flute - vibrato sustain - E5 (LDFlute_susvib_E4_v1_1.wav)](https://freesound.org/s/373298/) — sgossner | CC0 |
+| instruments/nay/93.m4a | [Flute - vibrato sustain - A6 (LDFlute_susvib_A5_v1_1.wav)](https://freesound.org/s/373291/) — sgossner | CC0 |
+| instruments/nay/81.m4a | [Flute - vibrato sustain - A5 (LDFlute_susvib_A4_v1_1.wav)](https://freesound.org/s/373290/) — sgossner | CC0 |
+| instruments/nay/69.m4a | [Flute - vibrato sustain - A4 (LDFlute_susvib_A3_v1_1.wav)](https://freesound.org/s/373289/) — sgossner | CC0 |
+| instruments/nay/60.m4a | [Flute - vibrato sustain - C4 (LDFlute_susvib_C3_v1_1.wav)](https://freesound.org/s/373292/) — sgossner | CC0 |
+| instruments/nay/88.m4a | [Flute - vibrato sustain - E6 (LDFlute_susvib_E5_v1_1.wav)](https://freesound.org/s/373300/) — sgossner | CC0 |
+| instruments/nay/72.m4a | [Flute - vibrato sustain - C5 (LDFlute_susvib_C4_v1_1.wav)](https://freesound.org/s/373293/) — sgossner | CC0 |
+| instruments/nay/64.m4a | [Flute - vibrato sustain - E4 (LDFlute_susvib_E3_v1_1.wav)](https://freesound.org/s/373297/) — sgossner | CC0 |
+| instruments/nay/96.m4a | [Flute - vibrato sustain - C7 (LDFlute_susvib_C6_v1_1.wav)](https://freesound.org/s/373296/) — sgossner | CC0 |
+| instruments/nay/84.m4a | [Flute - vibrato sustain - C6 (LDFlute_susvib_C5_v1_1.wav)](https://freesound.org/s/373295/) — sgossner | CC0 |
+| instruments/dutor/43.m4a | [Baglama_Gl](https://freesound.org/s/717204/) — fcerim | CC0 |
+| instruments/dutor/55.m4a | [Baglama_G](https://freesound.org/s/717203/) — fcerim | CC0 |
+| instruments/dutor/54.m4a | [Baglama_Fsharp](https://freesound.org/s/717201/) — fcerim | CC0 |
+| instruments/dutor/53.m4a | [Baglama_F](https://freesound.org/s/717200/) — fcerim | CC0 |
+| instruments/dutor/62.m4a | [Baglama_Csh](https://freesound.org/s/717192/) — fcerim | CC0 |
+| instruments/dutor/61.m4a | [Baglama_Cs3h](https://freesound.org/s/717191/) — fcerim | CC0 |
+| instruments/dutor/60.m4a | [Baglama_C](https://freesound.org/s/717187/) — fcerim | CC0 |
+| instruments/dutor/59.m4a | [Baglama_Bh](https://freesound.org/s/717186/) — fcerim | CC0 |
+| instruments/dutor/58.m4a | [Baglama_Bbh](https://freesound.org/s/717185/) — fcerim | CC0 |
+| instruments/dutor/44.m4a | [Baglama_Abl](https://freesound.org/s/717179/) — fcerim | CC0 |
+| instruments/dutor/56.m4a | [Baglama_Ab](https://freesound.org/s/717176/) — fcerim | CC0 |
+| instruments/dutor/45.m4a | [Baglama_A](https://freesound.org/s/717175/) — fcerim | CC0 |
+| instruments/dutor/57.m4a | [Baglama_Ah](https://freesound.org/s/717180/) — fcerim | CC0 |
+| instruments/dutor/64.m4a | [Baglama_Eh](https://freesound.org/s/717199/) — fcerim | CC0 |
+| instruments/dutor/63.m4a | [Baglama_Ebh](https://freesound.org/s/717198/) — fcerim | CC0 |
+| instruments/dutor/49.m4a | [Baglama_Cs](https://freesound.org/s/717189/) — fcerim | CC0 |
+| instruments/doira/bum.m4a | [Dum1.wav](https://freesound.org/s/691748/) — hollandm | CC0 |
+| instruments/doira/tak.m4a | [Tek1.wav](https://freesound.org/s/691751/) — hollandm | CC0 |
+| instruments/doira/qarsak.m4a | [Clap-12.wav](https://freesound.org/s/561106/) — Sorinious_Genious | CC0 |
+| instruments/doira/qayroq.m4a | [Sticks-singleclick.wav](https://freesound.org/s/692812/) — hollandm | CC0 |
+| instruments/doira/jiring.m4a | [Tamb-hit.wav](https://freesound.org/s/692816/) — hollandm | CC0 |
+| instruments/doira/shaq.m4a | [Maracas-shake.wav](https://freesound.org/s/692826/) — hollandm | CC0 |
+| instruments/doira/gumm.m4a | [Dum2.wav](https://freesound.org/s/691749/) — hollandm | CC0 |
+| instruments/doira/chiq.m4a | [Tek3.wav](https://freesound.org/s/691753/) — hollandm | CC0 |

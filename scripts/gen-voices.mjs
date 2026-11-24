@@ -7,12 +7,21 @@
 //   GEN_TTS_VOICE=Leda GEN_TTS_MODEL=gemini-2.5-pro-preview-tts npm run gen:voices
 //
 // Ota-ona panelida yozilgan ovoz har doim ustun turadi; bu fayllar faqat zaxira.
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { voicePrompts } from '../src/lib/voices.ts'
 import { ASSETS_DIR, gemini, inlineData, isDailyLimit, keyPool, writeManifest } from './lib.mjs'
 
-const MODEL = process.env.GEN_TTS_MODEL ?? 'gemini-2.5-flash-preview-tts'
+// Modellar navbati: bepul limit har model uchun alohida (kuniga ~10 ta × kalit). Biri tugasa — keyingisi.
+// Birinchisi uslub ko'rsatmasini tushunadi (o'zbekcha talaffuz); Gemini 3.x faqat toza matn oladi.
+//   GEN_TTS_MODELS=gemini-2.5-flash-preview-tts,gemini-3.8-flash-tts npm run gen:voices
+const MODELS = (process.env.GEN_TTS_MODELS ?? process.env.GEN_TTS_MODEL ?? 'gemini-2.5-flash-preview-tts,gemini-3.8-flash-tts,gemini-3.1-flash-tts-preview,gemini-3.8-flash-lite-tts').split(',').map((m) => m.trim()).filter(Boolean)
+let mi = 0
+const MODEL = MODELS[0]
+const styled = (m) => !/gemini-3/.test(m)
+/** Qaysi ovoz qaysi model bilan yaratilgani (--redo tayyorini qayta yaratmasin) */
+const madeFile = new URL('./voice-models.json', import.meta.url)
+const made = existsSync(madeFile) ? JSON.parse(readFileSync(madeFile, 'utf8')) : {}
 const VOICE = process.env.GEN_TTS_VOICE ?? 'Leda'
 const args = process.argv.slice(2)
 const test = args.includes('--test')
@@ -20,7 +29,7 @@ const test = args.includes('--test')
 const only = args.includes('--only') ? args[args.indexOf('--only') + 1].split(',') : null
 const want = (k) => !only || only.includes(k)
 const force = args.includes('--force')
-const pool = keyPool()
+let pool = keyPool()
 const dir = join(ASSETS_DIR, 'voices')
 mkdirSync(dir, { recursive: true })
 
@@ -72,28 +81,47 @@ const styleFor = (key) => {
   return `You are ${PERSONA[m[1]]}, buying fruit from a small child at a village bazaar. ` + UZBEK + 'Speak naturally in that character.'
 }
 
-async function speak(text, file, style = TEACHER, voice = VOICE) {
+class Skip extends Error {}
+class AllDone extends Error {}
+
+async function speak(text, file, style = TEACHER, voice = VOICE, needStyle = false) {
+  let json
+  let model
+  for (;;) {
+    model = MODELS[mi]
+    // Harf nomlari va personajlar faqat uslubni tushunadigan modelda (aks holda inglizcha o'qiladi)
+    if (needStyle && !styled(model)) throw new Skip('uslubli model limiti tugagan')
+    try {
+      json = await gemini(model, bodyFor(model, text, style, voice), pool.key)
+      break
+    } catch (e) {
+      if (!isDailyLimit(e)) throw e
+      if (pool.next()) {
+        console.log(`  ↻ ${model}: kunlik limit tugadi, kalit ${pool.label} ga o'tildi`)
+        continue
+      }
+      if (++mi >= MODELS.length) throw new AllDone('Hamma model va kalitlarning kunlik limiti tugadi')
+      pool = keyPool()
+      console.log(`  ⇄ ${model} tugadi → ${MODELS[mi]} modeliga o'tildi`)
+    }
+  }
+  return finish(json, text, file, model)
+}
+
+function bodyFor(model, text, style, voice) {
   // Gemini 3.x TTS uslub ko'rsatmasini ham ovoz chiqarib o'qib yuboradi (systemInstruction ham yo'q):
   // ularga faqat toza matn beriladi
-  const plain = /gemini-3/.test(MODEL)
-  const body = {
+  const plain = !styled(model)
+  return {
     contents: [{ parts: [{ text: plain ? text : `${style} Say only this: "${text}"` }] }],
     generationConfig: {
       responseModalities: ['AUDIO'],
       speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } },
     },
   }
-  let json
-  for (;;) {
-    try {
-      json = await gemini(MODEL, body, pool.key)
-      break
-    } catch (e) {
-      // Bu kalitning kunlik limiti tugadi → keyingi kalit
-      if (!isDailyLimit(e) || !pool.next()) throw e
-      console.log(`  ↻ kunlik limit tugadi, kalit ${pool.label} ga o'tildi`)
-    }
-  }
+}
+
+function finish(json, text, file, model) {
   const data = inlineData(json)
   const rate = Number(/rate=(\d+)/.exec(data.mimeType ?? '')?.[1] ?? 24000)
   const pcm = Buffer.from(data.data, 'base64')
@@ -102,6 +130,7 @@ async function speak(text, file, style = TEACHER, voice = VOICE) {
   const limit = 3 + text.length * 0.15
   if (secs > limit) throw new Error(`ovoz juda uzun (${secs.toFixed(1)} s > ${limit.toFixed(1)} s): model ko'rsatmani o'qigan bo'lishi mumkin`)
   writeFileSync(file, wav(pcm, rate))
+  return model
 }
 
 if (test) {
@@ -166,7 +195,9 @@ const REDO = new Set([
   'hayvon_eshak', 'ustaxona_intro', 'qora_intro', 'qora_tun', 'harf_chiz', 'harf_top', 'son_1',
 ])
 const redo = args.includes('--redo')
-const needs = (k) => force || !exists(k) || (redo && (REDO.has(k) || /^harf_(?!chiz$|top$)/.test(k) || /^mijoz_/.test(k)))
+const needStyle = (k) => REDO.has(k) || /^harf_(?!chiz$|top$)/.test(k) || /^mijoz_/.test(k)
+// Uslubli model bilan allaqachon qayta yaratilganlari o'tkazib yuboriladi
+const needs = (k) => force || !exists(k) || (redo && needStyle(k) && !(made[k] && styled(made[k])))
 
 /** Ustuvorlik: avval o'yin ko'rsatmalari (ularsiz bola nima qilishni bilmaydi), keyin nomlar, harflar, mijozlar */
 const PRIORITY = [
@@ -180,23 +211,29 @@ const rank = (g) => {
 const prompts = voicePrompts([])
   .filter((p) => !p.key.startsWith('reak_') && !p.key.startsWith('tovush_') && want(p.key) && needs(p.key))
   .sort((a, b) => rank(a.group) - rank(b.group))
-console.log(`Model: ${MODEL}, ovoz: ${VOICE}. Yaratiladi: ${prompts.length} ta`)
+console.log(`Modellar: ${MODELS.join(' → ')}, ovoz: ${VOICE}. Yaratiladi: ${prompts.length} ta`)
 let ok = 0
+let skipped = 0
 for (const p of prompts) {
   // "Sigir: "Mo'-o'"" kabi matnlarda faqat tovushning o'zi aytiladi
   const text = p.key.startsWith('tovush_') ? p.text.split(': ').slice(1).join(': ').replace(/"/g, '') : p.text.replace(/^"(.+)" harfi$/, '$1')
   // Bepul tarifda daqiqalik so'rov limiti bor: GEN_DELAY_MS bilan sekinlashtirish mumkin
   if (process.env.GEN_DELAY_MS) await new Promise((r) => setTimeout(r, Number(process.env.GEN_DELAY_MS)))
   try {
-    await speak(text, join(dir, `${p.key}.wav`), styleFor(p.key), p.voice ?? VOICE)
+    made[p.key] = await speak(text, join(dir, `${p.key}.wav`), styleFor(p.key), p.voice ?? VOICE, needStyle(p.key))
+    writeFileSync(madeFile, JSON.stringify(made, null, 1))
     ok++
     console.log(`✓ ${p.key}: ${text}`)
   } catch (e) {
+    if (e instanceof Skip) {
+      skipped++
+      continue
+    }
     console.error(`✗ ${p.key}: ${e.message.slice(0, 120)}`)
-    if (/429/.test(e.message)) {
+    if (e instanceof AllDone || /429/.test(e.message)) {
       console.error('Hamma kalitlarning kunlik limiti tugadi — ertaga davom ettiring (borlari o\'tkazib yuboriladi).')
       break
     }
   }
 }
-console.log(`\nTayyor: ${ok}/${prompts.length}. Manifest: ${writeManifest()} ta fayl`)
+console.log(`\nTayyor: ${ok}/${prompts.length} (uslubli model kutayotgani: ${skipped}). Manifest: ${writeManifest()} ta fayl`)

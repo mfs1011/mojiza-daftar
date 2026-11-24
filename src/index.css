@@ -3927,7 +3927,7 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 2vmin;
+  gap: 1.2vmin;
   z-index: 10;
 }
 
@@ -3990,34 +3990,83 @@ button {
   pointer-events: none;
 }
 
-/* Pianino: oq klavishlar, tepasida rangli chiziq; botganda yonadi */
+/* Pianino: haqiqiy klaviatura — oq va qora klavishlar, tepada rangli chiziq; botganda yonadi */
 .inst-pianino .instrument {
-  background: linear-gradient(#2b2d42, #1d1e2c);
-  box-shadow: 0 2vmin 0 #0004, inset 0 1vmin 2vmin #0006;
+  padding: 3vmin 2vmin 2vmin;
+  background: linear-gradient(#3a1f14, #20100a);
+  box-shadow: 0 2vmin 0 #0004, inset 0 1vmin 2vmin #0008;
 }
 
-.inst-pianino .key {
-  background: linear-gradient(#fff 80%, #e9ecef);
+.piano {
+  position: relative;
+  display: flex;
+  flex: 1;
+  gap: 0.35vmin;
+  border-top: 1.4vmin solid #7a1f1f;
+}
+
+.piano .key.white {
+  flex: 1;
+  min-width: 0;
+  border-radius: 0 0 1.6vmin 1.6vmin;
+  background: linear-gradient(#fff 82%, #e9ecef);
   box-shadow:
-    inset 0 1.4vmin 0 var(--c),
-    0 1.2vmin 0 #adb5bd,
-    0 1.6vmin 1vmin #0005;
+    inset 0 1vmin 0 var(--c),
+    0 1vmin 0 #adb5bd,
+    0 1.4vmin 0.8vmin #0005;
+  transition: transform 0.06s;
 }
 
-.inst-pianino .key.lit {
-  background: linear-gradient(color-mix(in srgb, var(--c) 35%, #fff) 80%, var(--c));
+.piano .key.white.lit {
+  transform: translateY(0.6vmin);
+  background: linear-gradient(color-mix(in srgb, var(--c) 40%, #fff) 70%, var(--c));
+  box-shadow: inset 0 1vmin 0 var(--c), 0 0.4vmin 0 #adb5bd;
 }
 
-/* Ksilofon: yog'och ramkada rang-barang plastinkalar, kattadan kichikka */
+.piano .key.black {
+  position: absolute;
+  top: 0;
+  height: 60%;
+  transform: translateX(-50%);
+  border-radius: 0 0 1vmin 1vmin;
+  background: linear-gradient(90deg, #111 0, #3a3a3a 45%, #111 100%);
+  box-shadow: 0 0.9vmin 0 #000, 0 1.3vmin 0.8vmin #0007, inset 0 -1.6vmin 0 #2b2b2b;
+  z-index: 2;
+  padding: 0;
+}
+
+.piano .key.black.lit {
+  background: linear-gradient(90deg, #333, #8e5bd6 50%, #333);
+  box-shadow: 0 0.3vmin 0 #000, 0 0 2vmin #b388eb;
+  transform: translateX(-50%) translateY(0.5vmin);
+}
+
+.piano .key-name {
+  font-size: min(5vmin, calc(70vw / var(--n) * 0.42));
+}
+
+.oct-mark {
+  position: absolute;
+  top: 2.2vmin;
+  font-size: 2.4vmin;
+  font-weight: 900;
+  color: #adb5bd;
+}
+
+/* Ksilofon: yog'och ramkada rang-barang plastinkalar, kattadan kichikka (8 dan 15 tagacha) */
 .inst-ksilofon .instrument {
   align-items: center;
-  background: linear-gradient(#a0522d, #6b3e26);
+  gap: min(1.2vmin, calc(8vmin / var(--n)));
+  background:
+    linear-gradient(#0000 18%, #6b3e26 18% 24%, #0000 24% 76%, #6b3e26 76% 82%, #0000 82%),
+    linear-gradient(#a0522d, #6b3e26);
   box-shadow: 0 2vmin 0 #0004;
 }
 
 .inst-ksilofon .key {
-  height: calc(100% - var(--i) * 4%);
-  border-radius: 2vmin;
+  height: calc(100% - var(--t) * 42%);
+  min-width: 0;
+  border-radius: 1.6vmin;
   background: linear-gradient(90deg, color-mix(in srgb, var(--c) 70%, #000) 0, var(--c) 18%, color-mix(in srgb, var(--c) 60%, #fff) 50%, var(--c) 82%, color-mix(in srgb, var(--c) 70%, #000) 100%);
   box-shadow: 0 1.2vmin 1vmin #0006;
   align-items: center;
@@ -4029,9 +4078,9 @@ button {
   content: '';
   position: absolute;
   left: 50%;
-  width: 2vmin;
-  height: 2vmin;
-  margin-left: -1vmin;
+  width: 1.8vmin;
+  height: 1.8vmin;
+  margin-left: -0.9vmin;
   border-radius: 50%;
   background: radial-gradient(#eee, #888);
 }
@@ -4051,6 +4100,7 @@ button {
 
 .inst-ksilofon .key-name {
   color: #fff;
+  font-size: min(5vmin, calc(70vw / var(--n) * 0.4));
   text-shadow: 0 0.3vmin 0 #0006;
 }
 
@@ -4137,28 +4187,151 @@ button {
   color: #fff;
 }
 
-/* Doira: urma patlar — terisi tortilgan, chekkasida halqachalar */
+/* Doira: haqiqiy doira (o'rtasi/chekkasi/halqalari) va yonida zarbli asboblar */
 .inst-doira .instrument {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 3vmin;
   background: transparent;
-}
-
-.inst-doira .key {
-  border-radius: 50%;
-  aspect-ratio: 1;
-  max-height: 32vmin;
-  justify-self: center;
-  align-items: center;
   padding: 0;
-  background: radial-gradient(circle at 40% 35%, #fff8e7, #f2cc8f 55%, color-mix(in srgb, var(--c) 60%, #8d5524) 70%);
-  border: 1.6vmin solid color-mix(in srgb, var(--c) 70%, #3d2c1e);
-  box-shadow: 0 1.6vmin 0 #0004, inset 0 -1vmin 2vmin #0003;
 }
 
-.inst-doira .key.lit {
-  background: radial-gradient(circle at 40% 35%, #fff, var(--c) 70%);
+.doira-kit {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5vmin;
+}
+
+.doira-wrap {
+  height: 100%;
+  aspect-ratio: 1;
+  max-width: 60%;
+}
+
+.doira {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 1.5vmin 1.2vmin #0005);
+}
+
+.doira .zone {
+  cursor: pointer;
+}
+
+.doira-label {
+  font: 900 13px system-ui, sans-serif;
+  fill: #8a5a2b;
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+.doira-label.small {
+  font-size: 10px;
+}
+
+.doira.shake .ring {
+  animation: jingle 0.35s ease-out;
+}
+
+@keyframes jingle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(25deg); }
+  50% { transform: rotate(-20deg); }
+  75% { transform: rotate(10deg); }
+}
+
+.side-kit {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2.5vmin;
+  height: 100%;
+  align-content: center;
+}
+
+.side-kit.n1,
+.side-kit.n2 {
+  grid-template-columns: 1fr;
+}
+
+.side-pad {
+  width: 22vmin;
+  height: 22vmin;
+  border-radius: 4vmin;
+  background: radial-gradient(circle at 50% 35%, #fff, #f1e3ff);
+  box-shadow: 0 1vmin 0 #0003;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5vmin;
+  touch-action: none;
+}
+
+.side-pad svg {
+  width: 72%;
+  height: 72%;
+  pointer-events: none;
+}
+
+.side-pad span {
+  font-size: 3.4vmin;
+  font-weight: 900;
+  color: #5a189a;
+  pointer-events: none;
+}
+
+.side-pad.lit {
+  background: radial-gradient(circle at 50% 35%, #fff, #ffd166);
+  box-shadow: 0 0 3vmin #ffd166, 0 0.4vmin 0 #0003;
+}
+
+/* Oktava boshqaruvi (erkin rejim) */
+.oct-ctl {
+  display: flex;
+  align-items: center;
+  gap: 1.4vmin;
+  background: #fff;
+  border-radius: 5vmin;
+  padding: 0.8vmin 1.2vmin;
+  box-shadow: 0 0.7vmin 0 #0003;
+  font-size: 4.4vmin;
+  font-weight: 900;
+  color: #5a189a;
+}
+
+.oct-ctl button {
+  width: 7vmin;
+  height: 7vmin;
+  border-radius: 50%;
+  background: #ffd166;
+  font-size: 5vmin;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.oct-ctl button:disabled {
+  opacity: 0.35;
+}
+
+.oct-ctl small {
+  font-size: 2.8vmin;
+}
+
+.song-name {
+  margin-right: 1.5vmin;
+  padding: 0.6vmin 2.4vmin;
+  border-radius: 4vmin;
+  background: #fff;
+  font-size: 3.6vmin;
+  font-weight: 900;
+  color: #5a189a;
+  white-space: nowrap;
+}
+
+.song-dots .song-dot {
+  aspect-ratio: 1;
+  height: auto;
+  flex-shrink: 0;
 }
 
 .fly-note {
