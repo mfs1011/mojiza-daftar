@@ -32,7 +32,9 @@ const TYPES = {
   animal: { dir: 'sfx/animals', lufs: -16, tp: -1.5, ch: 1, kbps: 96, loop: false },
   sfx: { dir: 'sfx', lufs: -13, tp: -1, ch: 1, kbps: 96, loop: false },
   ambience: { dir: 'ambience', lufs: -30, tp: -1.5, ch: 2, kbps: 64, loop: true },
-  voice: { dir: 'voices', lufs: -16, tp: -1.5, ch: 1, kbps: 64, loop: false },
+  // TTS vokoderi yuqori chastotada "shitirlaydi" (bijillash): 6.5 kHz dan yuqorisi yumshoq kesiladi —
+  // nutq tushunarliligiga ta'sir qilmaydi, quloqqa tozaroq eshitiladi
+  voice: { dir: 'voices', lufs: -16, tp: -1.5, ch: 1, kbps: 64, loop: false, tone: 'lowpass=f=6500:poles=2,highshelf=f=4000:g=-4' },
 }
 
 /** Loop bo'lmagan musiqa: jingle'lar va alla (oxirida so'nadi) */
@@ -50,7 +52,7 @@ const trimBoth = `${TRIM},areverse,${TRIM},areverse`
 const fades = 'afade=t=in:d=0.01,areverse,afade=t=in:d=0.01,areverse'
 
 function convert(src, out, t, loop) {
-  const pre = loop ? [] : [trimBoth]
+  const pre = [...(loop ? [] : [trimBoth]), ...(t.tone ? [t.tone] : [])]
   const norm = `loudnorm=I=${t.lufs}:TP=${t.tp}:LRA=11`
   // 1-bosqich: o'lchash
   const log = ffmpeg(['-i', src, '-af', [...pre, `${norm}:print_format=json`].join(','), '-f', 'null', '-'])
@@ -72,7 +74,9 @@ function convert(src, out, t, loop) {
     level = `volume=${gain.toFixed(2)}dB`
     m.input_i = `${mean} (qisqa)`
   }
-  const chain = [...pre, level, ...(loop ? [] : [fades])].join(',')
+  // Cheklagich: AAC'ga o'tgach ham cho'qqi 0 dB dan oshmasin (kesilish — xirillash)
+  const limit = `alimiter=limit=${Math.pow(10, (t.tp - 1.5) / 20).toFixed(3)}:level=false`
+  const chain = [...pre, level, limit, ...(loop ? [] : [fades])].join(',')
   mkdirSync(dirname(out), { recursive: true })
   ffmpeg(['-y', '-i', src, '-af', chain, '-ar', '44100', '-ac', String(t.ch), '-c:a', 'aac', '-b:a', `${t.kbps}k`, '-movflags', '+faststart', out])
   return { lufs: Number(m.input_i) }

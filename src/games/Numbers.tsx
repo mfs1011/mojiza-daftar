@@ -4,12 +4,14 @@ import { FruitArt } from '../art/Fruit'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
-import { CountGroup, numberOptions, NumberChoices } from '../components/NumberBits'
+import { centerOf, HandHint, type HandPath } from '../components/HandHint'
+import { CountGroup, FingerHands, numberOptions, NumberChoices } from '../components/NumberBits'
 import { TraceBoard } from '../components/TraceBoard'
 import { say, sfx } from '../lib/audio'
 import { ALL_FRUITS, type FruitKind } from '../lib/names'
 import { levelRow } from '../lib/stations'
-import { pick, randInt, shuffle } from '../lib/util'
+import { isNewTask, markTaskSeen } from '../lib/howto'
+import { pick, randInt, shuffle, wait } from '../lib/util'
 import type { GameProps } from '../types'
 
 // 🔢 Raqamlar uyi — sonlar bilan tanishish (maktabga tayyorlov).
@@ -18,9 +20,10 @@ import type { GameProps } from '../types'
 //   chiz      — raqamni barmoq bilan yozish
 //   qator     — sonlar qatorida tushib qolganini topish
 //   solishtir — qaysi likopchada ko'p (yuqorida: kam)
+//   barmoq    — qo'llarda nechta barmoq ko'tarilgan (10 gacha)
 // Son oralig'i 1–3 dan boshlanib, 20 gacha boradi.
 
-type RType = 'sana' | 'top' | 'chiz' | 'qator' | 'solishtir'
+type RType = 'sana' | 'top' | 'chiz' | 'qator' | 'solishtir' | 'barmoq'
 
 interface NumCfg {
   min: number
@@ -35,13 +38,13 @@ interface NumCfg {
 const C = (min: number, max: number, options: number, rounds: RType[], fewer = false): NumCfg => ({ min, max, options, rounds, fewer })
 const NUM_LEVELS: NumCfg[] = [
   C(1, 3, 2, ['sana', 'top', 'sana']),
-  C(1, 4, 2, ['sana', 'top', 'chiz']),
+  C(1, 4, 2, ['sana', 'barmoq', 'chiz']),
   C(1, 5, 3, ['sana', 'chiz', 'top']),
   C(1, 5, 3, ['sana', 'qator', 'chiz', 'solishtir']),
-  C(1, 6, 3, ['top', 'sana', 'chiz', 'solishtir']),
+  C(1, 6, 3, ['barmoq', 'sana', 'chiz', 'solishtir']),
   C(1, 7, 3, ['sana', 'qator', 'chiz', 'solishtir']),
   C(2, 8, 4, ['top', 'qator', 'chiz', 'solishtir']),
-  C(2, 9, 4, ['sana', 'qator', 'chiz', 'solishtir'], true),
+  C(2, 9, 4, ['barmoq', 'qator', 'chiz', 'solishtir'], true),
   C(1, 10, 4, ['sana', 'qator', 'chiz', 'solishtir'], true),
   C(0, 10, 4, ['top', 'qator', 'chiz', 'solishtir'], true),
   C(5, 12, 4, ['sana', 'qator', 'chiz', 'solishtir'], true),
@@ -54,6 +57,7 @@ const NUM_LEVELS: NumCfg[] = [
 type Round =
   | { type: 'sana'; n: number; fruit: FruitKind; options: number[] }
   | { type: 'top'; n: number; options: number[] }
+  | { type: 'barmoq'; n: number; options: number[] }
   | { type: 'chiz'; n: number }
   | { type: 'qator'; seq: number[]; hole: number; options: number[] }
   | { type: 'solishtir'; a: number; b: number; fruit: FruitKind; more: boolean }
@@ -66,6 +70,11 @@ function makeRound(type: RType, cfg: NumCfg): Round {
       return { type, n: Math.max(1, n), fruit: pick(ALL_FRUITS), options: opts(Math.max(1, n)) }
     case 'top':
       return { type, n, options: opts(n) }
+    case 'barmoq': {
+      // Ikki qo'lda 10 ta barmoq
+      const k = Math.max(1, Math.min(10, n > 10 ? randInt(1, 10) : n))
+      return { type, n: k, options: numberOptions(k, cfg.options, 10, 1) }
+    }
     case 'chiz':
       return { type, n }
     case 'qator': {
@@ -87,7 +96,7 @@ function makeRound(type: RType, cfg: NumCfg): Round {
   }
 }
 
-export function Numbers({ level, onComplete, onExit }: GameProps) {
+export function Numbers({ profile, level, onComplete, onExit }: GameProps) {
   const rounds = useMemo(() => {
     const cfg = levelRow(NUM_LEVELS, level)
     // Endless'da raund turlari ham aralashadi
@@ -103,14 +112,92 @@ export function Numbers({ level, onComplete, onExit }: GameProps) {
   const boardRef = useRef<HTMLDivElement>(null)
   const r = rounds[idx]
 
-  // Ko'rsatma
+  // ---------- "Qanday bajariladi?": tushuntirish va ko'rsatuvchi qo'l ----------
+  const [hint, setHint] = useState<{ mode: 'tap' | 'trace'; path: HandPath } | null>(null)
+  /** Sanab ko'rsatish: nechta meva yongan */
+  const [lit, setLit] = useState(0)
+  const guide = useRef<HandPath>([])
+  const roundMiss = useRef(0)
+  const demoToken = useRef(0)
+  const lastAct = useRef(Date.now())
+
+  const answerSelector = () =>
+    r.type === 'solishtir'
+      ? `.plate[data-side="${r.more === r.a > r.b ? 'a' : 'b'}"]`
+      : `.num-card[data-value="${r.type === 'qator' ? r.seq[r.hole] : r.type === 'chiz' ? '' : r.n}"]`
+
+  /** Qisqa buyruq */
+  const instruction = (): string[] =>
+    r.type === 'sana'
+      ? ['raqam_sana']
+      : r.type === 'barmoq'
+        ? ['raqam_barmoq']
+      : r.type === 'top'
+        ? [`son_${r.n}`, 'raqam_top']
+        : r.type === 'chiz'
+          ? ['raqam_chiz', `son_${r.n}`]
+          : r.type === 'qator'
+            ? ['raqam_qator']
+            : [r.more ? 'raqam_kop' : 'raqam_kam']
+
+  /** Qo'l bilan ko'rsatish (sanashda — mevalarni birma-bir sanab beradi) */
+  async function demo() {
+    const my = ++demoToken.current
+    lastAct.current = Date.now()
+    setHint(null)
+    if (r.type === 'chiz') return setHint({ mode: 'trace', path: guide.current })
+    if (r.type === 'sana' || r.type === 'barmoq') {
+      for (let k = 1; k <= r.n; k++) {
+        if (my !== demoToken.current) return
+        setLit(k)
+        void say(`son_${k}`)
+        await wait(750)
+      }
+    }
+    if (my !== demoToken.current) return
+    const p = centerOf(document.querySelector(answerSelector()))
+    if (p) setHint({ mode: 'tap', path: [p] })
+  }
+
+  /** Batafsil tushuntirish + buyruq + ko'rsatish */
+  async function explain() {
+    const my = ++demoToken.current
+    setHint(null)
+    setLit(0)
+    await say(`raqam_${r.type}_t`, ...instruction())
+    if (my === demoToken.current) void demo()
+  }
+
+  // Har raund boshida: yangi topshiriq bo'lsa — tushuntiramiz, aks holda qisqa buyruq.
+  // (StrictMode effektni ikki marta chaqirishi mumkin — bitta raund faqat bir marta tanishtiriladi)
+  const introduced = useRef<Round | null>(null)
   useEffect(() => {
-    if (r.type === 'sana') void say('raqam_sana')
-    else if (r.type === 'top') void say(`son_${r.n}`, 'raqam_top')
-    else if (r.type === 'chiz') void say('raqam_chiz', `son_${r.n}`)
-    else if (r.type === 'qator') void say('raqam_qator')
-    else void say(r.more ? 'raqam_kop' : 'raqam_kam')
-  }, [r])
+    if (introduced.current === r) return
+    introduced.current = r
+    roundMiss.current = 0
+    lastAct.current = Date.now()
+    demoToken.current++
+    setHint(null)
+    setLit(0)
+    const task = `raqam_${r.type}`
+    if (isNewTask(profile.id, task)) {
+      markTaskSeen(profile.id, task)
+      void explain()
+    } else void say(...instruction())
+  }, [r]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Bola uzoq vaqt hech narsa qilmasa — qo'l o'zi ko'rsatadi
+  useEffect(() => {
+    const touch = () => (lastAct.current = Date.now())
+    window.addEventListener('pointerdown', touch)
+    const id = window.setInterval(() => {
+      if (!solved && !finished && !hint && Date.now() - lastAct.current > 9000) void demo()
+    }, 1000)
+    return () => {
+      window.removeEventListener('pointerdown', touch)
+      window.clearInterval(id)
+    }
+  })
 
   function next() {
     setTimeout(() => {
@@ -124,6 +211,8 @@ export function Numbers({ level, onComplete, onExit }: GameProps) {
   }
 
   function win(spoken: string[]) {
+    demoToken.current++
+    setHint(null)
     sfx.success()
     react('happy', 1800)
     burstAt(boardRef.current)
@@ -134,6 +223,8 @@ export function Numbers({ level, onComplete, onExit }: GameProps) {
 
   function miss(v: number | string) {
     mistakes.current++
+    // Ikkinchi xatodan keyin — qanday qilishni ko'rsatamiz
+    if (++roundMiss.current === 2) setTimeout(() => void demo(), 900)
     sfx.wrong()
     react('oops')
     setWrong(v)
@@ -143,7 +234,7 @@ export function Numbers({ level, onComplete, onExit }: GameProps) {
 
   function pickNumber(v: number | string) {
     if (solved) return
-    const answer = r.type === 'qator' ? r.seq[r.hole] : r.type === 'sana' || r.type === 'top' ? r.n : null
+    const answer = r.type === 'qator' ? r.seq[r.hole] : r.type === 'sana' || r.type === 'top' || r.type === 'barmoq' ? r.n : null
     if (v === answer) win([`son_${answer}`])
     else miss(v)
   }
@@ -159,7 +250,19 @@ export function Numbers({ level, onComplete, onExit }: GameProps) {
   return (
     <GameShell className="numbers" mascot={mascot} round={idx} rounds={rounds.length} onExit={onExit} data={{ 'data-type': r.type, 'data-answer': r.type === 'qator' ? r.seq[r.hole] : r.type === 'solishtir' ? (r.more === r.a > r.b ? 'a' : 'b') : r.n }}>
       <div className="num-board" ref={boardRef} key={`b-${idx}`}>
-        {r.type === 'sana' && <CountGroup n={r.n} fruit={r.fruit} />}
+        {r.type === 'sana' && (
+          <div className="count-with-hands">
+            <CountGroup n={r.n} fruit={r.fruit} lit={lit} />
+            {/* Sanab ko'rsatilganda barmoqlar ham bittadan ko'tariladi */}
+            {lit > 0 && r.n <= 10 && <FingerHands n={lit} small />}
+          </div>
+        )}
+        {r.type === 'barmoq' && (
+          <div className="barmoq-wrap">
+            <FingerHands n={r.n} />
+            {lit > 0 && <span className="barmoq-count">{lit}</span>}
+          </div>
+        )}
 
         {r.type === 'top' && (
           <motion.button className="num-ear" onClick={() => void say(`son_${r.n}`, 'raqam_top')} whileTap={{ scale: 0.9 }} aria-label="Yana eshitish">
@@ -175,9 +278,11 @@ export function Numbers({ level, onComplete, onExit }: GameProps) {
             glyph={String(r.n)}
             threshold={0.62}
             onDone={() => win([`son_${r.n}`])}
+            onGuide={(pts) => (guide.current = pts)}
             onMistake={() => {
               mistakes.current++
               react('oops')
+              if (++roundMiss.current === 2) void demo()
             }}
           />
         )}
@@ -217,7 +322,7 @@ export function Numbers({ level, onComplete, onExit }: GameProps) {
         )}
       </div>
 
-      {(r.type === 'sana' || r.type === 'top' || r.type === 'qator') && (
+      {(r.type === 'sana' || r.type === 'top' || r.type === 'barmoq' || r.type === 'qator') && (
         <NumberChoices
           options={r.options}
           wrong={wrong}
@@ -225,6 +330,14 @@ export function Numbers({ level, onComplete, onExit }: GameProps) {
           onPick={pickNumber}
         />
       )}
+
+      {/* "?" — tushuntirishni qayta ko'rish */}
+      {!solved && (
+        <motion.button className="help-btn" onClick={() => void explain()} whileTap={{ scale: 0.9 }} aria-label="Qanday bajariladi?">
+          ?
+        </motion.button>
+      )}
+      {hint && <HandHint key={`${idx}-${demoToken.current}`} mode={hint.mode} path={hint.path} onDone={() => setHint(null)} />}
 
       {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current })} />}
     </GameShell>

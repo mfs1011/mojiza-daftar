@@ -8,7 +8,20 @@ import { burstAt } from './Fx'
 // Bo'r taxtasi: bola harf, raqam yoki chiziq ustidan barmog'i bilan yurib chizadi.
 // Yetarlicha qoplansa va chetga kam chiqsa — tayyor.
 
-export function TraceBoard({ glyph, threshold, onDone, onMistake }: { glyph: Glyph; threshold: number; onDone: () => void; onMistake: () => void }) {
+export function TraceBoard({
+  glyph,
+  threshold,
+  onDone,
+  onMistake,
+  onGuide,
+}: {
+  glyph: Glyph
+  threshold: number
+  onDone: () => void
+  onMistake: () => void
+  /** Ko'rsatuvchi qo'l uchun: glyph bo'ylab tartiblangan nuqtalar (ekran koordinatalarida) */
+  onGuide?: (pts: { x: number; y: number }[]) => void
+}) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const guideRef = useRef<HTMLCanvasElement>(null)
   const drawRef = useRef<HTMLCanvasElement>(null)
@@ -55,11 +68,16 @@ export function TraceBoard({ glyph, threshold, onDone, onMistake }: { glyph: Gly
       g.fill()
     }
 
+    if (onGuide) {
+      const r = wrap.getBoundingClientRect()
+      onGuide(guidePoints(glyph, mask, r.left, r.top))
+    }
+
     if (import.meta.env.DEV) {
       const r = wrap.getBoundingClientRect()
       ;(window as unknown as { __traceTargets?: [number, number][] }).__traceTargets = maskPoints(mask, r.left, r.top, 8)
     }
-  }, [glyph])
+  }, [glyph]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function pos(e: React.PointerEvent) {
     const r = drawRef.current!.getBoundingClientRect()
@@ -150,3 +168,44 @@ export function TraceBoard({ glyph, threshold, onDone, onMistake }: { glyph: Gly
   )
 }
 
+
+/**
+ * Qo'l yuradigan yo'l. Chiziq (SVG yo'li) — boshidan oxirigacha aniq nuqtalar.
+ * Harf/raqam — niqob nuqtalari "eng yaqin qo'shni" bilan zanjirga tiziladi (yuqoridan boshlab): taxminiy, lekin
+ * bolaga "barmog'ingni shu bo'ylab yurgiz" degan ma'noni beradi.
+ */
+function guidePoints(glyph: Glyph, mask: TraceMask, ox: number, oy: number): { x: number; y: number }[] {
+  const L = mask.layout
+  if (typeof glyph !== 'string') {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+    el.setAttribute('d', glyph.path)
+    const len = el.getTotalLength()
+    return Array.from({ length: 24 }, (_, i) => {
+      const p = el.getPointAtLength((len * i) / 23)
+      return { x: ox + L.x + (p.x * L.size) / 100, y: oy + L.y + (p.y * L.size) / 100 }
+    })
+  }
+  const pts = maskPoints(mask, 0, 0, 10)
+  if (!pts.length) return []
+  const left = new Set(pts.map((_, i) => i))
+  let cur = pts.reduce((best, p, i) => (p[1] < pts[best][1] || (p[1] === pts[best][1] && p[0] < pts[best][0]) ? i : best), 0)
+  const chain: [number, number][] = []
+  while (left.size) {
+    left.delete(cur)
+    chain.push(pts[cur])
+    let next = -1
+    let bd = Infinity
+    for (const j of left) {
+      const d = (pts[j][0] - pts[cur][0]) ** 2 + (pts[j][1] - pts[cur][1]) ** 2
+      if (d < bd) {
+        bd = d
+        next = j
+      }
+    }
+    // Uzoqqa sakrash — harfning boshqa qismi: shu yerda to'xtaymiz (qo'l asosiy chiziqni ko'rsatadi)
+    if (next < 0 || bd > 30 * 30) break
+    cur = next
+  }
+  const k = Math.max(1, Math.floor(chain.length / 24))
+  return chain.filter((_, i) => i % k === 0).map(([x, y]) => ({ x: ox + x, y: oy + y }))
+}

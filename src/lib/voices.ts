@@ -133,6 +133,14 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     { key: 'raqam_qator', text: 'Qaysi son tushib qoldi?', group: 'Raqamlar uyi' },
     { key: 'raqam_kop', text: "Qaysi likopchada ko'p?", group: 'Raqamlar uyi' },
     { key: 'raqam_kam', text: 'Qaysi likopchada kam?', group: 'Raqamlar uyi' },
+    { key: 'raqam_barmoq', text: "Nechta barmoq ko'rsatyapti? Sanab, raqamini top!", group: 'Raqamlar uyi' },
+    { key: 'raqam_barmoq_t', text: "Ko'tarilgan barmoqlarni bittalab sana: bir, ikki, uch... Bitta qo'lda beshta barmoq bor. Nechta bo'lsa, pastdan o'sha raqamni bos. O'z barmoqlaring bilan ham ko'rsatib ko'r!", group: 'Raqamlar uyi' },
+    // Har topshiriq birinchi marta chiqqanda (yoki "?" bosilganda) — batafsil tushuntirish
+    { key: 'raqam_sana_t', text: "Mevalarni barmog'ing bilan bittalab sana: bir, ikki, uch... Oxirgi aytgan soning — mevalar soni. Keyin pastdan o'sha raqamni bos.", group: 'Raqamlar uyi' },
+    { key: 'raqam_top_t', text: 'Men bitta raqamni aytaman. Pastdagi kartochkalardan o\'sha raqamni topib bos. Yana eshitmoqchi bo\'lsang, karnayni bos.', group: 'Raqamlar uyi' },
+    { key: 'raqam_chiz_t', text: "Raqam ustidan barmog'ing bilan yurib chiz, xuddi bo'r bilan yozgandek. Chiziqdan chiqmaslikka harakat qil. Xato bo'lsa, gubkani bosib, qaytadan chiz.", group: 'Raqamlar uyi' },
+    { key: 'raqam_qator_t', text: "Sonlar navbat bilan turibdi: bir, ikki, uch, to'rt... Bitta joy bo'sh qolgan. O'ylab ko'r: u yerga qaysi son keladi? Pastdan o'sha sonni bos.", group: 'Raqamlar uyi' },
+    { key: 'raqam_solishtir_t', text: "Ikkala likopchadagi mevalarni sana. Men «ko'p» desam — ko'p mevali likopchani, «kam» desam — kam mevali likopchani bos.", group: 'Raqamlar uyi' },
 
     { key: 'hisob_qosh', text: "Ikkalasini qo'shsak, hammasi nechta bo'ladi?", group: 'Hisob maktabi' },
     { key: 'hisob_ayir', text: 'Bir nechtasi ketib qoldi. Nechta qoldi?', group: 'Hisob maktabi' },
