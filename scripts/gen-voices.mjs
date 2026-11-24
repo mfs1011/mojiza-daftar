@@ -199,7 +199,8 @@ const REDO = new Set([
 const redo = args.includes('--redo')
 const needStyle = (k) => REDO.has(k) || /^harf_(?!chiz$|top$)/.test(k) || /^mijoz_/.test(k)
 // Uslubli model bilan allaqachon qayta yaratilganlari o'tkazib yuboriladi
-const needs = (k) => force || !exists(k) || (redo && needStyle(k) && !(made[k] && styled(made[k])))
+// --redo: uslubsiz (Gemini 3.x) modelda yaratilgan har qanday ovoz ham qayta yaratiladi — ular ba'zan so'zni buzadi
+const needs = (k) => force || !exists(k) || (redo && ((needStyle(k) && !(made[k] && styled(made[k]))) || (made[k] && !styled(made[k]))))
 
 /** Ustuvorlik: avval o'yin ko'rsatmalari (ularsiz bola nima qilishni bilmaydi), keyin nomlar, harflar, mijozlar */
 const PRIORITY = [
