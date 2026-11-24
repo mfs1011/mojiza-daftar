@@ -20,10 +20,17 @@ chumoli, sher; shifokor, oshpaz, haydovchi, dehqon (har biri oddiy + `-happy`).
   buferga → yangi chat → Cmd+V → harakat prompti (`motionPrompt` yoki sahifadagi `__G.mp(harakat, fon)`) →
   "Скачать GIF" tugmasi → `Gemini_Generated_Gif_*.gif` → `art-inbox/<nom>.gif` → `npm run art:import`.
 
+### 1b. ESKI rasmlarni qoida bo'yicha qayta yaratish (eshik/deraza/gumbazni olib tashlash)
+Eski hayvon, meva va odam rasmlarining ko'pida tanasida o'yma eshik, boshida ko'k gumbaz bor (masalan nok, uzum,
+sigir, it, mushuk, o'rdak, bobo). Egasi: "eshik deraza kabi narsalar juda ko'payib ortiqcha bo'lib ketgan".
+- [ ] 8 hayvon (sigir, qo'y, echki, xo'roz, it, mushuk, o'rdak, eshak), 10 meva, 5 odam × 2 holat, maskot holatlari —
+      `GENERATSIYA_QOIDALARI.md` bo'yicha, **o'zining eski rasmini** biriktirib: "same character, remove the door/dome".
+- [ ] So'ng ularning GIF'lari ham qayta (eski GIF'larda ham eshik bor).
+
 ### 2. Yangi narsalarni boshqa o'yinlarga ulash
 - [x] Bozor: shifokor, oshpaz, haydovchi, dehqon mijoz bo'ldi (egasi tanlagan ovozlar: Callirrhoe, Fenrir, Schedar, Rasalgethi).
-- [ ] Xotira o'yini (Mantiq → juft kartalar): `LogicGame.tsx` dagi `fruits/animals` hovuziga `ALL_THINGS` (rasmi tayyorlari, `thingReady`).
-- [ ] "Ortiqchasini top" (Mantiq): turkumlar (hayvon/sabzavot/buyum) bilan yangi topshiriqlar.
+- [x] Xotira o'yini: yangi narsalar hovuzda; yuqori darajada bir turkumdan.
+- [x] "Ortiqchasini top": turkum darajasi hayvon/meva/sabzavot/buyum/tabiat bilan.
 - [ ] Soyalar o'yini: yangi hayvonlar (ularning **haqiqiy ovozi** yo'q — Ferma/Soyalarga ulash uchun avval CC0 hayvon
       ovozlari kerak: `scripts/freesound.mjs` WANT ro'yxatiga qo'shish).
 
