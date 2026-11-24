@@ -268,6 +268,26 @@ const STATION_ICONS: Record<StationId, React.ReactNode> = {
       </text>
     </>
   ),
+  raqam: (
+    <>
+      <rect x={10} y={26} width={80} height={56} rx={6} fill="#3d5a80" />
+      <rect x={16} y={32} width={68} height={44} rx={3} fill="#98c1d9" />
+      <text x={50} y={66} textAnchor="middle" fontSize={30} fontWeight={900} fill="#fff" stroke="none" fontFamily="system-ui">
+        123
+      </text>
+      <path d="M30 82L24 94M70 82L76 94" fill="none" strokeWidth={4} />
+    </>
+  ),
+  hisob: (
+    <>
+      <rect x={12} y={12} width={76} height={76} rx={14} fill="#f4a261" />
+      <path d="M32 26V50M20 38H44" fill="none" stroke="#fff" strokeWidth={8} />
+      <path d="M58 38H82" fill="none" stroke="#fff" strokeWidth={8} />
+      <path d="M22 70H44M22 80H44" fill="none" stroke="#fff" strokeWidth={6} />
+      <circle cx={70} cy={64} r={6} fill="#fff" />
+      <circle cx={70} cy={80} r={6} fill="#fff" />
+    </>
+  ),
 }
 
 export function StationIcon({ id, className }: { id: StationId; className?: string }) {

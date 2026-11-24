@@ -6,6 +6,8 @@ import { BoilFilter } from './components/Hero'
 import { Farm } from './games/Farm'
 import { Garden } from './games/Garden'
 import { Letters } from './games/Letters'
+import { MathGame } from './games/MathGame'
+import { Numbers } from './games/Numbers'
 import { Market } from './games/Market'
 import { Shadows } from './games/Shadows'
 import { Workshop } from './games/Workshop'
@@ -29,6 +31,8 @@ const GAMES: Record<GameStation, ComponentType<GameProps>> = {
   ustaxona: Workshop,
   qora: Shadows,
   harflar: Letters,
+  raqam: Numbers,
+  hisob: MathGame,
 }
 
 /** Sovg'a variantlari: hali qishloqda yo'q narsalar birinchi navbatda taklif qilinadi */
@@ -67,7 +71,7 @@ export default function App() {
           : screen.name === 'sleep'
             ? 'uyqu'
             : null
-  const ambienceId: AmbienceId | null = screen.name === 'game' ? screen.station : null
+  const ambienceId: AmbienceId | null = screen.name === 'game' ? (screen.station as AmbienceId) : null
   useEffect(() => {
     playMusic(musicId)
     playAmbience(ambienceId)

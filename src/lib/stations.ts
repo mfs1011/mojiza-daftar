@@ -14,13 +14,15 @@ export interface Station {
 // Tartib = kunlik sayohat tartibi.
 // Bekatlar sahnaning pastki yarmida (o'tloqda): yuqorida fon rasmidagi qishloq ko'rinib tursin
 export const STATIONS: Station[] = [
-  { id: 'rasm', name: 'Rasm uyi', x: 8, y: 56, daily: false },
-  { id: 'bog', name: "Bog'", x: 18, y: 80, daily: true },
-  { id: 'bozor', name: 'Bozor', x: 33, y: 60, daily: true },
-  { id: 'ferma', name: 'Ferma', x: 49, y: 82, daily: true },
-  { id: 'ustaxona', name: 'Ustaxona', x: 64, y: 60, daily: true },
-  { id: 'qora', name: "Kechki qo'ra", x: 79, y: 82, daily: true },
-  { id: 'harflar', name: 'Harflar uyi', x: 91, y: 58, daily: true, minAge: 5 },
+  { id: 'rasm', name: 'Rasm uyi', x: 5, y: 56, daily: false },
+  { id: 'bog', name: "Bog'", x: 12.5, y: 82, daily: true },
+  { id: 'bozor', name: 'Bozor', x: 20, y: 58, daily: true },
+  { id: 'ferma', name: 'Ferma', x: 27.5, y: 82, daily: true },
+  { id: 'raqam', name: 'Raqamlar uyi', x: 35, y: 58, daily: true },
+  { id: 'ustaxona', name: 'Ustaxona', x: 42.5, y: 82, daily: true },
+  { id: 'qora', name: "Kechki qo'ra", x: 50, y: 58, daily: true },
+  { id: 'hisob', name: 'Hisob maktabi', x: 57.5, y: 82, daily: true },
+  { id: 'harflar', name: 'Harflar uyi', x: 65, y: 58, daily: true, minAge: 5 },
 ]
 
 export const stationsFor = (age: Age) => STATIONS.filter((s) => !s.minAge || age >= s.minAge)
