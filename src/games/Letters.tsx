@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimalArt } from '../art/Animal'
 import { FruitArt } from '../art/Fruit'
+import { ThingArt, thingReady } from '../art/Thing'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
@@ -56,10 +57,14 @@ function topRound(word: Word, n: number): LRound {
   return { type: 'top', word, options }
 }
 
+/** Rasmi tayyor so'zlar (yangi narsaning rasmi hali yaratilmagan bo'lsa — chiqmaydi) */
+const readyWords = () => WORDS.filter((w) => w.pic.type !== 'thing' || thingReady(w.pic.id))
+
 function lettersRounds(cfg: LettersCfg, name: string): LRound[] {
-  const pool = cfg.easy ? WORDS.filter((w) => EASY_LETTERS.includes(w.letter)) : WORDS
+  const words = readyWords()
+  const pool = cfg.easy ? words.filter((w) => EASY_LETTERS.includes(w.letter)) : words
   const w1 = pick(pool)
-  const w2 = pick(WORDS.filter((w) => w.letter !== w1.letter))
+  const w2 = pick(words.filter((w) => w.letter !== w1.letter))
   const w3 = pick(pool.filter((w) => w.letter !== w1.letter && w.letter !== w2.letter))
   const third: LRound =
     cfg.third === 'name'
@@ -72,6 +77,7 @@ function lettersRounds(cfg: LettersCfg, name: string): LRound[] {
 
 function WordPicture({ word, profile }: { word?: Word; profile: Profile }) {
   if (!word) return <Hero profile={profile} mode="idle" className="word-hero" />
+  if (word.pic.type === 'thing') return <ThingArt id={word.pic.id} />
   return word.pic.type === 'fruit' ? <FruitArt kind={word.pic.id} /> : <AnimalArt id={word.pic.id} />
 }
 

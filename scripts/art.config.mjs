@@ -169,6 +169,34 @@ export const ASSETS = [
     ['gul', 'a red tulip flower with two leaves'],
   ].map(([id, what]) => ({ path: `nature/${id}`, kind: 'object', size: 512, prompt: `${what}, one single object, ${FACE}, cute toy-like look` })),
 
+  // Alifbo uchun qo'shimcha (har harfga kamida 2 ta narsa) — qoidalar: docs/GENERATSIYA_QOIDALARI.md
+  animal('hakka', 'a black-and-white magpie bird with a long tail', 'hops, tilts its head, flicks its long tail'),
+  animal('ilon', 'a friendly green-and-yellow cartoon snake coiled with its head raised (no legs)', 'sways its head side to side, flicks its tongue, blinks'),
+  animal('jirafa', 'a baby giraffe with a long neck and brown spots', 'bends its long neck, blinks, twitches its ears'),
+  animal('laylak', 'a white stork with black wing tips, long red beak and long red legs', 'stands on one leg, flaps its wings, nods'),
+  animal('zebra', 'a baby zebra with black and white stripes', 'swishes its tail, nods, flicks its ears'),
+  animal('chumoli', 'a cute red-brown ant with six small legs and antennae', 'wiggles its antennae, taps its legs, bobs'),
+  animal('sher', 'a friendly lion cub with a small fluffy golden mane', 'shakes its little mane, yawns, swishes its tail'),
+  ...[
+    ['joxori', 'a yellow corn cob with green husk leaves'],
+    ['limon', 'a bright yellow lemon with a small green leaf'],
+    ['xurmo', 'a ripe orange persimmon with a green four-leaf cap'],
+  ].map(([id, what]) => ({ path: `veg/${id}`, kind: 'object', size: 512, prompt: `${what}, one single fruit or vegetable, ${FACE}, cute glossy toy-like look` })),
+  ...[
+    ['fonar', 'a small old-fashioned lantern with a warm glowing light'],
+    ['gilam', 'a small rolled-out Uzbek carpet with red geometric pattern, seen from above at an angle'],
+    ['ip', 'a round ball of red knitting yarn with a loose thread end'],
+    ['raketa', 'a small red-and-white toy rocket'],
+    ['ruchka', 'a blue ballpoint pen'],
+    ['uy', 'a small cozy cartoon house with a red roof and a little chimney'],
+    ['uzuk', 'a golden ring with a small red gem'],
+    ['vertolyot', 'a small yellow toy helicopter'],
+    ['xalta', 'a small embroidered cloth bag with a drawstring and suzani pattern'],
+    ['zina', 'a small wooden ladder'],
+    ['gildirak', 'a single black rubber wheel with a red hub'],
+    ['shar', 'a shiny red balloon on a string'],
+  ].map(([id, what]) => ({ path: `obj/${id}`, kind: 'object', size: 512, prompt: `${what}, one single object, ${FACE}, cute toy-like look` })),
+
   // Kasblar (+4, odamlar kabi: oddiy va xursand holat)
   ...person('shifokor', 'a kind Uzbek woman doctor in a white coat with a stethoscope'),
   ...person('oshpaz', 'a cheerful Uzbek cook with a white chef hat and apron, holding a ladle'),

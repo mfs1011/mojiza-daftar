@@ -294,4 +294,115 @@ export const RIDDLES: Riddle[] = [
     answer: N('dehqon'),
     text: "Ertalab dalaga borar,\nYerni haydab, ekin ekar.\nPaxta, bug'doy, mevalarni\nMehnat qilib yetishtirar.",
   },
+  // ---------- Alifbo uchun qo'shimcha narsalar ----------
+  {
+    id: 'fonar',
+    answer: N('fonar'),
+    text: "Qorong'i tushsa yonadi,\nYo'limizni yoritadi.\nQo'lda ko'tarib yuramiz,\nChiroqchaga o'xshaydi.",
+  },
+  {
+    id: 'gilam',
+    answer: N('gilam'),
+    text: "Polga to'shab qo'yamiz,\nUstida o'ynab yotamiz.\nNaqshlari rang-barang,\nYumshoq, issiq, chiroyli.",
+  },
+  {
+    id: 'hakka',
+    answer: N('hakka'),
+    text: "Qora-oq patlari bor,\nDumi uzun, chiroyli.\nYaltiroq narsa ko'rsa,\nOlib qochadi tezda.",
+  },
+  {
+    id: 'ilon',
+    answer: N('ilon'),
+    text: "Oyog'i yo'q, sudralar,\nUzun-uzun tanasi.\nVishillab tilini chiqarar,\nO'tlar ichida yashar.",
+  },
+  {
+    id: 'ip',
+    answer: N('ip'),
+    text: "Dumaloq qilib o'ralgan,\nUchidan tortsang — cho'zilar.\nBuvijon undan to'qiydi\nIssiq paypoq, qo'lqop.",
+  },
+  {
+    id: 'jirafa',
+    answer: N('jirafa'),
+    text: "Bo'yni uzun-uzun,\nTanasida dog'lari bor.\nDaraxt uchidagi bargni\nBemalol yeb olar.",
+  },
+  {
+    id: 'joxori',
+    answer: N('joxori'),
+    text: "Sap-sariq donachalar\nQator-qator tizilgan.\nYashil to'nga o'ralgan,\nQaynatsak — shirin bo'lar.",
+  },
+  {
+    id: 'limon',
+    answer: N('limon'),
+    text: "Sap-sariq va xushbo'y,\nTatib ko'rsang — juda nordon!\nChoyga bir tilim solsak,\nMazasi bo'lar boshqacha.",
+  },
+  {
+    id: 'laylak',
+    answer: N('laylak'),
+    text: "Oyoqlari uzun, qizil,\nTumshug'i ham uzundir.\nTomda uya quradi,\nBir oyoqda turadi.",
+  },
+  {
+    id: 'raketa',
+    answer: N('raketa'),
+    text: "Olovdan dumi bor,\nOsmonga uchib ketar.\nYulduzlar sari yo'l olar,\nOyga ham yetib borar.",
+  },
+  {
+    id: 'ruchka',
+    answer: N('ruchka'),
+    text: "Qalamga o'xshaydi,\nLekin siyohi bor.\nDaftarga chiroyli\nHarflarni yozadi.",
+  },
+  {
+    id: 'uy',
+    answer: N('uy'),
+    text: "Tomi bor, eshigi bor,\nIchida oila yashar.\nIssiq va xavfsiz bizga,\nHammamiz uni sevamiz.",
+  },
+  {
+    id: 'uzuk',
+    answer: N('uzuk'),
+    text: "Barmoqqa taqib yurar,\nYaltiraydi tilladek.\nUstida kichik toshi,\nOnamning chiroyli bezagi.",
+  },
+  {
+    id: 'vertolyot',
+    answer: N('vertolyot'),
+    text: "Tepasida parragi\nGir-gir aylanib turar.\nOsmonga tik ko'tarilar,\nQush kabi uchib yurar.",
+  },
+  {
+    id: 'xurmo',
+    answer: N('xurmo'),
+    text: "Kuzda pishar, to'q sariq,\nBoshida yashil qalpog'i.\nYumshoq, shirin, asaldek,\nQishda ham bizga yoqar.",
+  },
+  {
+    id: 'xalta',
+    answer: N('xalta'),
+    text: "Matodan tikilgan,\nIchiga narsa solamiz.\nBozorga ko'tarib borib,\nNon, meva olib kelamiz.",
+  },
+  {
+    id: 'zebra',
+    answer: N('zebra'),
+    text: "Otga o'xshar, lekin\nOq-qora yo'l-yo'li bor.\nAfrika dalalarida\nChopib yurar u tez-tez.",
+  },
+  {
+    id: 'zina',
+    answer: N('zina'),
+    text: "Pog'onama-pog'ona,\nYuqoriga chiqamiz.\nBitta-bitta bosib,\nEhtiyot bo'lib tushamiz.",
+  },
+  {
+    id: 'gildirak',
+    answer: N('gildirak'),
+    text: "Dumaloq, aylanadi,\nMashinani yurgizar.\nVelosipedda ikkita,\nYo'lda g'izillab chopar.",
+  },
+  {
+    id: 'chumoli',
+    answer: N('chumoli'),
+    text: "Mitti-mitti, mehnatkash,\nOg'ir yukni ko'taradi.\nUyasi tuproq ostida,\nBirga-birga yashaydi.",
+  },
+  {
+    id: 'shar',
+    answer: N('shar'),
+    text: "Puflasak — kattalashar,\nIpidan mahkam ushla!\nQo'yib yuborsang agar,\nOsmonga uchib ketar.",
+  },
+  {
+    id: 'sher',
+    answer: N('sher'),
+    text: "Yoli bor, oltin rangli,\nHayvonlarning shohidir.\nBaland ovozda o'kirar,\nKuchli va jasur u.",
+  },
 ]
