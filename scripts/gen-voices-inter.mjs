@@ -41,7 +41,7 @@ const plan = args.includes('--plan')
 
 const NATIVE = 'native Uzbek speaker from Tashkent, natural Uzbek intonation and word stress, no English, Russian or Turkish accent'
 const TEACHER = `${NATIVE}, warm cheerful kindergarten teacher talking to a 4-year-old child, clear unhurried pace`
-const LETTERS = `${NATIVE}, kindergarten teacher saying names of letters of the Uzbek alphabet the Uzbek school way (Be, De, Qe, Xe, She, Che, Oʻ, Gʻ), clear and slow`
+const LETTERS = `${NATIVE}, kindergarten teacher saying names of letters of the Uzbek alphabet to a small child: every consonant is said as its own sound followed by a short "e" (Be, De, Fe, He, Ke, Le, Me, Ne, Qe, Re, Se, Xe, She, Che), never as "em", "en", "ka" or English letter names; vowels as pure sounds (A, E, I, O, U, Oʻ); clear and slow`
 const PERSONA = {
   bobo: `${NATIVE}, a kind elderly grandfather of about 70 buying fruit from a small child at a village bazaar, slow warm deep voice`,
   buvi: `${NATIVE}, a loving elderly grandmother of about 65 buying fruit from a small child at a village bazaar, gentle caring voice`,

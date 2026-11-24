@@ -65,6 +65,7 @@ export const STROKE_LABELS: Record<'tik' | 'yotiq' | 'qiya' | 'zinapoya' | 'tolq
 
 /** O'zbek alifbosidagi harf nomlari (inglizcha "bi, si" emas): ovoz shu bilan yaratiladi */
 export const LETTER_NAMES: Record<string, string> = {
-  A: 'A', B: 'Be', D: 'De', E: 'E', F: 'Ef', G: 'Ge', H: 'Ha', I: 'I', J: 'Je', K: 'Ka', L: 'El', M: 'Em', N: 'En', O: 'O',
-  P: 'Pe', Q: 'Qe', R: 'Er', S: 'Es', T: 'Te', U: 'U', V: 'Ve', X: 'Xe', Y: 'Ye', Z: 'Ze', "O'": "O'", "G'": "G'e", Sh: 'She', Ch: 'Che',
+  // Bolalar uchun yagona qolip: undosh + "e" (Me, Ne, Ke…), rasmiy "em, en, ka" emas — bola harf tovushini eshitsin
+  A: 'A', B: 'Be', D: 'De', E: 'E', F: 'Fe', G: 'Ge', H: 'He', I: 'I', J: 'Je', K: 'Ke', L: 'Le', M: 'Me', N: 'Ne', O: 'O',
+  P: 'Pe', Q: 'Qe', R: 'Re', S: 'Se', T: 'Te', U: 'U', V: 'Ve', X: 'Xe', Y: 'Ye', Z: 'Ze', "O'": "O'", "G'": "G'e", Sh: 'She', Ch: 'Che',
 }
