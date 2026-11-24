@@ -19,7 +19,7 @@ import { Workshop } from './games/Workshop'
 import { applyMix, jingle, playAmbience, playMusic, preloadMusic, setAmbience, setMusic, stopVoice, type AmbienceId, type MusicId } from './lib/audio'
 import { addPlay, getProfiles, getProgress, saveProgress } from './lib/db'
 import { getSettings } from './lib/settings'
-import { startLevel, starsFor } from './lib/stations'
+import { startLevel, starsFor, worldOf, type WorldId } from './lib/stations'
 import { shuffle } from './lib/util'
 import { DrawStudio } from './screens/DrawStudio'
 import { ParentPanel } from './screens/ParentPanel'
@@ -28,6 +28,7 @@ import { Sleep } from './screens/Sleep'
 import { VillageMap } from './screens/VillageMap'
 import type { GameProps, GameResult, GameStation, PlacedDecor, Profile, Progress, Screen, StationId } from './types'
 import { LevelPath } from './screens/LevelPath'
+import { Worlds } from './screens/Worlds'
 import { Album } from './screens/Album'
 import { Yard } from './screens/Yard'
 import { nextSticker, YARD_GIFT_EVERY, type Sticker } from './lib/stickers'
@@ -76,7 +77,7 @@ export default function App() {
 
   // Har ekran o'z musiqasi va muhit ovozi bilan
   const musicId: MusicId | null =
-    screen.name === 'profiles' || screen.name === 'map' || screen.name === 'album' || screen.name === 'yard'
+    screen.name === 'profiles' || screen.name === 'worlds' || screen.name === 'map' || screen.name === 'album' || screen.name === 'yard'
       ? 'map'
       : screen.name === 'game' || screen.name === 'path'
         ? (screen.station as MusicId)
@@ -102,11 +103,13 @@ export default function App() {
     setScreen({ name: 'profiles' })
   }, [])
 
-  const backToMap = useCallback(() => {
+  /** Olam xaritasiga (berilmasa — olamlar ekraniga) qaytish */
+  const backToMap = useCallback((world?: WorldId) => {
     stopVoice()
     setArrivedFrom(null)
-    setScreen({ name: 'map' })
+    setScreen(world ? { name: 'map', world } : { name: 'worlds' })
   }, [])
+  const toWorlds = useCallback(() => backToMap(), [backToMap])
 
   const openPath = useCallback((station: GameStation, justDone?: number) => {
     stopVoice()
@@ -130,8 +133,10 @@ export default function App() {
         recordRef.current(sc.station, sc.level, false)
         openPath(sc.station)
       }
-      else if (s === 'path' || s === 'studio' || s === 'album' || s === 'yard') backToMap()
-      else if (s === 'map' || s === 'sleep' || s === 'parent') goHome()
+      else if (sc.name === 'path') backToMap(worldOf(sc.station))
+      else if (s === 'studio') backToMap('ijod')
+      else if (s === 'map' || s === 'album' || s === 'yard') backToMap()
+      else if (s === 'worlds' || s === 'sleep' || s === 'parent') goHome()
       else void CapApp.minimizeApp()
     })
     return () => void sub.then((h) => h.remove())
@@ -139,7 +144,7 @@ export default function App() {
 
   // Kunlik o'yin vaqti: har 10 soniyada hisoblanadi (ota-ona paneli va profil tanlashdan tashqari).
   // Chegara tugasa, o'yin o'rtasida uzilmaydi: joriy daraja tugagach qahramon uxlaydi.
-  const playing = !!profile && ['map', 'path', 'game', 'studio'].includes(screen.name)
+  const playing = !!profile && ['worlds', 'map', 'path', 'game', 'studio'].includes(screen.name)
   useEffect(() => {
     if (!playing) return
     const id = window.setInterval(() => {
@@ -152,7 +157,7 @@ export default function App() {
       void saveProgress(next)
       setProgress(next)
       // Vaqt tugadi: yo'l ekranidan xaritaga qaytamiz, u yerda qahramon uxlashga ketadi
-      if (next.dayDone && screenRef.current.name === 'path') setScreen({ name: 'map' })
+      if (next.dayDone && screenRef.current.name === 'path') setScreen({ name: 'worlds' })
     }, 10_000)
     return () => window.clearInterval(id)
   }, [playing])
@@ -163,7 +168,7 @@ export default function App() {
     setProgress(pr)
     setReward(null)
     setArrivedFrom(null)
-    setScreen(pr.dayDone ? { name: 'sleep' } : { name: 'map' })
+    setScreen(pr.dayDone ? { name: 'sleep' } : { name: 'worlds' })
   }
 
   // Statistika: o'yin qachon boshlangani
@@ -224,7 +229,7 @@ export default function App() {
     await saveProgress(next)
     setProgress(next)
     if (firstToday) setArrivedFrom(station)
-    if (next.dayDone) setScreen({ name: 'map' })
+    if (next.dayDone) setScreen({ name: 'worlds' })
     else openPath(station, level)
   }
 
@@ -260,10 +265,23 @@ export default function App() {
       />
     )
   } else if (profile && progress) {
-    if (screen.name === 'map') {
+    if (screen.name === 'worlds') {
+      view = (
+        <Worlds
+          profile={profile}
+          progress={progress}
+          onWorld={(w) => setScreen({ name: 'map', world: w })}
+          onAlbum={() => setScreen({ name: 'album' })}
+          onYard={() => setScreen({ name: 'yard' })}
+          onHome={goHome}
+          onSleep={() => setScreen({ name: 'sleep' })}
+        />
+      )
+    } else if (screen.name === 'map') {
       view = (
         <VillageMap
-          key={`map-${progress.stationsDone.length}-${arrivedFrom}`}
+          key={`map-${screen.world}-${progress.stationsDone.length}-${arrivedFrom}`}
+          world={screen.world}
           profile={profile}
           progress={progress}
           arrivedFrom={arrivedFrom}
@@ -271,9 +289,7 @@ export default function App() {
             if (s === 'rasm') setScreen({ name: 'studio' })
             else openPath(s)
           }}
-          onAlbum={() => setScreen({ name: 'album' })}
-          onYard={() => setScreen({ name: 'yard' })}
-          onHome={goHome}
+          onHome={toWorlds}
           onSleep={() => setScreen({ name: 'sleep' })}
         />
       )
@@ -281,10 +297,10 @@ export default function App() {
       view = (
         <DrawStudio
           profile={profile}
-          onExit={backToMap}
+          onExit={() => backToMap('ijod')}
           onDone={() => {
             setArrivedFrom('rasm')
-            setScreen({ name: 'map' })
+            setScreen({ name: 'map', world: 'ijod' })
           }}
         />
       )
@@ -301,13 +317,13 @@ export default function App() {
           stars={progress.stars?.[station] ?? []}
           justDone={screen.justDone}
           onPlay={(level) => setScreen({ name: 'game', station, level })}
-          onBack={backToMap}
+          onBack={() => backToMap(worldOf(station))}
           reward={reward}
           onRewardDone={(g) => void rewardDone(g)}
         />
       )
     } else if (screen.name === 'album') {
-      view = <Album owned={progress.stickers ?? []} onBack={backToMap} />
+      view = <Album owned={progress.stickers ?? []} onBack={toWorlds} />
     } else if (screen.name === 'yard') {
       view = (
         <Yard
@@ -315,7 +331,7 @@ export default function App() {
           village={progress.village}
           inbox={progress.yardInbox ?? []}
           onSave={(v, inbox) => void saveYard(v, inbox)}
-          onBack={backToMap}
+          onBack={toWorlds}
         />
       )
     } else if (screen.name === 'game') {

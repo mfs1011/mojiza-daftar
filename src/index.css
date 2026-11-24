@@ -4485,3 +4485,131 @@ button {
   accent-color: #2d6a4f;
   height: 28px;
 }
+
+/* ---------- 🌍 Bosh ekran: olamlar ---------- */
+
+.worlds {
+  background-size: cover;
+  background-position: center;
+}
+
+.worlds-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 14vmin;
+  display: flex;
+  justify-content: center;
+  gap: 4vw;
+  perspective: 900px;
+}
+
+.world-card {
+  position: relative;
+  width: 26vw;
+  max-width: 46vmin;
+  padding: 1.6vmin 1.6vmin 2.4vmin;
+  border-radius: 5vmin;
+  background: #fffaf0;
+  border: 1.2vmin solid var(--wc);
+  box-shadow:
+    0 1.8vmin 0 color-mix(in srgb, var(--wc) 60%, #000),
+    0 3vmin 4vmin #0004;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1vmin;
+}
+
+.world-card.glow {
+  box-shadow:
+    0 0 0 1.4vmin #ffd16699,
+    0 1.8vmin 0 color-mix(in srgb, var(--wc) 60%, #000),
+    0 3vmin 4vmin #0004;
+}
+
+.world-card.locked {
+  filter: grayscale(0.85) brightness(0.92);
+}
+
+.world-pic {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 3.4vmin;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  box-shadow: inset 0 -6vmin 6vmin -3vmin #0005;
+}
+
+.world-icons {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1.4vmin;
+  display: flex;
+  justify-content: center;
+  gap: 1.2vmin;
+}
+
+.world-icon {
+  width: 9vmin;
+  height: 9vmin;
+  padding: 0.8vmin;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0.6vmin 0 #0003;
+}
+
+.world-lock {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 12vmin;
+  background: #0003;
+}
+
+.world-name {
+  font-size: 6.4vmin;
+  font-weight: 900;
+  color: color-mix(in srgb, var(--wc) 70%, #000);
+}
+
+.world-stars {
+  font-size: 4.2vmin;
+  font-weight: 800;
+  color: #3d2c1e;
+}
+
+.worlds-hero {
+  position: absolute;
+  left: 8vw;
+  bottom: 2vmin;
+  width: 20vmin;
+  height: 20vmin;
+  pointer-events: none;
+}
+
+.worlds-mascot {
+  position: absolute;
+  right: 6vw;
+  bottom: 3vmin;
+  width: 18vmin;
+  height: 18vmin;
+}
+
+/* Olam xaritalarida bekatlar kam — kattaroq */
+.map.world-maktab .station,
+.map.world-ijod .station,
+.map.world-qishloq .station {
+  width: 11%;
+}
+
+/* Chapdagi albom/hovli tugmalari kartalarga tegmasin */
+.worlds-row {
+  left: 15vmin;
+  right: 2vmin;
+  gap: 3vw;
+}

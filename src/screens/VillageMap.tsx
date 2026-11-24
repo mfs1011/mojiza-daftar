@@ -4,27 +4,28 @@ import { FruitArt } from '../art/Fruit'
 import { CoinArt, StationIcon } from '../art/Scenery'
 import { artUrl } from '../lib/assets'
 import { Hero, useHeroUrl, type HeroMode } from '../components/Hero'
-import { say, sfx } from '../lib/audio'
-import { dailyFor, stationsFor, STATIONS } from '../lib/stations'
+import { sfx } from '../lib/audio'
+import { WORLDS, worldStations, type WorldId } from '../lib/stations'
 import type { Profile, Progress, StationId } from '../types'
 import { Icon } from '../art/Icon'
 
 interface Props {
+  /** Qaysi olam xaritasi (Qishloq, Maktab, Ijod) */
+  world: WorldId
   profile: Profile
   progress: Progress
   /** Qahramon qaysi bekatdan qaytdi (yurish animatsiyasi shu yerdan boshlanadi) */
   arrivedFrom: StationId | null
   onPlay: (s: StationId) => void
-  onAlbum: () => void
-  onYard: () => void
+  /** Olamlar ekraniga qaytish */
   onHome: () => void
   onSleep: () => void
 }
 
-const pathPoints = STATIONS.map((s) => `${s.x * 16},${s.y * 9}`).join(' ')
-
-function MapBackground() {
-  const img = artUrl('bg/map')
+function MapBackground({ world }: { world: WorldId }) {
+  const w = WORLDS.find((x) => x.id === world)!
+  const pathPoints = w.stations.map((s) => `${s.x * 16},${s.y * 9}`).join(' ')
+  const img = artUrl(`bg/${w.bg}`)
   if (img)
     // Tayyor xarita rasmi + ustida faqat bekatlarni bog'lovchi yo'l
     return (
@@ -89,25 +90,25 @@ function MapBackground() {
   )
 }
 
-export function VillageMap({ profile, progress, arrivedFrom, onPlay, onAlbum, onYard, onHome, onSleep }: Props) {
+export function VillageMap({ world, profile, progress, arrivedFrom, onPlay, onHome, onSleep }: Props) {
   const heroUrl = useHeroUrl(profile.id)
-  const stations = stationsFor(profile.age)
+  const stations = worldStations(world, profile.age)
   const done = new Set(progress.stationsDone)
   const needsHero = heroUrl === null
-  const next: StationId | null = needsHero ? 'rasm' : (dailyFor(profile.age).find((s) => !done.has(s.id))?.id ?? null)
+  // Tavsiya: shu olamda bugun hali o'ynalmagan birinchi bekat
+  const next: StationId | null = needsHero
+    ? stations.some((s) => s.id === 'rasm')
+      ? 'rasm'
+      : null
+    : (stations.find((s) => !done.has(s.id))?.id ?? null)
 
-  const [heroAt, setHeroAt] = useState<StationId>(arrivedFrom ?? next ?? dailyFor(profile.age).at(-1)!.id)
+  const [heroAt, setHeroAt] = useState<StationId>(
+    arrivedFrom && stations.some((s) => s.id === arrivedFrom) ? arrivedFrom : (next ?? stations[0].id),
+  )
   const [heroMode, setHeroMode] = useState<HeroMode>('idle')
   const stageRef = useRef<HTMLDivElement>(null)
   // Sovg'alar endi albom va hovliga tushadi — xarita doim toza va bosiladigan
   const busy = false
-
-  // Ovoz: sovg'a tanlash yoki salomlashish
-  useEffect(() => {
-    if (progress.stationsDone.length === 0 && !arrivedFrom) void say(`ism_${profile.id}`, 'salom')
-    // Faqat xarita ochilganda
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   // Qahramon keyingi bekatga yurib boradi (sovg'a joylab bo'lingach)
   useEffect(() => {
@@ -131,12 +132,12 @@ export function VillageMap({ profile, progress, arrivedFrom, onPlay, onAlbum, on
     }
   }, [busy, next, heroAt, heroUrl, progress.dayDone, onSleep])
 
-  const hs = STATIONS.find((s) => s.id === heroAt)!
+  const hs = stations.find((s) => s.id === heroAt) ?? stations[0]
 
   return (
-    <div className="screen map">
+    <div className={`screen map world-${world}`}>
       <div className="stage" ref={stageRef}>
-        <MapBackground />
+        <MapBackground world={world} />
 
         <motion.div className="cloud" animate={{ x: ['0%', '120%', '0%'] }} transition={{ repeat: Infinity, duration: 40, ease: 'linear' }}>
           <svg viewBox="0 0 120 50" className="art">
@@ -198,7 +199,7 @@ export function VillageMap({ profile, progress, arrivedFrom, onPlay, onAlbum, on
         </motion.div>
       </div>
 
-      <button className="home-btn" onClick={onHome} aria-label="Bosh sahifa">
+      <button className="home-btn" onClick={onHome} aria-label="Olamlar">
         <Icon name="home"><svg viewBox="0 0 40 40" className="art">
           <path d="M6 20L20 7L34 20M10 17V33H30V17" fill="#ffd166" stroke="#3d2c1e" strokeWidth={3} strokeLinejoin="round" />
           <rect x={17} y={23} width={6} height={10} fill="#8d5524" />
@@ -219,21 +220,6 @@ export function VillageMap({ profile, progress, arrivedFrom, onPlay, onAlbum, on
         </span>
       </div>
 
-      {/* Albom va hovli: sovg'alar shu yerlarga tushadi */}
-      <div className="map-collect">
-        <motion.button className="collect-btn" whileTap={{ scale: 0.9 }} onClick={() => (sfx.tap(), onAlbum())} aria-label="Albom">
-          <span>📒</span>
-          <small>{progress.stickers?.length ?? 0}</small>
-        </motion.button>
-        <motion.button className="collect-btn" whileTap={{ scale: 0.9 }} onClick={() => (sfx.tap(), onYard())} aria-label="Hovli">
-          <span>🏡</span>
-          {(progress.yardInbox?.length ?? 0) > 0 && (
-            <motion.small className="collect-new" animate={{ scale: [1, 1.25, 1] }} transition={{ repeat: Infinity, duration: 1 }}>
-              🎁 {progress.yardInbox!.length}
-            </motion.small>
-          )}
-        </motion.button>
-      </div>
     </div>
   )
 }

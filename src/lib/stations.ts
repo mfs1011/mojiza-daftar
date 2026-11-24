@@ -32,6 +32,68 @@ export const STATIONS: Station[] = [
 
 export const stationsFor = (age: Age) => STATIONS.filter((s) => !s.minAge || age >= s.minAge)
 
+// ---------- Olamlar: bosh ekranda 3 ta katta karta, har biri o'z xaritasi bilan ----------
+
+export type WorldId = 'qishloq' | 'maktab' | 'ijod'
+
+export interface World {
+  id: WorldId
+  name: string
+  /** Fon rasmi (art/bg/<bg>) */
+  bg: string
+  /** Bekatlar va ularning shu olam xaritasidagi joyi (16:9 sahnaning %) */
+  stations: { id: StationId; x: number; y: number }[]
+}
+
+export const WORLDS: World[] = [
+  {
+    id: 'qishloq',
+    name: 'Qishloq',
+    bg: 'map',
+    stations: [
+      { id: 'bog', x: 15, y: 76 },
+      { id: 'bozor', x: 32, y: 58 },
+      { id: 'ferma', x: 50, y: 80 },
+      { id: 'ustaxona', x: 68, y: 58 },
+      { id: 'qora', x: 85, y: 76 },
+    ],
+  },
+  {
+    id: 'maktab',
+    name: 'Maktab',
+    bg: 'letters',
+    stations: [
+      { id: 'raqam', x: 12, y: 72 },
+      { id: 'hisob', x: 27, y: 86 },
+      { id: 'shakl', x: 42, y: 70 },
+      { id: 'mantiq', x: 57, y: 86 },
+      { id: 'yozuv', x: 72, y: 70 },
+      { id: 'harflar', x: 87, y: 84 },
+    ],
+  },
+  {
+    id: 'ijod',
+    name: 'Ijod',
+    bg: 'studio',
+    stations: [
+      { id: 'rasm', x: 22, y: 74 },
+      { id: 'musiqa', x: 50, y: 84 },
+      { id: 'sher', x: 78, y: 74 },
+    ],
+  },
+]
+
+export const worldOf = (s: StationId): WorldId => WORLDS.find((w) => w.stations.some((x) => x.id === s))?.id ?? 'qishloq'
+
+/** Olamdagi bekatlar (yoshga qarab) va ularning shu olamdagi joyi */
+export function worldStations(w: WorldId, age: Age) {
+  const world = WORLDS.find((x) => x.id === w)!
+  const allowed = new Set(stationsFor(age).map((s) => s.id))
+  return world.stations
+    .filter((p) => allowed.has(p.id))
+    .map((p) => ({ ...STATIONS.find((s) => s.id === p.id)!, x: p.x, y: p.y }))
+}
+
 export const dailyFor = (age: Age) => stationsFor(age).filter((s) => s.daily)
 
 /** Har bekatda qo'lda yozilgan darajalar: 0..14. Undan keyin — cheksiz (endless) */

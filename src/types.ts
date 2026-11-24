@@ -1,4 +1,5 @@
 import type { DecorKind } from './art/Scenery'
+import type { WorldId } from './lib/stations'
 
 export type Age = 3 | 5
 
@@ -92,7 +93,9 @@ export interface GameProps {
 
 export type Screen =
   | { name: 'profiles' }
-  | { name: 'map' }
+  /** Bosh ekran: olamlar (Qishloq, Maktab, Ijod) */
+  | { name: 'worlds' }
+  | { name: 'map'; world: WorldId }
   | { name: 'path'; station: GameStation; justDone?: number }
   | { name: 'game'; station: GameStation; level: number }
   | { name: 'studio' }
