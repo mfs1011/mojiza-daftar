@@ -288,6 +288,21 @@ const STATION_ICONS: Record<StationId, React.ReactNode> = {
       <circle cx={70} cy={80} r={6} fill="#fff" />
     </>
   ),
+  shakl: (
+    <>
+      <circle cx={34} cy={36} r={22} fill="#e63946" />
+      <path d="M66 14L90 56H42Z" fill="#ffd166" />
+      <rect x={22} y={60} width={30} height={30} rx={3} fill="#3a86ff" />
+      <path d="M72 62L86 76L72 90L58 76Z" fill="#52b788" />
+    </>
+  ),
+  mantiq: (
+    <>
+      <path d="M50 10C30 10 20 26 22 40C24 50 32 54 34 64H66C68 54 76 50 78 40C80 26 70 10 50 10Z" fill="#ffd166" />
+      <path d="M36 70H64M38 79H62M42 88H58" fill="none" strokeWidth={5} />
+      <path d="M42 46L50 36L58 46M50 36V60" fill="none" stroke="#f77f00" strokeWidth={4} />
+    </>
+  ),
 }
 
 export function StationIcon({ id, className }: { id: StationId; className?: string }) {

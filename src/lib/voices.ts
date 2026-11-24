@@ -1,4 +1,5 @@
 import type { Profile } from '../types.ts'
+import { PAINT_NAMES, PAINT_ORDER, SHAPE_NAMES, SHAPE_ORDER } from './shapes.ts'
 import { LETTERS } from './letters.ts'
 import { ALL_ANIMALS, ALL_FRUITS, ANIMAL_NAMES, ANIMAL_SOUNDS, FRUIT_NAMES } from './names.ts'
 
@@ -112,6 +113,16 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     { key: 'hisob_ayir', text: 'Bir nechtasi ketib qoldi. Nechta qoldi?', group: 'Hisob maktabi' },
     { key: 'hisob_misol', text: 'Misolni yech!', group: 'Hisob maktabi' },
     { key: 'hisob_tushgan', text: 'Qaysi son yetishmayapti?', group: 'Hisob maktabi' },
+    ...SHAPE_ORDER.map((s) => ({ key: `shakl_${s}`, text: SHAPE_NAMES[s], group: 'Shakllar' })),
+    ...PAINT_ORDER.filter((c) => !(c in COLOR_NAMES)).map((c) => ({ key: `rang_${c}`, text: PAINT_NAMES[c], group: 'Ranglar' })),
+    { key: 'shakl_qani', text: 'qani? Topib ber!', group: 'Shakllar' },
+    { key: 'shakl_teshik', text: "Har bir shaklni o'z uyasiga joyla!", group: 'Shakllar' },
+    { key: 'rang_aralash', text: 'Ikkalasini aralashtirsak, qaysi rang chiqadi?', group: 'Ranglar' },
+
+    { key: 'mantiq_ortiqcha', text: "Qaysi biri ortiqcha? Boshqalariga o'xshamaydiganini top!", group: 'Mantiq' },
+    { key: 'mantiq_juft', text: 'Kartalarni och va juftini top!', group: 'Mantiq' },
+    { key: 'mantiq_tiz', text: 'Eng kichigidan boshlab, kattasigacha bos!', group: 'Mantiq' },
+    { key: 'mantiq_labirint', text: "Qahramonni yo'ldan olib borib, uyiga yetkaz!", group: 'Mantiq' },
     { key: 'hisob_belgi', text: "Qaysi belgi to'g'ri keladi: katta, kichik yoki teng?", group: 'Hisob maktabi' },
 
     { key: 'ferma_kim', text: 'Kim gapiryapti? Topchi!', group: 'Ferma' },

@@ -325,7 +325,7 @@ export const hasVoice = (key: string) => !!audioUrl(`voices/${key}`)
 // Har ekran o'z trekini so'raydi (playMusic/playAmbience). Treklar AudioBufferSourceNode bilan
 // uzluksiz aylanadi, almashganda crossfade qilinadi. Fayl bo'lmasa — jimlik (sintez kuy yo'q).
 
-export type MusicId = 'map' | 'bog' | 'bozor' | 'ferma' | 'ustaxona' | 'qora' | 'harflar' | 'raqam' | 'hisob' | 'rasm' | 'uyqu'
+export type MusicId = 'map' | 'bog' | 'bozor' | 'ferma' | 'ustaxona' | 'qora' | 'harflar' | 'raqam' | 'hisob' | 'shakl' | 'mantiq' | 'rasm' | 'uyqu'
 export type AmbienceId = 'bog' | 'bozor' | 'ferma' | 'ustaxona' | 'qora' | 'harflar'
 
 /** Siqilgan fayl baytlari (kichik) keshlanadi; dekodlangan bufer katta, shuning uchun faqat oxirgi ikkitasi */

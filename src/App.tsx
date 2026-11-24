@@ -6,7 +6,9 @@ import { BoilFilter } from './components/Hero'
 import { Farm } from './games/Farm'
 import { Garden } from './games/Garden'
 import { Letters } from './games/Letters'
+import { LogicGame } from './games/LogicGame'
 import { MathGame } from './games/MathGame'
+import { ShapesGame } from './games/ShapesGame'
 import { Numbers } from './games/Numbers'
 import { Market } from './games/Market'
 import { Shadows } from './games/Shadows'
@@ -33,6 +35,8 @@ const GAMES: Record<GameStation, ComponentType<GameProps>> = {
   harflar: Letters,
   raqam: Numbers,
   hisob: MathGame,
+  shakl: ShapesGame,
+  mantiq: LogicGame,
 }
 
 /** Sovg'a variantlari: hali qishloqda yo'q narsalar birinchi navbatda taklif qilinadi */
