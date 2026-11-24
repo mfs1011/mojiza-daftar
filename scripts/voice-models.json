@@ -116,5 +116,9 @@
  "narsa_sori": "gemini-3.8-flash-lite-tts",
  "narsa_tandir": "gemini-3.8-flash-lite-tts",
  "narsa_quduq": "gemini-3.8-flash-lite-tts",
- "narsa_koza": "gemini-3.8-flash-lite-tts"
+ "narsa_koza": "gemini-3.8-flash-lite-tts",
+ "ferma_kim_t": "gemini-3.8-flash-lite-tts",
+ "ferma_takrorla_t": "gemini-3.8-flash-lite-tts",
+ "bozor_oddiy_t": "gemini-3.8-flash-lite-tts",
+ "bozor_sana_t": "gemini-3.8-flash-lite-tts"
 }
