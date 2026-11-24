@@ -13,18 +13,22 @@
 //    pauzalar bo'yicha kesiladi: so'rovlar soni ~12 marta kamayadi (bepul limit yetadi) va
 //    ohang tabiiyroq chiqadi. Kesish ishonchsiz bo'lsa — guruh ikkiga bo'linib qayta so'raladi.
 import { spawnSync } from 'node:child_process'
+import { homedir, tmpdir } from 'node:os'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { isDailyLimit, keyPool, ROOT } from './lib.mjs'
 import { CUSTOMER_VOICES, voicePrompts } from '../src/lib/voices.ts'
 
-// Modellar navbati: birining bepul limiti tugasa — keyingisi (hammasi Interactions API, uslub alohida maydonda)
-const MODELS = (process.env.GEN_TTS_MODELS ?? 'gemini-3.8-flash-tts,gemini-3.1-flash-tts-preview,gemini-3.8-flash-lite-tts').split(',')
+// Modellar navbati: birining bepul limiti tugasa — keyingisi. 3.1 Interactions API'da uslub maydonini qo'llamaydi
+const MODELS = (process.env.GEN_TTS_MODELS ?? 'gemini-3.8-flash-tts,gemini-3.8-flash-lite-tts').split(',')
 let mi = 0
 const MODEL = MODELS[0]
 const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/interactions'
 const TEACHER_VOICE = process.env.GEN_VOICE ?? 'Sulafat'
-const BATCH = Number(process.env.GEN_BATCH ?? 8)
+// MMS aligner (scripts/align-lines.py): bo'lsa — jumlalar so'zma-so'z aniq ajratiladi, guruh kattaroq bo'ladi
+const ALIGN_PY = process.env.ALIGN_PY ?? join(homedir(), '.cache/mojiza-align/venv/bin/python')
+const HAS_ALIGN = existsSync(ALIGN_PY)
+const BATCH = Number(process.env.GEN_BATCH ?? (HAS_ALIGN ? 20 : 8))
 const INBOX = join(ROOT, 'audio-inbox')
 const VOICES = join(ROOT, 'public/assets/voices')
 const madeFile = new URL('./voice-models.json', import.meta.url)
@@ -84,7 +88,7 @@ for (const p of prompts) {
 }
 const chunks = []
 for (const list of groups.values()) for (let i = 0; i < list.length; i += BATCH) chunks.push(list.slice(i, i + BATCH))
-console.log(`Modellar: ${MODELS.join(' → ')} (Interactions API). Ovozlar: ${prompts.length} ta, so'rovlar: ~${chunks.length} ta`)
+console.log(`Kesish: ${HAS_ALIGN ? 'MMS aligner' : 'pauzalar'}, guruh: ${BATCH}. Modellar: ${MODELS.join(' → ')} (Interactions API). Ovozlar: ${prompts.length} ta, so'rovlar: ~${chunks.length} ta`)
 if (plan) {
   for (const [g, list] of groups) console.log(`  ${g}: ${list.length} ta`)
   process.exit(0)
@@ -169,6 +173,34 @@ function toWav(f32) {
   return Buffer.concat([h, pcm])
 }
 
+/** Aligner bilan: har jumlaning boshlanish/tugash vaqti → qo'shni jumlalar orasidan kesiladi */
+function splitAligned(wavBuf, x, items) {
+  const dir = join(tmpdir(), 'mojiza-align')
+  mkdirSync(dir, { recursive: true })
+  const wf = join(dir, 'batch.wav')
+  const lf = join(dir, 'lines.json')
+  writeFileSync(wf, wavBuf)
+  writeFileSync(lf, JSON.stringify(items.map((p) => p.say)))
+  const r = spawnSync(ALIGN_PY, [join(ROOT, 'scripts/align-lines.py'), wf, lf], { encoding: 'utf8', maxBuffer: 1 << 24 })
+  if (r.status !== 0) {
+    console.log(`  ⚠ aligner: ${(r.stderr || '').trim().split('\n').pop()}`)
+    return null
+  }
+  const t = JSON.parse(r.stdout)
+  const total = x.length / SR
+  const segs = []
+  for (let i = 0; i < items.length; i++) {
+    const { a0, a1 } = t[i]
+    // Nutq davomiyligi matnga mos bo'lishi kerak (model jumlani tashlab ketgan bo'lsa — qayta so'raladi)
+    const chars = items[i].say.length
+    if (a1 - a0 < 0.12 + chars * 0.02 || a1 - a0 > 1.5 + chars * 0.2) return null
+    const from = i === 0 ? Math.max(0, a0 - 0.15) : (t[i - 1].a1 + a0) / 2
+    const to = i === items.length - 1 ? Math.min(total, a1 + 0.3) : (a1 + t[i + 1].a0) / 2
+    segs.push(x.subarray(Math.round(from * SR), Math.round(to * SR)))
+  }
+  return segs
+}
+
 /** n ta bo'lakka: eng uzun n−1 ta jimlik o'rtasidan kesiladi. Ishonchsiz bo'lsa — null */
 function split(x, items) {
   const n = items.length
@@ -224,7 +256,8 @@ async function run(items) {
   const text = items.map((p) => p.say).join('\n\n')
   const style = items[0].style + (items.length > 1 ? PAUSE : '')
   const wav = await tts(text, style, items[0].voice)
-  const segs = items.length === 1 ? [decode(wav)] : split(decode(wav), items)
+  const x = decode(wav)
+  const segs = items.length === 1 ? [x] : HAS_ALIGN ? splitAligned(wav, x, items) : split(x, items)
   if (!segs) {
     if (items.length === 1) throw new Error('nutq uzunligi matnga mos emas')
     console.log(`  ✂ ${items.length} ta jumla aniq kesilmadi — ikkiga bo'lib qayta so'rayman`)
