@@ -5,6 +5,7 @@ import { deleteHero, deleteVoice, getProgress, saveProfile, saveProgress, saveVo
 import { getSettings, saveSettings, type Settings } from '../lib/settings'
 import { dailyFor, levelLabel, startLevel } from '../lib/stations'
 import { voicePrompts } from '../lib/voices'
+import { StatsPanel } from './StatsPanel'
 import type { Age, Profile, Progress, StationId } from '../types'
 
 const AVATARS = ['👧', '👶', '🧒', '👸', '🧚', '🦄', '🐱', '🐰']
@@ -167,6 +168,8 @@ export function ParentPanel({ profiles, onBack }: Props) {
           </label>
         ))}
       </section>
+
+      <StatsPanel profiles={list} progress={progress} />
 
       <section>
         <h3>Qizlar</h3>

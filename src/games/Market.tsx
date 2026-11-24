@@ -254,7 +254,7 @@ export function Market({ level, onComplete, onExit }: GameProps) {
         </div>
       )}
 
-      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, coins: earned })} />}
+      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, coins: earned, tasks: ROUNDS })} />}
     </GameShell>
   )
 }

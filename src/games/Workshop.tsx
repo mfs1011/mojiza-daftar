@@ -196,7 +196,7 @@ export function Workshop({ level, onComplete, onExit }: GameProps) {
         ))}
       </div>
 
-      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current })} />}
+      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.reduce((a, r) => a + r.seq.length - r.shown, 0) })} />}
     </GameShell>
   )
 }

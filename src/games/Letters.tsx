@@ -11,7 +11,7 @@ import { EASY_LETTERS, initialOf, LETTERS, WORDS, type Word } from '../lib/lette
 import { TraceBoard } from '../components/TraceBoard'
 import { pick, shuffle } from '../lib/util'
 import { levelRow } from '../lib/stations'
-import type { GameProps, Profile } from '../types'
+import type { GameProps, Profile, TraceStat } from '../types'
 
 // 🔤 Harflar uyi — harflar bilan tanishish (#5), faqat 5 yoshga.
 // "Chiz" raundi: harfni barmoq bilan bo'r taxtaga chizish.
@@ -88,6 +88,7 @@ export function Letters({ profile, level, onComplete, onExit }: GameProps) {
   const [finished, setFinished] = useState(false)
   const [mascot, react] = useMascot()
   const mistakes = useRef(0)
+  const traces = useRef<TraceStat[]>([])
   const cardRef = useRef<HTMLDivElement>(null)
   const r = rounds[idx]
 
@@ -175,7 +176,7 @@ export function Letters({ profile, level, onComplete, onExit }: GameProps) {
       </motion.div>
 
       {r.type === 'chiz' ? (
-        <TraceBoard key={`board-${idx}`} glyph={r.letter} threshold={cfg.threshold} onDone={traced} onMistake={() => (mistakes.current++, react('oops'))} />
+        <TraceBoard key={`board-${idx}`} glyph={r.letter} threshold={cfg.threshold} onDone={(st) => (traces.current.push({ glyph: r.letter, ...st }), traced())} onMistake={() => (mistakes.current++, react('oops'))} />
       ) : (
         <div className="letter-options">
           {r.options.map((l) => (
@@ -195,7 +196,7 @@ export function Letters({ profile, level, onComplete, onExit }: GameProps) {
         </div>
       )}
 
-      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current })} />}
+      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.length, traces: traces.current })} />}
     </GameShell>
   )
 }

@@ -12,7 +12,7 @@ import { ALL_FRUITS, type FruitKind } from '../lib/names'
 import { levelRow } from '../lib/stations'
 import { isNewTask, markTaskSeen } from '../lib/howto'
 import { pick, randInt, shuffle, wait } from '../lib/util'
-import type { GameProps } from '../types'
+import type { GameProps, TraceStat } from '../types'
 
 // 🔢 Raqamlar uyi — sonlar bilan tanishish (maktabga tayyorlov).
 //   sana      — narsalarni sanab, raqamini topish (10 lik ramkada)
@@ -109,6 +109,7 @@ export function Numbers({ profile, level, onComplete, onExit }: GameProps) {
   const [finished, setFinished] = useState(false)
   const [mascot, react] = useMascot()
   const mistakes = useRef(0)
+  const traces = useRef<TraceStat[]>([])
   const boardRef = useRef<HTMLDivElement>(null)
   const r = rounds[idx]
 
@@ -277,7 +278,10 @@ export function Numbers({ profile, level, onComplete, onExit }: GameProps) {
           <TraceBoard
             glyph={String(r.n)}
             threshold={0.62}
-            onDone={() => win([`son_${r.n}`])}
+            onDone={(st) => {
+              traces.current.push({ glyph: String(r.n), ...st })
+              win([`son_${r.n}`])
+            }}
             onGuide={(pts) => (guide.current = pts)}
             onMistake={() => {
               mistakes.current++
@@ -339,7 +343,7 @@ export function Numbers({ profile, level, onComplete, onExit }: GameProps) {
       )}
       {hint && <HandHint key={`${idx}-${demoToken.current}`} mode={hint.mode} path={hint.path} onDone={() => setHint(null)} />}
 
-      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current })} />}
+      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.length, traces: traces.current })} />}
     </GameShell>
   )
 }

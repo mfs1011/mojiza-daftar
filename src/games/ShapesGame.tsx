@@ -283,7 +283,7 @@ export function ShapesGame({ level, onComplete, onExit }: GameProps) {
         </div>
       )}
 
-      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current })} />}
+      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.reduce((a, r) => a + (r.type === 'teshik' ? r.holes.length : 1), 0) })} />}
     </GameShell>
   )
 }

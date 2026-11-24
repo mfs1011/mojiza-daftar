@@ -16,7 +16,7 @@ import { Market } from './games/Market'
 import { Shadows } from './games/Shadows'
 import { Workshop } from './games/Workshop'
 import { applyMix, jingle, playAmbience, playMusic, preloadMusic, setAmbience, setMusic, stopVoice, type AmbienceId, type MusicId } from './lib/audio'
-import { getProfiles, getProgress, saveProgress } from './lib/db'
+import { addPlay, getProfiles, getProgress, saveProgress } from './lib/db'
 import { getSettings } from './lib/settings'
 import { startLevel, starsFor } from './lib/stations'
 import { shuffle } from './lib/util'
@@ -119,7 +119,11 @@ export default function App() {
   useEffect(() => {
     const sub = CapApp.addListener('backButton', () => {
       const s = screenRef.current.name
-      if (s === 'game') openPath(screenRef.current.name === 'game' ? screenRef.current.station : 'bog')
+      const sc = screenRef.current
+      if (sc.name === 'game') {
+        recordRef.current(sc.station, sc.level, false)
+        openPath(sc.station)
+      }
       else if (s === 'path' || s === 'studio') backToMap()
       else if (s === 'map' || s === 'sleep' || s === 'parent') goHome()
       else void CapApp.minimizeApp()
@@ -156,8 +160,41 @@ export default function App() {
     setScreen(pr.dayDone ? { name: 'sleep' } : { name: 'map' })
   }
 
+  // Statistika: o'yin qachon boshlangani
+  const gameStart = useRef(0)
+  const gameKey = screen.name === 'game' ? `${screen.station}-${screen.level}` : null
+  useEffect(() => {
+    if (gameKey) gameStart.current = Date.now()
+  }, [gameKey])
+
+  /** Bolaning o'yini tarixga yoziladi (ota-ona paneli → Statistika) */
+  function recordPlay(station: GameStation, level: number, completed: boolean, r?: GameResult) {
+    if (!profile) return
+    const ms = Date.now() - gameStart.current
+    // Bir necha soniyada chiqib ketgan bo'lsa (adashib bosgan) — yozmaymiz
+    if (!completed && ms < 5000) return
+    void addPlay({
+      profileId: profile.id,
+      ts: gameStart.current,
+      station,
+      level,
+      completed,
+      mistakes: r?.mistakes ?? 0,
+      stars: completed && r ? starsFor(r.mistakes) : 0,
+      ms,
+      ...(r?.tasks ? { tasks: r.tasks } : {}),
+      ...(r?.traces?.length ? { traces: r.traces } : {}),
+    })
+  }
+
+  const recordRef = useRef(recordPlay)
+  useEffect(() => {
+    recordRef.current = recordPlay
+  })
+
   async function finishStation(station: GameStation, level: number, r: GameResult) {
     if (!profile || !progress) return
+    recordPlay(station, level, true, r)
     const unlocked = progress.levels[station] ?? startLevel(profile.age)
     const firstToday = !progress.stationsDone.includes(station)
     const stars = [...(progress.stars?.[station] ?? [])]
@@ -262,7 +299,10 @@ export default function App() {
           profile={profile}
           level={level}
           onComplete={(r) => void finishStation(station, level, r)}
-          onExit={() => openPath(station)}
+          onExit={() => {
+            recordPlay(station, level, false)
+            openPath(station)
+          }}
         />
       )
     }

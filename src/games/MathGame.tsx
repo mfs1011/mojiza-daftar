@@ -215,7 +215,7 @@ export function MathGame({ level, onComplete, onExit }: GameProps) {
         onPick={pickAnswer}
       />
 
-      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current })} />}
+      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.length })} />}
     </GameShell>
   )
 }

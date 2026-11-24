@@ -1,5 +1,5 @@
 import { openDB, type DBSchema } from 'idb'
-import type { PlacedDecor, Profile, Progress } from '../types'
+import type { PlacedDecor, PlayRecord, Profile, Progress } from '../types'
 import type { Landmarks } from './landmarks'
 import { today } from './util'
 
@@ -14,6 +14,8 @@ interface QishloqDB extends DBSchema {
   artworks: { key: number; value: Artwork }
   /** Sahna qahramonlarining belgilari (ko'z, og'iz, qo'l, oyoq); kalit = rasm mazmuni xeshi */
   rigs: { key: string; value: Landmarks }
+  /** O'yinlar tarixi (ota-ona statistikasi) */
+  plays: { key: number; value: PlayRecord; indexes: { profile: string } }
 }
 
 export interface Artwork {
@@ -26,7 +28,7 @@ export interface Artwork {
 }
 
 // Ichki baza nomi eski nomda qoladi: o'zgartirilsa, qurilmadagi ma'lumotlar yo'qoladi
-const dbp = openDB<QishloqDB>('bizning-qishloq', 4, {
+const dbp = openDB<QishloqDB>('bizning-qishloq', 5, {
   upgrade(db, oldVersion) {
     if (oldVersion < 1) {
       db.createObjectStore('profiles', { keyPath: 'id' })
@@ -36,6 +38,7 @@ const dbp = openDB<QishloqDB>('bizning-qishloq', 4, {
     if (oldVersion < 2) db.createObjectStore('heroes')
     if (oldVersion < 3) db.createObjectStore('artworks', { keyPath: 'id', autoIncrement: true })
     if (oldVersion < 4) db.createObjectStore('rigs')
+    if (oldVersion < 5) db.createObjectStore('plays', { keyPath: 'id', autoIncrement: true }).createIndex('profile', 'profileId')
   },
 })
 
@@ -135,4 +138,16 @@ export async function getRig(key: string) {
 
 export async function saveRig(key: string, marks: Landmarks) {
   await (await dbp).put('rigs', marks, key)
+}
+
+// ---------- Statistika ----------
+
+export async function addPlay(r: PlayRecord) {
+  await (await dbp).add('plays', r)
+}
+
+/** Bolaning barcha o'yinlari, eng yangisi birinchi */
+export async function getPlays(profileId: string): Promise<PlayRecord[]> {
+  const all = await (await dbp).getAllFromIndex('plays', 'profile', profileId)
+  return all.sort((a, b) => b.ts - a.ts)
 }

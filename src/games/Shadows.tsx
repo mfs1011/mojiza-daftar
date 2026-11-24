@@ -196,7 +196,7 @@ export function Shadows({ level, onComplete, onExit }: GameProps) {
           ))}
       </div>
 
-      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current })} />}
+      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.reduce((a, r) => a + r.spots.length, 0) })} />}
     </GameShell>
   )
 }

@@ -4,10 +4,10 @@ import { GameShell, useMascot } from '../components/GameShell'
 import { TraceBoard } from '../components/TraceBoard'
 import { say, sfx } from '../lib/audio'
 import { levelRow } from '../lib/stations'
-import { ALPHABET, letterVoice } from '../lib/letters'
+import { ALPHABET, letterVoice, STROKE_LABELS } from '../lib/letters'
 import type { Glyph } from '../lib/trace'
 import { pick, shuffle } from '../lib/util'
-import type { GameProps } from '../types'
+import type { GameProps, TraceStat } from '../types'
 
 // ✏️ Yozuv maktabi — qo'lni yozuvga tayyorlash.
 // Avval oddiy chiziqlar (tik, yotiq, qiya, zinapoya, to'lqin, yarim aylana, aylana, uycha),
@@ -88,6 +88,7 @@ export function WritingGame({ level, onComplete, onExit }: GameProps) {
   const [finished, setFinished] = useState(false)
   const [mascot, react] = useMascot()
   const mistakes = useRef(0)
+  const traces = useRef<TraceStat[]>([])
   const it = items[idx]
 
   useEffect(() => {
@@ -115,14 +116,17 @@ export function WritingGame({ level, onComplete, onExit }: GameProps) {
           key={idx}
           glyph={it.kind === 'chiziq' ? STROKES[it.id] : it.text}
           threshold={cfg.threshold}
-          onDone={done}
+          onDone={(st) => {
+            traces.current.push({ glyph: it.kind === 'chiziq' ? STROKE_LABELS[it.id] : it.text, ...st })
+            done()
+          }}
           onMistake={() => {
             mistakes.current++
             react('oops')
           }}
         />
       </div>
-      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current })} />}
+      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: items.length, traces: traces.current })} />}
     </GameShell>
   )
 }

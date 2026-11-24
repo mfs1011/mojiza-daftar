@@ -17,7 +17,8 @@ export function TraceBoard({
 }: {
   glyph: Glyph
   threshold: number
-  onDone: () => void
+  /** Yozildi: necha urinishda (tozalashlar + 1) va qancha vaqtda */
+  onDone: (stat: { tries: number; ms: number }) => void
   onMistake: () => void
   /** Ko'rsatuvchi qo'l uchun: glyph bo'ylab tartiblangan nuqtalar (ekran koordinatalarida) */
   onGuide?: (pts: { x: number; y: number }[]) => void
@@ -29,6 +30,8 @@ export function TraceBoard({
   const maskRef = useRef<TraceMask | null>(null)
   const last = useRef<{ x: number; y: number } | null>(null)
   const [done, setDone] = useState(false)
+  const tries = useRef(1)
+  const started = useRef(0)
   const doneRef = useRef(false)
 
   // Taxtani tayyorlash
@@ -44,6 +47,8 @@ export function TraceBoard({
       c.style.height = `${h}px`
       c.getContext('2d')!.setTransform(dpr, 0, 0, dpr, 0, 0)
     }
+    tries.current = 1
+    started.current = Date.now()
     const mask = makeMask(glyph, w, h)
     maskRef.current = mask
     const user = document.createElement('canvas')
@@ -107,7 +112,10 @@ export function TraceBoard({
     const d = drawRef.current!
     d.getContext('2d')!.clearRect(0, 0, d.width, d.height)
     userRef.current!.getContext('2d')!.clearRect(0, 0, m.w, m.h)
-    if (countMistake) onMistake()
+    if (countMistake) {
+      tries.current++
+      onMistake()
+    }
   }
 
   function evaluate() {
@@ -121,7 +129,7 @@ export function TraceBoard({
       const g = guideRef.current!.getContext('2d')!
       drawGlyph(g, glyph, m.layout, { fill: '#ffd166' })
       burstAt(wrapRef.current, ['#ffd166', '#fff', '#06d6a0'], 22)
-      onDone()
+      onDone({ tries: tries.current, ms: Date.now() - started.current })
     } else if (s.outside > 0.6 && s.userCount > 200) {
       // Juda ko'p chetga chiqdi: tozalab, qaytadan
       sfx.wrong()

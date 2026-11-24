@@ -48,6 +48,35 @@ export interface GameResult {
   mistakes: number
   coins?: number
   fruits?: number
+  /** Nechta topshiriq (javob) bo'ldi: aniqlik = tasks / (tasks + mistakes) */
+  tasks?: number
+  /** Yozuv mashqlari: har bir yozilgan harf/raqam/chiziq */
+  traces?: TraceStat[]
+}
+
+/** Bitta yozuv mashqi: nima yozildi, necha urinishda, qancha vaqtda */
+export interface TraceStat {
+  glyph: string
+  tries: number
+  ms: number
+}
+
+/** Ota-ona statistikasi uchun: bitta o'yin (daraja) yozuvi */
+export interface PlayRecord {
+  id?: number
+  profileId: string
+  /** Boshlangan vaqt (ms) */
+  ts: number
+  station: StationId
+  level: number
+  /** Tugatdimi yoki o'rtada chiqib ketdimi */
+  completed: boolean
+  mistakes: number
+  stars: number
+  ms: number
+  /** Nechta topshiriq bo'ldi (aniqlik uchun) */
+  tasks?: number
+  traces?: TraceStat[]
 }
 
 export interface GameProps {

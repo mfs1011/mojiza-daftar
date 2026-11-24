@@ -243,7 +243,7 @@ export function LogicGame({ profile, level, onComplete, onExit }: GameProps) {
         {r.type === 'tiz' && <SizeOrder fruit={r.fruit} scales={r.scales} onWin={solved} onMiss={oops} />}
         {r.type === 'labirint' && <MazeView maze={r.maze} profile={profile} onWin={solved} />}
       </div>
-      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: Math.floor(mistakes.current) })} />}
+      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: Math.floor(mistakes.current), tasks: rounds.length })} />}
     </GameShell>
   )
 }

@@ -146,7 +146,7 @@ export function PoemsGame({ level, onComplete, onExit }: GameProps) {
         ))}
       </div>
 
-      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current })} />}
+      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.length })} />}
     </GameShell>
   )
 }

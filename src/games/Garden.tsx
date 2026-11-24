@@ -335,7 +335,7 @@ export function Garden({ level, onComplete, onExit }: GameProps) {
       {phase === 'finished' && (
         <Celebration
           voice={['barakalla']}
-          onDone={() => onComplete({ mistakes: mistakes.current, fruits: totalFruits.current })}
+          onDone={() => onComplete({ mistakes: mistakes.current, fruits: totalFruits.current, tasks: totalFruits.current })}
         />
       )}
     </GameShell>

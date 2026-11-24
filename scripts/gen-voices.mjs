@@ -58,7 +58,15 @@ const PERSONA = {
   opa: 'a friendly Uzbek young woman (about 18): bright and gentle',
   bola: 'a playful Uzbek boy (about 8): high-pitched, excited',
 }
+/** Harf nomi: o'zbek maktabidagidek ("Be", "Qe", "She"), inglizcha "bi", "kyu" emas */
+const LETTER =
+  UZBEK +
+  'This is the NAME of a letter of the Uzbek Latin alphabet, said by a kindergarten teacher. Pronounce it the Uzbek way, ' +
+  'NOT as an English letter name: "Be" = [be], "Ka" = [ka], "Qe" = [qe] with a deep uvular q, "Xe" = [χe], "She" = [ʃe], "Che" = [tʃe], ' +
+  'single vowels short and pure ("A" = [a], "O" = [o], "U" = [u], "I" = [i]). Clear and slow.'
+
 const styleFor = (key) => {
+  if (/^harf_(?!chiz$|top$)/.test(key)) return LETTER
   const m = /^mijoz_([a-z]+)_/.exec(key)
   if (!m || !PERSONA[m[1]]) return TEACHER
   return `You are ${PERSONA[m[1]]}, buying fruit from a small child at a village bazaar. ` + UZBEK + 'Speak naturally in that character.'

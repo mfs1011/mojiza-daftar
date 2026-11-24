@@ -50,3 +50,21 @@ export const ALPHABET = ['A', 'B', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 
 
 /** Harf ovoz kaliti: O' va G' — alohida (aks holda O va G bilan to'qnashadi) */
 export const letterVoice = (l: string) => `harf_${l === "O'" ? 'O2' : l === "G'" ? 'G2' : l}`
+
+/** Yozuvga tayyorgarlik chiziqlari: nomlari (ovoz va statistika uchun) */
+export const STROKE_LABELS: Record<'tik' | 'yotiq' | 'qiya' | 'zinapoya' | 'tolqin' | 'yarim' | 'aylana' | 'uycha', string> = {
+  tik: 'Tik chiziq',
+  yotiq: 'Yotiq chiziq',
+  qiya: 'Qiya chiziq',
+  zinapoya: 'Zinapoya',
+  tolqin: "To'lqin",
+  yarim: 'Yarim aylana',
+  aylana: 'Aylana',
+  uycha: 'Uycha',
+}
+
+/** O'zbek alifbosidagi harf nomlari (inglizcha "bi, si" emas): ovoz shu bilan yaratiladi */
+export const LETTER_NAMES: Record<string, string> = {
+  A: 'A', B: 'Be', D: 'De', E: 'E', F: 'Ef', G: 'Ge', H: 'Ha', I: 'I', J: 'Je', K: 'Ka', L: 'El', M: 'Em', N: 'En', O: 'O',
+  P: 'Pe', Q: 'Qe', R: 'Er', S: 'Es', T: 'Te', U: 'U', V: 'Ve', X: 'Xe', Y: 'Ye', Z: 'Ze', "O'": "O'", "G'": "G'e", Sh: 'She', Ch: 'Che',
+}

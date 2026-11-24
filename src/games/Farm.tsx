@@ -231,7 +231,7 @@ export function Farm({ level, onComplete, onExit }: GameProps) {
         </div>
       )}
 
-      {phase === 'finished' && <Celebration voice={[]} onDone={() => onComplete({ mistakes: mistakes.current })} />}
+      {phase === 'finished' && <Celebration voice={[]} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.reduce((a, r) => a + r.seq.length, 0) })} />}
     </GameShell>
   )
 }

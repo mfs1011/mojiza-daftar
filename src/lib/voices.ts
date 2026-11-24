@@ -1,6 +1,6 @@
 import type { Profile } from '../types.ts'
 import { PAINT_NAMES, PAINT_ORDER, SHAPE_NAMES, SHAPE_ORDER } from './shapes.ts'
-import { ALPHABET, letterVoice } from './letters.ts'
+import { ALPHABET, LETTER_NAMES, letterVoice, STROKE_LABELS } from './letters.ts'
 import { RIDDLES } from './poems.ts'
 import { ALL_ANIMALS, ALL_FRUITS, ANIMAL_NAMES, ANIMAL_SOUNDS, FRUIT_NAMES, MARKET_FRUITS } from './names.ts'
 
@@ -32,17 +32,6 @@ const CUSTOMER_LINES: Record<CustomerId, Record<'salom' | 'kam' | 'kop' | 'rahma
   aka: { salom: "Salom, do'stim!", kam: 'Yana kerak!', kop: "Ko'p bo'ldi-ku!", rahmat: "Rahmat, do'stim! Ol, tanga." },
   opa: { salom: 'Salom, jonim!', kam: 'Yana bitta kerak!', kop: "Ko'p bo'lib qoldi!", rahmat: 'Rahmat! Mana senga tanga.' },
   bola: { salom: 'Salom!', kam: 'Yana!', kop: "Ko'p bo'ldi!", rahmat: 'Rahmat! Tanga ol!' },
-}
-
-const STROKE_NAMES = {
-  tik: 'Tik chiziq',
-  yotiq: 'Yotiq chiziq',
-  qiya: 'Qiya chiziq',
-  zinapoya: 'Zinapoya',
-  tolqin: "To'lqin",
-  yarim: 'Yarim aylana',
-  aylana: 'Aylana',
-  uycha: 'Uycha',
 }
 
 const NUMBERS = ['Bir', 'Ikki', 'Uch', "To'rt", 'Besh', 'Olti', 'Yetti', 'Sakkiz', "To'qqiz", "O'n",
@@ -174,13 +163,14 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
 
     { key: 'harf_chiz', text: "Barmog'ing bilan harfni chiz!", group: 'Harflar uyi' },
     { key: 'harf_top', text: 'Bu qaysi harfdan boshlanadi?', group: 'Harflar uyi' },
-    ...ALPHABET.map((l) => ({ key: letterVoice(l), text: `"${l}" harfi`, group: 'Harflar' })),
+    // Harf o'zbekcha nomi bilan: "Be", "Ka", "Qe" (inglizcha "bi", "key" emas)
+    ...ALPHABET.map((l) => ({ key: letterVoice(l), text: LETTER_NAMES[l], group: 'Harflar' })),
 
     ...RIDDLES.map((r) => ({ key: `sher_${r.id}`, text: r.text.replace(/\n/g, ' '), group: "She'rlar" })),
     { key: 'sher_top', text: 'Bu kim yoki nima? Rasmini top!', group: "She'rlar" },
 
     { key: 'yozuv_chiz', text: "Sariq nuqtadan boshlab, chiziq ustidan yurib chiz!", group: 'Yozuv maktabi' },
     { key: 'yozuv_harf', text: "Barmog'ing bilan yoz!", group: 'Yozuv maktabi' },
-    ...Object.entries(STROKE_NAMES).map(([id, text]) => ({ key: `yozuv_${id}`, text, group: 'Yozuv maktabi' })),
+    ...Object.entries(STROKE_LABELS).map(([id, text]) => ({ key: `yozuv_${id}`, text, group: 'Yozuv maktabi' })),
   ]
 }
