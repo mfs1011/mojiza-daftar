@@ -96,5 +96,10 @@
  "son_17": "gemini-3.8-flash-lite-tts",
  "son_18": "gemini-3.8-flash-lite-tts",
  "son_19": "gemini-3.8-flash-lite-tts",
- "son_20": "gemini-3.8-flash-lite-tts"
+ "son_20": "gemini-3.8-flash-lite-tts",
+ "albom_yangi": "gemini-3.8-flash-lite-tts",
+ "hovli_sovga": "gemini-3.8-flash-lite-tts",
+ "hovli_joyla": "gemini-3.8-flash-lite-tts",
+ "qora_soya_t": "gemini-3.8-flash-lite-tts",
+ "ustaxona_naqsh_t": "gemini-3.8-flash-lite-tts"
 }
