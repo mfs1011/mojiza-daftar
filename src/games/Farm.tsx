@@ -22,7 +22,7 @@ interface FarmCfg {
   length: number
 }
 
-// 0–4: "Kim gapiryapti?" (bitta ovoz, tanlov kengayadi).
+// 0–4: "Bu qaysi hayvon?" (bitta ovoz, tanlov kengayadi).
 // 5+: "Eshit va takrorla" — ketma-ketlik uzayadi, hayvonlar ko'payadi (ekranga 6 tagacha sig'adi).
 // Endless band (10–14) hammasi "takrorla": bitta o'yin ichida rejim almashmasligi uchun.
 const FARM_LEVELS: FarmCfg[] = [

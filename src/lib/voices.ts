@@ -196,7 +196,7 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     // "Qanday bajariladi?" — har topshiriq birinchi marta chiqqanda yoki "?" bosilganda
     { key: 'ustaxona_naqsh_t', text: "Plitkalarga qara: ular bir tartibda takrorlanyapti. Keyingisi qaysi bo'ladi? Pastdan topib bos.", group: 'Ustaxona' },
     { key: 'qora_soya_t', text: "Har bir hayvonni barmog'ing bilan ushlab, o'zining soyasi ustiga olib bor va qo'yib yubor.", group: "Kechki qo'ra" },
-    { key: 'ferma_kim_t', text: "Diqqat bilan tingla: kim ovoz chiqaryapti? Keyin o'sha hayvonni bos.", group: 'Ferma' },
+    { key: 'ferma_kim_t', text: "Diqqat bilan tingla: qaysi hayvon ovoz chiqaryapti? Keyin o'sha hayvonni bos.", group: 'Ferma' },
     { key: 'ferma_takrorla_t', text: "Hayvonlar navbat bilan ovoz chiqaradi. Eslab qol va xuddi shu tartibda bos.", group: 'Ferma' },
     { key: 'bozor_oddiy_t', text: "Mijoz nechta meva so'rasa, shuncha mevani bos. Har birini sanab tur.", group: 'Bozor' },
     { key: 'bozor_sana_t', text: "Mijoz nechta meva so'rasa, shuncha mevani savatga sol. Ko'p bo'lib ketsa, savatdagisini bosib qaytar. Keyin «Berish» tugmasini bos.", group: 'Bozor' },
@@ -216,7 +216,7 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     { key: 'mantiq_labirint_t', text: "Barmog'ing bilan qahramonni yo'l bo'ylab yurgiz. Devordan o'tib bo'lmaydi. Uyni top!", group: 'Mantiq' },
     { key: 'yozuv_chiziq_t', text: "Sariq nuqtadan boshla. Barmog'ingni ko'tarmasdan, yashil yo'l ustidan yurib chiz.", group: 'Yozuv maktabi' },
     { key: 'yozuv_belgi_t', text: "Harf yoki raqam ustidan barmog'ing bilan yurib yoz. Chiziqdan chiqmaslikka harakat qil.", group: 'Yozuv maktabi' },
-    { key: 'sher_topishmoq_t', text: "Men senga she'r-topishmoq aytaman. Diqqat bilan tingla: kim yoki nima haqida? Keyin pastdan o'sha rasmni bos.", group: "She'rlar" },
+    { key: 'sher_topishmoq_t', text: "Men senga she'r-topishmoq aytaman. Diqqat bilan tingla: bu nima haqida? Keyin pastdan o'sha rasmni bos.", group: "She'rlar" },
     { key: 'musiqa_kuy_nonlar', text: "Bugun «Issiq nonlar» kuyini o'rganamiz!", group: 'Musiqa uyi' },
     { key: 'musiqa_kuy_qozichoq', text: "Bugun «Qo'zichoq» kuyini o'rganamiz!", group: 'Musiqa uyi' },
     { key: 'musiqa_kuy_yulduzcha', text: "Bugun «Yulduzcha» kuyini o'rganamiz!", group: 'Musiqa uyi' },
@@ -233,7 +233,7 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     { key: 'musiqa_takrorla_t', text: "Men kuy chalaman, klavishlar yonadi. Diqqat bilan tingla va qara. Keyin xuddi shu tartibda o'zing chal.", group: 'Musiqa uyi' },
     { key: 'hisob_belgi', text: "Qaysi belgi to'g'ri keladi: katta, kichik yoki teng?", group: 'Hisob maktabi' },
 
-    { key: 'ferma_kim', text: 'Kim gapiryapti? Topchi!', group: 'Ferma' },
+    { key: 'ferma_kim', text: 'Bu qaysi hayvon? Topchi!', group: 'Ferma' },
     { key: 'ferma_takrorla', text: 'Diqqat bilan eshit, keyin xuddi shu tartibda bos!', group: 'Ferma' },
     ...ALL_ANIMALS.map((a) => ({ key: `hayvon_${a}`, text: ANIMAL_NAMES[a], group: 'Hayvonlar' })),
     ...ALL_ANIMALS.map((a) => ({
@@ -253,7 +253,7 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     ...ALPHABET.map((l) => ({ key: letterVoice(l), text: LETTER_NAMES[l], group: 'Harflar' })),
 
     ...RIDDLES.map((r) => ({ key: `sher_${r.id}`, text: r.text.replace(/\n/g, ' '), group: "She'rlar" })),
-    { key: 'sher_top', text: 'Bu kim yoki nima? Rasmini top!', group: "She'rlar" },
+    { key: 'sher_top', text: 'Bu nima? Rasmini top!', group: "She'rlar" },
 
     { key: 'yozuv_chiz', text: "Sariq nuqtadan boshlab, chiziq ustidan yurib chiz!", group: 'Yozuv maktabi' },
     { key: 'yozuv_harf', text: "Barmog'ing bilan yoz!", group: 'Yozuv maktabi' },

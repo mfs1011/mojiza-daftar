@@ -1,6 +1,6 @@
 import type { AnimalId, FruitKind } from './names.ts'
 
-// She'r-topishmoqlar: bola she'rni tinglaydi va kim (nima) haqida ekanini rasmlardan topadi.
+// She'r-topishmoqlar: bola she'rni tinglaydi va nima haqida ekanini rasmlardan topadi (hayvon va narsalar — "nima", "kim" faqat odamga).
 // Matnlar ilova uchun yozilgan (original). Ovoz: voices/sher_<id> (Gemini TTS yoki ota-ona yozuvi).
 // Matnni o'zgartirsangiz, ovozni qayta yarating: npm run gen:voices -- --only sher_<id> --force
 
