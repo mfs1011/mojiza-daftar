@@ -209,6 +209,36 @@ hammasi "bir tugma bilan" bo'lmaydi. Uchta yo'l bor:
 
 ---
 
+## 4b. Olmachalar va tangalar: yig'ilgan narsaning ma'nosi
+
+**Muammo:** hozir 🍎 va 🪙 faqat ekranda son bo'lib turadi, hech qayerga sarflanmaydi. Bola ularni yig'ishdan
+ma'no ko'rmaydi.
+
+**Taklif: yopiq zanjir** 🍎 → 🛒 → 🪙 → 🎁 (har qadam yana sanashni o'rgatadi)
+1. **Bog' → ombor:** bog'da terilgan mevalar bolaning omboriga tushadi.
+2. **Ombor → bozor:** bozorda bola cheksiz yashikdan emas, **o'zi tergan mevasidan** sotadi. Meva tugasa:
+   "Bog'ga borib terib kel!" Bog' va bozor shu tarzda bir-biriga bog'lanadi.
+3. **Tanga → do'kon:** hovli uchun buyumlar va hayvonlar, qahramon va gaplashadigan do'st uchun kiyimlar
+   (do'ppi, ko'ylak), Musiqa uyiga yangi cholg'u. Narxlar 1–10 tanga. Bola **tangalarni bittalab sanab to'laydi**:
+   "3 tanga kerak, sende 5 ta. Yetadimi? Nechta qoladi?" Bu sanash, solishtirish va ayirishning eng tabiiy mashqi.
+4. **Meva → do'st:** gaplashadigan do'st yoki hovlidagi hayvonlarga meva yedirish (kichik quvonch, mehr).
+
+**Mening fikrim:** buni o'quv poydevori (1-bo'lim) bilan birga qilish kerak. Do'kon matematika yo'lining
+"amaliy" qismi bo'ladi. Hajmi o'rtacha: ombor + do'kon ekrani + to'lash mini-o'yini + 15–20 ta mahsulot rasmi.
+❓ Do'konda nimalar sotilsin? Bolalaringizga eng qiziq nima bo'ladi (kiyim, hayvon, o'yinchoq, cholg'u)?
+
+✍️ **Sizning fikringiz:**
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+💬 **Claude javobi:**
+
+---
+
 ## 5. Texnik poydevor (ko'zga ko'rinmaydi, lekin keyingi bosqichga muhim)
 
 1. **Kontent ma'lumot sifatida**: darajalar, kuylar, topishmoqlar va harflar tartibi JSON fayllarda bo'ladi.
@@ -290,6 +320,7 @@ chunki u eng katta qaror va tez tajriba qilish mumkin.
 - [ ] O'zbek xalq kuylari: notalarini kim beradi?
 - [ ] Kirill yoki rus tili rejimi kerakmi?
 - [ ] Daromad modeli: bepul / bir martalik / bepul + to'liq versiya?
+- [ ] Do'konda nimalar sotilsin (kiyim, hayvon, o'yinchoq, cholg'u)?
 
 ✍️ **Qo'shimcha fikr va g'oyalaringiz:**
 
