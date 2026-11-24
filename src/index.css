@@ -4223,3 +4223,265 @@ button {
   0%, 100% { transform: scale(0.85); opacity: 0.9; }
   50% { transform: scale(1.15); opacity: 0.4; }
 }
+
+/* ---------- 👪 Ota-ona paneli: yorliqlar, kartalar, bosilganda javob ---------- */
+
+.parent-head {
+  position: sticky;
+  top: -16px;
+  z-index: 5;
+  background: #f6f7f9;
+  padding-top: 16px;
+}
+
+.p-tabs {
+  position: sticky;
+  top: 44px;
+  z-index: 5;
+  display: flex;
+  gap: 8px;
+  padding: 8px 0 12px;
+  background: #f6f7f9;
+  overflow-x: auto;
+}
+
+.p-tab {
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid #e3e6ea;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.p-tab.on {
+  background: #2d6a4f;
+  border-color: #2d6a4f;
+  color: #fff;
+}
+
+.p-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px #0001;
+}
+
+.p-card h4 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+
+.p-help,
+.p-field small {
+  margin: 2px 0 10px;
+  font-size: 13px;
+  color: #6c757d;
+  line-height: 1.4;
+}
+
+.p-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.p-field > span {
+  font-size: 13px;
+  font-weight: 700;
+  color: #495057;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.p-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.p-btn.danger {
+  border-color: #f1c0c0;
+  color: #b42318;
+}
+
+/* Almashtirgich (switch) */
+.p-switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid #f1f3f5;
+  cursor: pointer;
+}
+
+.p-switch:first-of-type {
+  border-top: none;
+}
+
+.p-switch-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.p-switch-text small {
+  color: #6c757d;
+  font-size: 13px;
+}
+
+.p-switch input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.p-switch-ui {
+  position: relative;
+  width: 50px;
+  height: 30px;
+  border-radius: 15px;
+  background: #ced4da;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.p-switch-ui::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px #0004;
+  transition: transform 0.2s cubic-bezier(0.3, 1.4, 0.6, 1);
+}
+
+.p-switch input:checked + .p-switch-ui {
+  background: #2d6a4f;
+}
+
+.p-switch input:checked + .p-switch-ui::after {
+  transform: translateX(20px);
+}
+
+.p-switch input:focus-visible + .p-switch-ui {
+  outline: 3px solid #74c69d;
+}
+
+/* Ovoz holati belgilari */
+.p-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.p-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.p-badge.mine {
+  background: #d8f3dc;
+  color: #1b4332;
+}
+
+.p-badge.app {
+  background: #e7f1ff;
+  color: #1d4ed8;
+}
+
+.p-badge.none {
+  background: #f1f3f5;
+  color: #868e96;
+}
+
+.p-voice .p-badge {
+  min-width: 64px;
+  text-align: center;
+}
+
+.p-icon.recording {
+  background: #ef476f;
+  animation: rec-pulse 1s ease-in-out infinite;
+}
+
+@keyframes rec-pulse {
+  50% {
+    box-shadow: 0 0 0 8px #ef476f33;
+  }
+}
+
+/* Tasdiq xabari: pastdan qalqib chiqadi */
+.parent .p-msg {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 20;
+  margin: 0;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: #1b4332;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 6px 20px #0003;
+  animation: toast-in 0.25s cubic-bezier(0.3, 1.4, 0.6, 1);
+}
+
+@keyframes toast-in {
+  from {
+    transform: translate(-50%, 30px);
+    opacity: 0;
+  }
+}
+
+/* Bosilganda: hamma tugma biroz botadi va qorayadi — bosilgani sezilsin */
+.parent button,
+.parent summary,
+.parent .p-switch {
+  transition:
+    transform 0.08s ease,
+    filter 0.08s ease,
+    background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.parent button:active:not(:disabled),
+.parent summary:active {
+  transform: scale(0.94);
+  filter: brightness(0.9);
+}
+
+.parent .p-switch:active {
+  background: #f8f9fa;
+}
+
+.parent button:disabled {
+  opacity: 0.35;
+}
+
+.p-chip.on,
+.p-swatch.on {
+  animation: chip-pop 0.25s cubic-bezier(0.3, 1.6, 0.6, 1);
+}
+
+@keyframes chip-pop {
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+.parent input[type='range'] {
+  accent-color: #2d6a4f;
+  height: 28px;
+}
