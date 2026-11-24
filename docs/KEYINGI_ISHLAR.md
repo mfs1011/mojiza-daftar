@@ -4,22 +4,24 @@
 > AI bilan yaratiladigan hamma narsa uchun qoidalar: [GENERATSIYA_QOIDALARI.md](GENERATSIYA_QOIDALARI.md).
 > Uzoq muddatli reja: [RIVOJLANISH_REJASI.md](RIVOJLANISH_REJASI.md) (egasi izoh yozmoqda — ✍️ joylar).
 
-Oxirgi yangilanish: 2026-11-24. Branch: `feat/audio-impl` (PR #6 → `dev`). Oxirgi APK: **v11** (`~/Downloads/mojiza-daftar-debug-v11.apk`).
+Oxirgi yangilanish: 2026-11-24. Branch: `feat/audio-impl` (PR #6 → `dev`). Oxirgi APK: **v12** (`~/Downloads/mojiza-daftar-debug-v12.apk`).
 
 ---
 
 ## ⬜ Ochiq ishlar (ustuvorlik tartibida)
 
-### 1. GIF animatsiyalar (yangi personajlar)
-Yangi rasmlar statik; eski hayvon/odamlar GIF bilan harakatlanadi. Gemini GIF xizmati 2026-11-24 da "band" dedi.
-- [ ] 19 hayvon: ot, tuya, quyon, tovuq, jo'ja, g'oz, baliq, kapalak, ari, toshbaqa, ayiq, fil,
-      hakka, ilon, jirafa, laylak, zebra, chumoli, sher
-- [ ] 4 kasb × 2 holat: shifokor, oshpaz, haydovchi, dehqon (`-happy` bilan)
-- Qanday: Gemini chatiga **yashil fonli asl rasm** (`~/Downloads/<nom>.png`) biriktiriladi + `motionPrompt`
-  (`node -e "import('./scripts/art.config.mjs').then(m=>console.log(m.motionPrompt(m.ASSETS.find(a=>a.path==='animal/ot'))))"`).
-  Tayyor GIF → `art-inbox/<nom>.gif` → `npm run art:import`.
+### 1. GIF animatsiyalar (yangi personajlar) — DAVOM ETADI
+✅ ot (2026-11-24). Qolgani **26 ta** (ro'yxat: `/tmp/gif-list.json` yoki quyida):
+tuya, quyon, tovuq, jo'ja, g'oz, baliq, kapalak, ari, toshbaqa, ayiq, fil, hakka, ilon, jirafa, laylak, zebra,
+chumoli, sher; shifokor, oshpaz, haydovchi, dehqon (har biri oddiy + `-happy`).
+- ⚠️ Gemini **bir vaqtda faqat bitta GIF** yaratadi (parallel so'rovlar "capacity error" bilan rad etiladi) va kunlik
+  GIF limiti bor (2026-11-24 da ~2 ta GIF'dan keyin tugadi). Ketma-ket: bittasi tayyor → yuklab olinadi → keyingisi.
+- Qanday: asl **yashil/magenta fonli** rasm (`~/Downloads/<nom>.png`; hakka uchun fonini yashilga almashtirilgani)
+  buferga → yangi chat → Cmd+V → harakat prompti (`motionPrompt` yoki sahifadagi `__G.mp(harakat, fon)`) →
+  "Скачать GIF" tugmasi → `Gemini_Generated_Gif_*.gif` → `art-inbox/<nom>.gif` → `npm run art:import`.
 
 ### 2. Yangi narsalarni boshqa o'yinlarga ulash
+- [x] Bozor: shifokor, oshpaz, haydovchi, dehqon mijoz bo'ldi (egasi tanlagan ovozlar: Callirrhoe, Fenrir, Schedar, Rasalgethi).
 - [ ] Xotira o'yini (Mantiq → juft kartalar): `LogicGame.tsx` dagi `fruits/animals` hovuziga `ALL_THINGS` (rasmi tayyorlari, `thingReady`).
 - [ ] "Ortiqchasini top" (Mantiq): turkumlar (hayvon/sabzavot/buyum) bilan yangi topshiriqlar.
 - [ ] Soyalar o'yini: yangi hayvonlar (ularning **haqiqiy ovozi** yo'q — Ferma/Soyalarga ulash uchun avval CC0 hayvon
