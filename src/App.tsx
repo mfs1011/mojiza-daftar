@@ -29,6 +29,7 @@ import { VillageMap } from './screens/VillageMap'
 import type { GameProps, GameResult, GameStation, PlacedDecor, Profile, Progress, Screen, StationId } from './types'
 import { LevelPath } from './screens/LevelPath'
 import { Worlds } from './screens/Worlds'
+import { PetScreen } from './screens/PetScreen'
 import { Album } from './screens/Album'
 import { Yard } from './screens/Yard'
 import { nextSticker, YARD_GIFT_EVERY, type Sticker } from './lib/stickers'
@@ -134,7 +135,7 @@ export default function App() {
         openPath(sc.station)
       }
       else if (sc.name === 'path') backToMap(worldOf(sc.station))
-      else if (s === 'studio') backToMap('ijod')
+      else if (s === 'studio' || s === 'pet') backToMap('ijod')
       else if (s === 'map' || s === 'album' || s === 'yard') backToMap()
       else if (s === 'worlds' || s === 'sleep' || s === 'parent') goHome()
       else void CapApp.minimizeApp()
@@ -144,7 +145,7 @@ export default function App() {
 
   // Kunlik o'yin vaqti: har 10 soniyada hisoblanadi (ota-ona paneli va profil tanlashdan tashqari).
   // Chegara tugasa, o'yin o'rtasida uzilmaydi: joriy daraja tugagach qahramon uxlaydi.
-  const playing = !!profile && ['worlds', 'map', 'path', 'game', 'studio'].includes(screen.name)
+  const playing = !!profile && ['worlds', 'map', 'path', 'game', 'studio', 'pet'].includes(screen.name)
   useEffect(() => {
     if (!playing) return
     const id = window.setInterval(() => {
@@ -287,6 +288,7 @@ export default function App() {
           arrivedFrom={arrivedFrom}
           onPlay={(s) => {
             if (s === 'rasm') setScreen({ name: 'studio' })
+            else if (s === 'gaplash') setScreen({ name: 'pet' })
             else openPath(s)
           }}
           onHome={toWorlds}
@@ -322,6 +324,8 @@ export default function App() {
           onRewardDone={(g) => void rewardDone(g)}
         />
       )
+    } else if (screen.name === 'pet') {
+      view = <PetScreen profileId={profile.id} onExit={() => backToMap('ijod')} />
     } else if (screen.name === 'album') {
       view = <Album owned={progress.stickers ?? []} onBack={toWorlds} />
     } else if (screen.name === 'yard') {

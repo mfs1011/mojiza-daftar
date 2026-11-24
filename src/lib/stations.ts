@@ -28,6 +28,7 @@ export const STATIONS: Station[] = [
   { id: 'yozuv', name: 'Yozuv maktabi', x: 87.5, y: 82, daily: true },
   { id: 'sher', name: "She'rlar", x: 95, y: 58, daily: true },
   { id: 'musiqa', name: 'Musiqa uyi', x: 96, y: 84, daily: true },
+  { id: 'gaplash', name: "Gapiradigan do'stim", x: 50, y: 50, daily: false },
 ]
 
 export const stationsFor = (age: Age) => STATIONS.filter((s) => !s.minAge || age >= s.minAge)
@@ -76,9 +77,10 @@ export const WORLDS: World[] = [
     name: 'Ijod',
     bg: 'studio',
     stations: [
-      { id: 'rasm', x: 22, y: 74 },
-      { id: 'musiqa', x: 50, y: 84 },
-      { id: 'sher', x: 78, y: 74 },
+      { id: 'rasm', x: 18, y: 74 },
+      { id: 'musiqa', x: 40, y: 86 },
+      { id: 'gaplash', x: 62, y: 72 },
+      { id: 'sher', x: 84, y: 84 },
     ],
   },
 ]

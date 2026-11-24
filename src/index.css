@@ -4613,3 +4613,9 @@ button {
   right: 2vmin;
   gap: 3vw;
 }
+
+/* Ko'p kartali xotira o'yini (8 ustun) — kartalar kichikroq */
+.memory.dense .mem-card {
+  width: 14.5vmin;
+  height: 14.5vmin;
+}

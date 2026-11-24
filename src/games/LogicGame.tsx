@@ -44,9 +44,9 @@ const LOGIC_LEVELS: LogicCfg[] = [
   C(4, 5, 5, [6, 5], ['ortiqcha', 'juft', 'labirint', 'tiz']),
   C(4, 6, 5, [7, 5], ['juft', 'ortiqcha', 'labirint', 'tiz']),
   C(4, 6, 5, [7, 5], ['ortiqcha', 'juft', 'labirint', 'tiz']),
-  C(4, 6, 5, [8, 5], ['juft', 'ortiqcha', 'labirint', 'tiz']),
-  C(4, 6, 5, [8, 5], ['ortiqcha', 'labirint', 'juft', 'labirint']),
-  C(4, 6, 5, [9, 5], ['ortiqcha', 'juft', 'labirint', 'tiz']),
+  C(4, 7, 5, [8, 5], ['juft', 'ortiqcha', 'labirint', 'tiz']),
+  C(4, 7, 5, [8, 5], ['ortiqcha', 'labirint', 'juft', 'labirint']),
+  C(4, 8, 5, [9, 5], ['ortiqcha', 'juft', 'labirint', 'tiz']),
 ]
 
 // ---------- Narsalar ----------
@@ -174,7 +174,7 @@ function canMove(m: Maze, x: number, y: number, nx: number, ny: number) {
 
 type Round =
   | { type: 'ortiqcha'; items: Thing[]; odd: number }
-  | { type: 'juft'; cards: Thing[] }
+  | { type: 'juft'; cards: Thing[]; preview: number }
   | { type: 'tiz'; fruit: FruitKind; scales: number[] }
   | { type: 'labirint'; maze: Maze }
 
@@ -183,11 +183,15 @@ function makeRound(type: RType, cfg: LogicCfg): Round {
     case 'ortiqcha':
       return { type, ...oddRound(cfg.odd) }
     case 'juft': {
-      const pool: Thing[] = shuffle([
-        ...ALL_FRUITS.map((id) => ({ k: 'fruit', id }) as Thing),
-        ...ALL_ANIMALS.map((id) => ({ k: 'animal', id }) as Thing),
-      ]).slice(0, cfg.pairs)
-      return { type, cards: shuffle([...pool, ...pool]) }
+      const fruits = ALL_FRUITS.map((id) => ({ k: 'fruit', id }) as Thing)
+      const animals = ALL_ANIMALS.map((id) => ({ k: 'animal', id }) as Thing)
+      // Yuqori darajada juftlar bir toifadan (faqat mevalar yoki faqat hayvonlar) — farqlash qiyinroq
+      const same = cfg.pairs >= 5
+      const base = same ? (Math.random() < 0.5 || cfg.pairs > animals.length ? fruits : animals) : [...fruits, ...animals]
+      const pool = shuffle(base).slice(0, cfg.pairs)
+      // Boshida hamma kartalar ochiq turadi (eslab qolish uchun): oson darajada uzoqroq
+      const preview = Math.max(1000, 3200 - cfg.pairs * 280)
+      return { type, cards: shuffle([...pool, ...pool]), preview }
     }
     case 'tiz': {
       const scales = Array.from({ length: cfg.sizes }, (_, i) => 0.42 + (0.58 * i) / (cfg.sizes - 1))
@@ -239,7 +243,7 @@ export function LogicGame({ profile, level, onComplete, onExit }: GameProps) {
     <GameShell className="logic" mascot={mascot} round={idx} rounds={rounds.length} onExit={onExit} data={{ 'data-type': r.type }}>
       <div className="logic-board" ref={boardRef} key={`l-${idx}`}>
         {r.type === 'ortiqcha' && <OddOne round={r} onWin={solved} onMiss={oops} />}
-        {r.type === 'juft' && <Memory cards={r.cards} onWin={solved} onMiss={() => (mistakes.current += 0.5)} />}
+        {r.type === 'juft' && <Memory cards={r.cards} preview={r.preview} onWin={solved} onMiss={() => (mistakes.current += 0.5)} />}
         {r.type === 'tiz' && <SizeOrder fruit={r.fruit} scales={r.scales} onWin={solved} onMiss={oops} />}
         {r.type === 'labirint' && <MazeView maze={r.maze} profile={profile} onWin={solved} />}
       </div>
@@ -282,15 +286,24 @@ function OddOne({ round, onWin, onMiss }: { round: { items: Thing[]; odd: number
   )
 }
 
-function Memory({ cards, onWin, onMiss }: { cards: Thing[]; onWin: () => void; onMiss: () => void }) {
+function Memory({ cards, preview, onWin, onMiss }: { cards: Thing[]; preview: number; onWin: () => void; onMiss: () => void }) {
   const [open, setOpen] = useState<number[]>([])
+  // Boshida hamma kartalar ochiq — bola joylarini eslab qoladi, keyin yopiladi
+  const [peek, setPeek] = useState(true)
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setPeek(false)
+      sfx.whoosh()
+    }, preview)
+    return () => clearTimeout(t)
+  }, [preview])
   const [matched, setMatched] = useState<Set<number>>(new Set())
   const busy = useRef(false)
   const key = (t: Thing) => (t.k === 'shape' ? `${t.shape}${t.color}` : `${t.k}${t.id}`)
-  const cols = cards.length <= 4 ? cards.length : cards.length <= 8 ? 4 : cards.length <= 10 ? 5 : 6
+  const cols = cards.length <= 4 ? cards.length : cards.length <= 8 ? 4 : cards.length <= 12 ? 6 : 8
 
   function flip(i: number) {
-    if (busy.current || open.includes(i) || matched.has(i)) return
+    if (peek || busy.current || open.includes(i) || matched.has(i)) return
     sfx.tap()
     const now = [...open, i]
     setOpen(now)
@@ -316,9 +329,9 @@ function Memory({ cards, onWin, onMiss }: { cards: Thing[]; onWin: () => void; o
   }
 
   return (
-    <div className="memory" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+    <div className={`memory ${cols >= 8 ? 'dense' : ''}`} style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
       {cards.map((t, i) => {
-        const shown = open.includes(i) || matched.has(i)
+        const shown = peek || open.includes(i) || matched.has(i)
         return (
           <motion.button
             key={i}

@@ -12,9 +12,9 @@ export interface Profile {
   color: string
 }
 
-export type StationId = 'rasm' | 'bog' | 'bozor' | 'ferma' | 'ustaxona' | 'qora' | 'harflar' | 'raqam' | 'hisob' | 'shakl' | 'mantiq' | 'yozuv' | 'sher' | 'musiqa'
+export type StationId = 'rasm' | 'bog' | 'bozor' | 'ferma' | 'ustaxona' | 'qora' | 'harflar' | 'raqam' | 'hisob' | 'shakl' | 'mantiq' | 'yozuv' | 'sher' | 'musiqa' | 'gaplash'
 /** O'yin bekatlari (Rasm uyidan tashqari hammasi) */
-export type GameStation = Exclude<StationId, 'rasm'>
+export type GameStation = Exclude<StationId, 'rasm' | 'gaplash'>
 
 /** Bola o'zi tanlab, o'zi joylashtirgan bezak */
 export interface PlacedDecor {
@@ -102,4 +102,6 @@ export type Screen =
   | { name: 'sleep' }
   | { name: 'parent' }
   | { name: 'album' }
+  /** Gapiradigan do'st (3D qahramon: gapni takrorlaydi, tegsa reaksiya qiladi) */
+  | { name: 'pet' }
   | { name: 'yard' }

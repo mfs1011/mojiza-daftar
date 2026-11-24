@@ -321,6 +321,16 @@ const STATION_ICONS: Record<StationId, React.ReactNode> = {
       <path d="M18 40H40M18 52H40M18 64H36" fill="none" stroke="#adb5bd" strokeWidth={3} />
     </>
   ),
+  gaplash: (
+    <>
+      <path d="M14 18H80Q88 18 88 26V58Q88 66 80 66H46L28 82V66H14Q6 66 6 58V26Q6 18 14 18Z" fill="#8ecae6" />
+      <circle cx={34} cy={40} r={6} fill="#3d2c1e" stroke="none" />
+      <circle cx={60} cy={40} r={6} fill="#3d2c1e" stroke="none" />
+      <path d="M34 52Q47 62 60 52" fill="none" strokeWidth={4} />
+      <circle cx={36} cy={38} r={2} fill="#fff" stroke="none" />
+      <circle cx={62} cy={38} r={2} fill="#fff" stroke="none" />
+    </>
+  ),
   musiqa: (
     <>
       <rect x={8} y={40} width={84} height={46} rx={6} fill="#3d2c1e" />
