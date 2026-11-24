@@ -52,6 +52,16 @@ const CUSTOMER_LINES: Record<CustomerId, Record<'salom' | 'kam' | 'kop' | 'rahma
   bola: { salom: 'Salom!', kam: 'Yana!', kop: "Ko'p bo'ldi!", rahmat: 'Rahmat! Tanga ol!' },
 }
 
+const cap = (w: string) => w[0].toUpperCase() + w.slice(1)
+/** Farq iboralari — har mijoz o'z xarakterida */
+const DIFF_LINES: Record<CustomerId, { kam: (w: string) => string; kop: (w: string) => string }> = {
+  bobo: { kam: (w) => `Yana ${w} kerak, bolam.`, kop: (w) => `Voy, ${w} ko'p bo'lib ketdi, bolam.` },
+  buvi: { kam: (w) => `Yana ${w} kerak, aylanay.`, kop: (w) => `${cap(w)} ko'p bo'lib qoldi, jonim.` },
+  aka: { kam: (w) => `Yana ${w} kerak!`, kop: (w) => `${cap(w)} ko'p bo'ldi-ku!` },
+  opa: { kam: (w) => `Yana ${w} kerak!`, kop: (w) => `${cap(w)} ko'p bo'lib qoldi!` },
+  bola: { kam: (w) => `Yana ${w}!`, kop: (w) => `${cap(w)} ko'p!` },
+}
+
 const NUMBERS = ['Bir', 'Ikki', 'Uch', "To'rt", 'Besh', 'Olti', 'Yetti', 'Sakkiz', "To'qqiz", "O'n",
   "O'n bir", "O'n ikki", "O'n uch", "O'n to'rt", "O'n besh", "O'n olti", "O'n yetti", "O'n sakkiz", "O'n to'qqiz", 'Yigirma']
 
@@ -120,6 +130,13 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
         group: 'Bozor mijozlari',
         voice: CUSTOMER_VOICES[c],
       })),
+    ),
+    // Kam yoki ko'p berilganda mijoz farqni aytadi: "Yana toʻrtta kerak!", "Ikkita koʻp boʻlib qoldi!"
+    ...(Object.keys(CUSTOMER_LINES) as CustomerId[]).flatMap((c) =>
+      COUNT_WORDS.slice(0, 9).flatMap((w, i) => [
+        { key: `mijoz_${c}_kam_${i + 1}`, text: DIFF_LINES[c].kam(w), group: 'Bozor mijozlari', voice: CUSTOMER_VOICES[c] },
+        { key: `mijoz_${c}_kop_${i + 1}`, text: DIFF_LINES[c].kop(w), group: 'Bozor mijozlari', voice: CUSTOMER_VOICES[c] },
+      ]),
     ),
     // Buyurtmani mijozning o'zi aytadi: "Menga beshta" + "olma bering!"
     ...(Object.keys(CUSTOMER_LINES) as CustomerId[]).flatMap((c) => [

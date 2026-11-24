@@ -151,7 +151,10 @@ export function Market({ profile, level, onComplete, onExit }: GameProps) {
     sfx.wrong()
     react('oops')
     setTries((t) => t + 1)
-    void say(...(given > want ? customerLine(customer.person, 'kop', 'bozor_kop') : customerLine(customer.person, 'kam', 'bozor_kam')))
+    // Mijoz farqni aniq aytadi ("Yana toʻrtta kerak!"); bunday ovoz bo'lmasa — umumiy "kam/ko'p"
+    const diff = Math.abs(given - want)
+    const exact = `mijoz_${customer.person}_${given > want ? 'kop' : 'kam'}_${diff}`
+    void say(...(hasVoice(exact) ? [exact] : given > want ? customerLine(customer.person, 'kop', 'bozor_kop') : customerLine(customer.person, 'kam', 'bozor_kam')))
   }
 
   const cells = cfg.max <= 5 ? 5 : 10
