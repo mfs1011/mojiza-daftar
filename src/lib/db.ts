@@ -83,7 +83,8 @@ export async function getProgress(profileId: string): Promise<Progress> {
     p.levels = Object.fromEntries(Object.entries(p.levels).map(([k, v]) => [k, (v ?? 0) * 3]))
     p.levelScale = 15
   }
-  if (p.day !== today()) return { ...p, day: today(), stationsDone: [], dayDone: false }
+  p.stars ??= {}
+  if (p.day !== today()) return { ...p, day: today(), stationsDone: [], dayDone: false, playedMs: 0 }
   return p
 }
 

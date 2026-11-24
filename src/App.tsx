@@ -12,16 +12,15 @@ import { Workshop } from './games/Workshop'
 import { applyMix, jingle, playAmbience, playMusic, preloadMusic, setAmbience, setMusic, stopVoice, type AmbienceId, type MusicId } from './lib/audio'
 import { getProfiles, getProgress, saveProgress } from './lib/db'
 import { getSettings } from './lib/settings'
-import { dailyFor, nextLevel, startLevel } from './lib/stations'
+import { startLevel, starsFor } from './lib/stations'
 import { shuffle } from './lib/util'
 import { DrawStudio } from './screens/DrawStudio'
 import { ParentPanel } from './screens/ParentPanel'
 import { ProfileSelect } from './screens/ProfileSelect'
 import { Sleep } from './screens/Sleep'
 import { VillageMap } from './screens/VillageMap'
-import type { GameProps, GameResult, PlacedDecor, Profile, Progress, Screen, StationId } from './types'
-
-type GameStation = Exclude<StationId, 'rasm'>
+import type { GameProps, GameResult, GameStation, PlacedDecor, Profile, Progress, Screen, StationId } from './types'
+import { LevelPath } from './screens/LevelPath'
 
 const GAMES: Record<GameStation, ComponentType<GameProps>> = {
   bog: Garden,
@@ -61,8 +60,8 @@ export default function App() {
   const musicId: MusicId | null =
     screen.name === 'profiles' || screen.name === 'map'
       ? 'map'
-      : screen.name === 'game'
-        ? screen.station
+      : screen.name === 'game' || screen.name === 'path'
+        ? (screen.station as MusicId)
         : screen.name === 'studio'
           ? 'rasm'
           : screen.name === 'sleep'
@@ -91,20 +90,50 @@ export default function App() {
     setScreen({ name: 'map' })
   }, [])
 
+  const openPath = useCallback((station: GameStation, justDone?: number) => {
+    stopVoice()
+    setScreen({ name: 'path', station, justDone })
+  }, [])
+
   // Android "orqaga" tugmasi: ilovadan chiqarib yubormasin, bir qadam orqaga qaytsin
   const screenRef = useRef(screen)
   useEffect(() => {
     screenRef.current = screen
   }, [screen])
+  const progressRef = useRef(progress)
+  useEffect(() => {
+    progressRef.current = progress
+  }, [progress])
   useEffect(() => {
     const sub = CapApp.addListener('backButton', () => {
       const s = screenRef.current.name
-      if (s === 'game' || s === 'studio') backToMap()
+      if (s === 'game') openPath(screenRef.current.name === 'game' ? screenRef.current.station : 'bog')
+      else if (s === 'path' || s === 'studio') backToMap()
       else if (s === 'map' || s === 'sleep' || s === 'parent') goHome()
       else void CapApp.minimizeApp()
     })
     return () => void sub.then((h) => h.remove())
-  }, [backToMap, goHome])
+  }, [backToMap, goHome, openPath])
+
+  // Kunlik o'yin vaqti: har 10 soniyada hisoblanadi (ota-ona paneli va profil tanlashdan tashqari).
+  // Chegara tugasa, o'yin o'rtasida uzilmaydi: joriy daraja tugagach qahramon uxlaydi.
+  const playing = !!profile && ['map', 'path', 'game', 'studio'].includes(screen.name)
+  useEffect(() => {
+    if (!playing) return
+    const id = window.setInterval(() => {
+      const p = progressRef.current
+      if (!p) return
+      const limit = getSettings().dailyMinutes * 60_000
+      const playedMs = (p.playedMs ?? 0) + 10_000
+      const over = limit > 0 && playedMs >= limit && screenRef.current.name !== 'game'
+      const next = { ...p, playedMs, dayDone: p.dayDone || over }
+      void saveProgress(next)
+      setProgress(next)
+      // Vaqt tugadi: yo'l ekranidan xaritaga qaytamiz, u yerda qahramon uxlashga ketadi
+      if (next.dayDone && screenRef.current.name === 'path') setScreen({ name: 'map' })
+    }, 10_000)
+    return () => window.clearInterval(id)
+  }, [playing])
 
   async function choose(p: Profile) {
     const pr = await getProgress(p.id)
@@ -115,23 +144,32 @@ export default function App() {
     setScreen(pr.dayDone ? { name: 'sleep' } : { name: 'map' })
   }
 
-  async function finishStation(station: GameStation, r: GameResult) {
+  async function finishStation(station: GameStation, level: number, r: GameResult) {
     if (!profile || !progress) return
-    const level = progress.levels[station] ?? startLevel(profile.age)
-    const stationsDone = progress.stationsDone.includes(station) ? progress.stationsDone : [...progress.stationsDone, station]
+    const unlocked = progress.levels[station] ?? startLevel(profile.age)
+    const firstToday = !progress.stationsDone.includes(station)
+    const stars = [...(progress.stars?.[station] ?? [])]
+    stars[level] = Math.max(stars[level] ?? 0, starsFor(r.mistakes))
+    const limit = getSettings().dailyMinutes * 60_000
     const next: Progress = {
       ...progress,
       coins: progress.coins + (r.coins ?? 0),
       fruits: progress.fruits + (r.fruits ?? 0),
-      stationsDone,
-      dayDone: dailyFor(profile.age).every((s) => stationsDone.includes(s.id)),
-      levels: { ...progress.levels, [station]: nextLevel(level, r.mistakes) },
+      stationsDone: firstToday ? [...progress.stationsDone, station] : progress.stationsDone,
+      dayDone: progress.dayDone || (limit > 0 && (progress.playedMs ?? 0) >= limit),
+      // O'tilgan daraja keyingisini ochadi (o'tilganini qayta o'ynash ochiq darajani o'zgartirmaydi)
+      levels: { ...progress.levels, [station]: Math.max(unlocked, level + 1) },
+      stars: { ...progress.stars, [station]: stars },
     }
     await saveProgress(next)
     setProgress(next)
-    setReward(rewardOptions(next))
-    setArrivedFrom(station)
-    setScreen({ name: 'map' })
+    // Bekatdagi bugungi birinchi g'alaba — qishloqqa sovg'a (xaritaga qaytganda tanlanadi)
+    if (firstToday) {
+      setReward(rewardOptions(next))
+      setArrivedFrom(station)
+    }
+    if (next.dayDone) setScreen({ name: 'map' })
+    else openPath(station, level)
   }
 
   async function placeDecor(d: PlacedDecor) {
@@ -168,7 +206,8 @@ export default function App() {
           arrivedFrom={arrivedFrom}
           onPlay={(s) => {
             setReward(null)
-            setScreen(s === 'rasm' ? { name: 'studio' } : { name: 'game', station: s })
+            if (s === 'rasm') setScreen({ name: 'studio' })
+            else openPath(s)
           }}
           onPlace={(d) => void placeDecor(d)}
           onHome={goHome}
@@ -188,16 +227,30 @@ export default function App() {
       )
     } else if (screen.name === 'sleep') {
       view = <Sleep profile={profile} progress={progress} onHome={goHome} />
-    } else if (screen.name === 'game') {
-      const Game = GAMES[screen.station]
+    } else if (screen.name === 'path') {
       const station = screen.station
       view = (
-        <Game
-          key={station}
+        <LevelPath
+          key={`${station}-${screen.justDone ?? ''}`}
           profile={profile}
-          level={progress.levels[station] ?? startLevel(profile.age)}
-          onComplete={(r) => void finishStation(station, r)}
-          onExit={backToMap}
+          station={station}
+          unlocked={progress.levels[station] ?? startLevel(profile.age)}
+          stars={progress.stars?.[station] ?? []}
+          justDone={screen.justDone}
+          onPlay={(level) => setScreen({ name: 'game', station, level })}
+          onBack={backToMap}
+        />
+      )
+    } else if (screen.name === 'game') {
+      const Game = GAMES[screen.station]
+      const { station, level } = screen
+      view = (
+        <Game
+          key={`${station}-${level}`}
+          profile={profile}
+          level={level}
+          onComplete={(r) => void finishStation(station, level, r)}
+          onExit={() => openPath(station)}
         />
       )
     }

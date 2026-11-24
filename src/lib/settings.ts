@@ -7,10 +7,12 @@ export interface Settings {
   voiceVol: number
   /** Tungi rejim: hamma ovoz 50% */
   night: boolean
+  /** Kunlik o'yin vaqti, daqiqa. 0 — cheklovsiz */
+  dailyMinutes: number
 }
 
 const KEY = 'qishloq-settings'
-const DEFAULTS: Settings = { music: true, ambience: true, musicVol: 1, fxVol: 1, voiceVol: 1, night: false }
+const DEFAULTS: Settings = { music: true, ambience: true, musicVol: 1, fxVol: 1, voiceVol: 1, night: false, dailyMinutes: 15 }
 
 export function getSettings(): Settings {
   try {

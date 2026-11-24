@@ -202,11 +202,12 @@ export function VillageMap({ profile, progress, reward, arrivedFrom, onPlay, onP
         {stations.map((s) => {
           const isNext = s.id === next
           const isDone = done.has(s.id)
-          const tappable = !busy && (isNext || s.id === 'rasm')
+          // Hamma bekatlar ochiq; "next" — faqat tavsiya (bugun hali o'ynalmagan birinchisi)
+          const tappable = !busy && (s.id === 'rasm' || !needsHero)
           return (
             <motion.button
               key={s.id}
-              className={`station ${isDone ? 'done' : ''} ${isNext ? 'next' : ''} ${!isNext && !isDone && s.id !== 'rasm' ? 'later' : ''}`}
+              className={`station ${isDone ? 'done' : ''} ${isNext ? 'next' : ''} ${!tappable ? 'later' : ''}`}
               data-id={s.id}
               style={{ left: `${s.x}%`, top: `${s.y}%`, x: '-50%', y: '-50%' }}
               animate={isNext && !busy ? { scale: [1, 1.1, 1] } : { scale: 1 }}

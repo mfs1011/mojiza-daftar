@@ -12,6 +12,8 @@ export interface Profile {
 }
 
 export type StationId = 'rasm' | 'bog' | 'bozor' | 'ferma' | 'ustaxona' | 'qora' | 'harflar'
+/** O'yin bekatlari (Rasm uyidan tashqari hammasi) */
+export type GameStation = Exclude<StationId, 'rasm'>
 
 /** Bola o'zi tanlab, o'zi joylashtirgan bezak */
 export interface PlacedDecor {
@@ -35,6 +37,10 @@ export interface Progress {
   levels: Partial<Record<StationId, number>>
   /** Darajalar shkalasi: yo'q bo'lsa eski 0..4 (5 daraja), 15 — yangi */
   levelScale?: number
+  /** Har bekat yo'lidagi har daraja uchun eng yaxshi natija: 1..3 yulduz */
+  stars?: Partial<Record<StationId, number[]>>
+  /** Bugun o'ynalgan vaqt (ms): kunlik chegarani ota-ona sozlaydi */
+  playedMs?: number
 }
 
 export interface GameResult {
@@ -54,7 +60,8 @@ export interface GameProps {
 export type Screen =
   | { name: 'profiles' }
   | { name: 'map' }
-  | { name: 'game'; station: Exclude<StationId, 'rasm'> }
+  | { name: 'path'; station: GameStation; justDone?: number }
+  | { name: 'game'; station: GameStation; level: number }
   | { name: 'studio' }
   | { name: 'sleep' }
   | { name: 'parent' }

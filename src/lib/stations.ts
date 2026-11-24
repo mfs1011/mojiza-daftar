@@ -33,12 +33,8 @@ export const AUTHORED_LEVELS = 15
 /** Yosh faqat boshlang'ich nuqta; keyin daraja bolaning natijasiga qarab o'zgaradi */
 export const startLevel = (age: Age) => (age === 3 ? 0 : 5)
 
-/** Xatosiz o'tsa qiyinlashadi, ko'p xato qilsa osonlashadi. Yuqori chegara yo'q (endless) */
-export function nextLevel(level: number, mistakes: number): number {
-  if (mistakes === 0) return level + 1
-  if (mistakes >= 5) return Math.max(0, level - 1)
-  return level
-}
+/** Natija yulduzlari: xatosiz — 3, 1–2 xato — 2, ko'proq — 1 (o'tdi, keyingi daraja ochiladi) */
+export const starsFor = (mistakes: number) => (mistakes === 0 ? 3 : mistakes <= 2 ? 2 : 1)
 
 /** Daraja bolaga ko'rinadigan raqami: 15 dan keyin "∞" belgisi bilan */
 export const levelLabel = (level: number) => `${level + 1}${level >= AUTHORED_LEVELS ? ' ∞' : ''}`

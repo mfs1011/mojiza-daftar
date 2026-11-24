@@ -123,6 +123,17 @@ export function ParentPanel({ profiles, onBack }: Props) {
 
       <section>
         <h3>Sozlamalar</h3>
+        <div className="p-slider p-minutes">
+          <span>Kunlik o'yin vaqti</span>
+          <div className="p-choices">
+            {[10, 15, 20, 30, 0].map((m) => (
+              <button key={m} className={`p-chip ${settings.dailyMinutes === m ? 'on' : ''}`} onClick={() => changeSettings({ dailyMinutes: m })}>
+                {m ? `${m} daq` : 'Cheklovsiz'}
+              </button>
+            ))}
+          </div>
+        </div>
+        <p className="p-note">Vaqt tugasa, bola o'ynayotgan darajani tugatadi, keyin qahramon uxlaydi va o'yin ertagacha yopiladi.</p>
         <label className="p-toggle">
           <input type="checkbox" checked={settings.music} onChange={(e) => changeSettings({ music: e.target.checked })} />
           Fon musiqasi
