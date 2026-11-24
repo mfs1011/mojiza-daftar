@@ -3664,18 +3664,26 @@ button {
 
 .album-tabs {
   display: flex;
-  gap: 2vmin;
+  gap: 1.4vmin;
   padding: 2vmin 4vmin 0;
+  /* 7 sahifa — sig'masa, barmoq bilan suriladi */
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.album-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .album-tab {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 1vmin;
-  padding: 1.6vmin 3vmin;
+  padding: 1.4vmin 2.4vmin;
   border-radius: 3vmin 3vmin 0 0;
   background: #e9c46a;
-  font-size: 4vmin;
+  font-size: 3.4vmin;
   font-weight: 800;
   color: #3d2c1e;
 }

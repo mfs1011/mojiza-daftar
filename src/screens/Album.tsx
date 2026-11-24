@@ -13,7 +13,7 @@ export function Album({ owned, onBack }: { owned: string[]; onBack: () => void }
   const [page, setPage] = useState(0)
   const [poked, setPoked] = useState<string | null>(null)
   const { kind, title } = STICKER_PAGES[page]
-  const list = STICKERS.filter((s) => s.kind === kind)
+  const list = STICKERS.filter((s) => s.page === kind)
   const got = STICKERS.filter((s) => have.has(s.id)).length
 
   return (
@@ -44,7 +44,7 @@ export function Album({ owned, onBack }: { owned: string[]; onBack: () => void }
           >
             {p.title}
             <small>
-              {STICKERS.filter((s) => s.kind === p.kind && have.has(s.id)).length}/{STICKERS.filter((s) => s.kind === p.kind).length}
+              {STICKERS.filter((s) => s.page === p.kind && have.has(s.id)).length}/{STICKERS.filter((s) => s.page === p.kind).length}
             </small>
           </button>
         ))}

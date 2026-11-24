@@ -2,6 +2,7 @@ import type { Profile } from '../types.ts'
 import { PAINT_NAMES, PAINT_ORDER, SHAPE_NAMES, SHAPE_ORDER } from './shapes.ts'
 import { ALPHABET, LETTER_NAMES, letterVoice, STROKE_LABELS } from './letters.ts'
 import { RIDDLES } from './poems.ts'
+import { THINGS } from './things.ts'
 import { PEOPLE } from './stickers.ts'
 
 const PERSON_NAMES: Record<(typeof PEOPLE)[number], string> = { bobo: 'Bobo', buvi: 'Buvi', aka: 'Aka', opa: 'Opa', bola: 'Bola' }
@@ -253,6 +254,8 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     ...ALPHABET.map((l) => ({ key: letterVoice(l), text: LETTER_NAMES[l], group: 'Harflar' })),
 
     ...RIDDLES.map((r) => ({ key: `sher_${r.id}`, text: r.text.replace(/\n/g, ' '), group: "She'rlar" })),
+    // Yangi narsalar nomi (albom, xotira o'yini)
+    ...Object.entries(THINGS).map(([k, t]) => ({ key: `nom_${k}`, text: t.name, group: 'Narsalar' })),
     { key: 'sher_top', text: 'Bu nima? Rasmini top!', group: "She'rlar" },
 
     { key: 'yozuv_chiz', text: "Sariq nuqtadan boshlab, chiziq ustidan yurib chiz!", group: 'Yozuv maktabi' },
