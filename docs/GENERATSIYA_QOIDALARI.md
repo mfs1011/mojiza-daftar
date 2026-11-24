@@ -39,6 +39,9 @@
 - Bir tekis xroma fon: odatda **#00FF00 yashil**; obyektda yashil bo'lsa — **#FF00FF magenta**;
   yashil ham, pushti ham bo'lsa — **#0000FF ko'k**. Obyektning o'zida fon rangi bo'lmasin.
 - `npm run art:import` fonni kesadi va o'lchamni moslaydi (`art-inbox/` → `public/assets/art/`).
+- ⚠️ Fon rangi **faqat** `art:prompts` chiqargan promptdagidek bo'lsin (import xuddi shu rangni kutadi: `keyOf()`).
+  Boshqa rang so'ralsa, fon kesilmaydi. Tuzatish: `ffmpeg … colorkey=<rang> … overlay` bilan fonni kerakli rangga
+  almashtirib, qayta import qilish.
 
 ### 1.5 Ish tartibi (Gemini chat)
 1. **Uslub namunasi** sifatida eski, tasdiqlangan rasmlardan biriktiriladi:
