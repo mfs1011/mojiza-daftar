@@ -8,7 +8,7 @@ import { GameShell, useMascot } from '../components/GameShell'
 import { useHowTo } from '../components/useHowTo'
 import { hasVoice, say, sfx } from '../lib/audio'
 import { MARKET_FRUITS } from '../lib/names'
-import { pick, randInt } from '../lib/util'
+import { pick, randInt, wait } from '../lib/util'
 import { levelRow } from '../lib/stations'
 import type { GameProps } from '../types'
 import { Icon } from '../art/Icon'
@@ -91,6 +91,14 @@ export function Market({ profile, level, onComplete, onExit }: GameProps) {
   const [finished, setFinished] = useState(false)
   const [mascot, react] = useMascot()
   const mistakes = useRef(0)
+  // O'yindan chiqib ketilsa, kechikkan "keyingi mijoz" ishlamasin
+  const alive = useRef(true)
+  useEffect(() => {
+    alive.current = true
+    return () => {
+      alive.current = false
+    }
+  }, [])
   const bagRef = useRef<HTMLDivElement>(null)
   const showPictures = cfg.auto || tries >= cfg.hintAfter
   const { want, fruit } = customer
@@ -112,8 +120,10 @@ export function Market({ profile, level, onComplete, onExit }: GameProps) {
     react('happy', 2000)
     burstAt(bagRef.current, ['#f6bd60', '#ffd166', '#fff'], 18)
     setEarned((e) => e + want)
-    void say(...customerLine(customer.person, 'rahmat', 'bozor_rahmat'))
-    setTimeout(() => {
+    // Keyingi mijoz "Rahmat! Mana tanga." gapi TUGAGANDAN keyin keladi (kamida 2,3 s — tanga yomg'iri ko'rinsin)
+    const thanks = say(...customerLine(customer.person, 'rahmat', 'bozor_rahmat'))
+    void Promise.all([thanks, wait(2300)]).then(() => wait(400)).then(() => {
+      if (!alive.current) return
       if (round + 1 >= ROUNDS) {
         setFinished(true)
         return
@@ -124,7 +134,7 @@ export function Market({ profile, level, onComplete, onExit }: GameProps) {
       setGiven(0)
       setTries(0)
       setHappy(false)
-    }, 2300)
+    })
   }
 
   function give() {
