@@ -62,6 +62,13 @@ const WANT = [
   { type: 'sfx', out: 'whoosh', must: /whoosh|swoosh|swish|woosh/i, q: 'whoosh', dur: [0.2, 2], max: 0.8, n: 1 },
   { type: 'sfx', out: 'rustle', must: /leaf|leaves|rustl|bush/i, q: 'leaves rustle', dur: [0.3, 4], max: 0.9, n: 1 },
   { type: 'sfx', out: 'thump', must: /thud|thump|drop|plop/i, q: 'soft thud', dur: [0.1, 2], max: 0.5, n: 1 },
+  // Muhit ovozlari (bekat foni ostida juda past, uzluksiz)
+  { type: 'ambience', out: 'bog', must: /bird|birds|garden|orchard|spring/i, not: /crow|seagull|traffic|road|city|rain/i, q: 'birds ambience garden', dur: [25, 120], max: 36, n: 1, keep: true },
+  { type: 'ambience', out: 'ferma', must: /farm|countryside|barn|rural|village/i, not: /traffic|tractor|machine|engine|bell/i, q: 'farm ambience', dur: [25, 120], max: 36, n: 1, keep: true },
+  { type: 'ambience', out: 'bozor', must: /market|bazaar|crowd|walla/i, not: /stadium|cheer|applause|protest/i, q: 'market crowd ambience', dur: [25, 120], max: 36, n: 1, keep: true },
+  { type: 'ambience', out: 'ustaxona', must: /fire|fireplace|crackl/i, q: 'fireplace crackling', dur: [25, 120], max: 36, n: 1, keep: true },
+  { type: 'ambience', out: 'qora', must: /cricket|night/i, not: /city|traffic|frog chorus loud|train|horn|car|road|siren/i, q: 'crickets night', dur: [25, 120], max: 36, n: 1, keep: true },
+  { type: 'ambience', out: 'harflar', must: /clock|tick/i, not: /alarm|bomb/i, q: 'clock ticking', dur: [15, 120], max: 24, n: 1, keep: true },
   // Jingle'lar
   { type: 'music', out: 'jingle-win', must: /win|success|victory|fanfare|complete|achievement|level up/i, not: /fail|lose|game over/i, q: 'success fanfare', dur: [1, 6], max: 4, n: 1, keep: true },
   { type: 'music', out: 'jingle-start', must: /start|begin|ready|intro|level/i, not: /fail|lose|game over|engine|car|battle|war|fight|boss/i, q: 'cute game start', dur: [0.5, 4], max: 3, n: 1, keep: true },
@@ -132,7 +139,7 @@ const replaced = new Set()
 
 for (const w of WANT) {
   if (only && !only.includes(w.out)) continue
-  const existing = join(ASSETS_DIR, w.type === 'animal' ? 'sfx/animals' : w.type === 'music' ? 'music' : 'sfx', `${w.out}.m4a`)
+  const existing = join(ASSETS_DIR, w.type === 'animal' ? 'sfx/animals' : w.type === 'music' ? 'music' : w.type === 'ambience' ? 'ambience' : 'sfx', `${w.out}.m4a`)
   if (!force && existsSync(existing) && w.type !== 'animal') {
     console.log(`· ${w.out}: bor, o'tkazildi`)
     continue
@@ -157,7 +164,11 @@ for (const w of WANT) {
       if (!b.ok) continue
       writeFileSync(f, Buffer.from(await b.arrayBuffer()))
     }
-    const a = analyse(f, w.max)
+    // Muhit: hodisa emas, uzluksiz bo'lak (boshidagi 2 s — kirish, tashlanadi)
+    const a =
+      w.type === 'ambience'
+        ? { snr: 99, start: Math.min(2, r.duration * 0.1), len: Math.min(w.max, r.duration - 3), end: 0 }
+        : analyse(f, w.max)
     if (!a || a.len < 0.08) continue
     // Ball: tozalik (SNR) asosiy, reyting yordamchi
     cand.push({ r, f, a, score: a.snr + (r.avg_rating ?? 3) * 3 + Math.min(r.num_ratings ?? 0, 30) * 0.2 })
@@ -182,7 +193,7 @@ for (const w of WANT) {
       ? `afade=t=out:st=${(c.a.len - fade).toFixed(3)}:d=${fade.toFixed(3)}`
       : `highpass=f=60,afade=t=in:d=0.01,afade=t=out:st=${(c.a.len - fade).toFixed(3)}:d=${fade.toFixed(3)}`
     spawnSync('ffmpeg', ['-v', 'error', '-y', '-ss', String(c.a.start), '-t', c.a.len.toFixed(3), '-i', c.f, '-af', af, out])
-    const rel = `${w.type === 'animal' ? 'sfx/animals' : w.type === 'music' ? 'music' : 'sfx'}/${name}.m4a`
+    const rel = `${w.type === 'animal' ? 'sfx/animals' : w.type === 'music' ? 'music' : w.type === 'ambience' ? 'ambience' : 'sfx'}/${name}.m4a`
     console.log(`✓ ${name.padEnd(16)} SNR ${Math.round(c.a.snr)} dB, ${c.a.len.toFixed(2)} s ← #${c.r.id} "${c.r.name.slice(0, 40)}" (${c.r.username})`)
     replaced.add(rel)
     rows.push(`| \`${rel}\` | [${c.r.name.replace(/\|/g, '/')}](${c.r.url}) | ${c.r.username} | CC0 | ${new Date().toISOString().slice(0, 10)} |`)

@@ -48,6 +48,21 @@ bo'lishi shart. CC BY bo'lsa, muallif ilovaning "Haqida" oynasida ko'rsatiladi.
 | `sfx/thump.m4a` | [S27-03 Hard arrow thuds into soft wood.wav](https://freesound.org/people/craigsmith/sounds/675823/) | craigsmith | CC0 | 2026-11-24 |
 | `music/jingle-win.m4a` | [WinFretless.wav](https://freesound.org/people/Fupicat/sounds/521644/) | Fupicat | CC0 | 2026-11-24 |
 | `music/jingle-sticker.m4a` | [Coin Collect](https://freesound.org/people/Qvantor/sounds/878612/) | Qvantor | CC0 | 2026-11-24 |
+| `music/map.m4a` | [Blue Sky.mp3](https://freesound.org/people/Sergmusic/sounds/639933/) | Sergmusic | CC0 | 2026-11-24 |
+| `music/bog.m4a` | [Ukulele_Chill.wav](https://freesound.org/people/larsn.wav/sounds/707067/) | larsn.wav | CC0 | 2026-11-24 |
+| `music/ferma.m4a` | [short ukulele loop by rea.mp3](https://freesound.org/people/reasanka/sounds/383023/) | reasanka | CC0 | 2026-11-24 |
+| `music/bozor.m4a` | [Full of Energy](https://freesound.org/people/code_box/sounds/520192/) | code_box | CC0 | 2026-11-24 |
+| `music/ustaxona.m4a` | [Anniversary Vintage Music Box (Perfect Loop)](https://freesound.org/people/f-r-a-g-i-l-e/sounds/613084/) | f-r-a-g-i-l-e | CC0 | 2026-11-24 |
+| `music/rasm.m4a` | [Anniversary Vintage Music Box (Perfect Loop)](https://freesound.org/people/f-r-a-g-i-l-e/sounds/613084/) | f-r-a-g-i-l-e | CC0 | 2026-11-24 |
+| `music/harflar.m4a` | [Music Box (G, 4/4, 60 BPM)](https://freesound.org/people/sonically_sound/sounds/613178/) | sonically_sound | CC0 | 2026-11-24 |
+| `music/qora.m4a` | [musicbox3.wav](https://freesound.org/people/vumseplutten1709/sounds/213884/) | vumseplutten1709 | CC0 | 2026-11-24 |
+| `music/uyqu.m4a` | [Music box lullaby](https://freesound.org/people/csnmedia/sounds/381973/) | csnmedia | CC0 | 2026-11-24 |
+| `ambience/bog.m4a` | [Garden Sunny Day.wav](https://freesound.org/people/Modding/sounds/574108/) | Modding | CC0 | 2026-11-24 |
+| `ambience/ferma.m4a` | [Ambience_Farm_04.wav](https://freesound.org/people/BenDrain/sounds/488067/) | BenDrain | CC0 | 2026-11-24 |
+| `ambience/bozor.m4a` | [Evening Bazaar Ambience at Souq Al Bashorah, Ramallah – Palestine](https://freesound.org/people/sounds_from_palestine/sounds/819223/) | sounds_from_palestine | CC0 | 2026-11-24 |
+| `ambience/ustaxona.m4a` | [Fireplace woodstove with the lid open](https://freesound.org/people/HullMusic/sounds/718202/) | HullMusic | CC0 | 2026-11-24 |
+| `ambience/harflar.m4a` | [Foley_Object_Clock_Old_Tick_Sequence_Stereo](https://freesound.org/people/Nox_Sound/sounds/790019/) | Nox_Sound | CC0 | 2026-11-24 |
+| `ambience/qora.m4a` | [200906 Cricket, single close loud, PEC pm.flac](https://freesound.org/people/TRP/sounds/568820/) | TRP | CC0 | 2026-11-24 |
 
 Hayvon ovozlari Wikimedia Commons'dan: asl yozuvdan eng toza bo'lak kesilgan, balandligi
 normallashtirilgan va AAC'ga o'tkazilgan. CC BY-SA fayllarning o'zgartirilgan nusxalari ham

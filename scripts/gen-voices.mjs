@@ -158,7 +158,28 @@ for (const [k, text] of charTodo) {
 const exists = (k) => existsSync(join(dir, `${k}.wav`)) || existsSync(join(dir, `${k}.m4a`))
 // reak_* — ota-ona o'zi yozadigan qahramon ovozlari, ular uchun TTS kerak emas
 // tovush_* — hayvon taqlidi: TTS (odam ovozi) bilan yaratilmaydi, haqiqiy yozuvlar sfx/animals/ da
-const prompts = voicePrompts([]).filter((p) => !p.key.startsWith('reak_') && !p.key.startsWith('tovush_') && want(p.key) && (force || !exists(p.key)))
+/**
+ * --redo: o'zbekcha talaffuz ko'rsatmasisiz yaratilgan (Gemini 3 TTS, toza matn) yoki inglizcha o'qilgan ovozlar —
+ * fayli bo'lsa ham qayta yaratiladi
+ */
+const REDO = new Set([
+  'hayvon_eshak', 'ustaxona_intro', 'qora_intro', 'qora_tun', 'harf_chiz', 'harf_top', 'son_1',
+])
+const redo = args.includes('--redo')
+const needs = (k) => force || !exists(k) || (redo && (REDO.has(k) || /^harf_(?!chiz$|top$)/.test(k) || /^mijoz_/.test(k)))
+
+/** Ustuvorlik: avval o'yin ko'rsatmalari (ularsiz bola nima qilishni bilmaydi), keyin nomlar, harflar, mijozlar */
+const PRIORITY = [
+  'Raqamlar uyi', 'Hisob maktabi', 'Shakllar', 'Ranglar', 'Mantiq', 'Yozuv maktabi', 'Musiqa uyi', "She'rlar",
+  'Sonlar', 'Umumiy', 'Kechki qo\'ra', 'Ustaxona', 'Harflar uyi', 'Harflar', 'Hayvonlar', 'Odamlar', 'Hovli', 'Bozor mijozlari',
+]
+const rank = (g) => {
+  const i = PRIORITY.indexOf(g)
+  return i < 0 ? PRIORITY.length : i
+}
+const prompts = voicePrompts([])
+  .filter((p) => !p.key.startsWith('reak_') && !p.key.startsWith('tovush_') && want(p.key) && needs(p.key))
+  .sort((a, b) => rank(a.group) - rank(b.group))
 console.log(`Model: ${MODEL}, ovoz: ${VOICE}. Yaratiladi: ${prompts.length} ta`)
 let ok = 0
 for (const p of prompts) {

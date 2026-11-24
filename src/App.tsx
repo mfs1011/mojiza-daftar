@@ -57,6 +57,16 @@ function rewardOptions(progress: Progress): DecorKind[] {
   return [...fresh, ...shuffle(DECOR_POOL)].filter((k, i, a) => a.indexOf(k) === i).slice(0, 3)
 }
 
+/** Maktab bekatlari va She'rlar — mavjud sokin kuylar bilan (diqqatni bo'lmasin) */
+const STATION_MUSIC: Partial<Record<GameStation, MusicId>> = {
+  raqam: 'harflar',
+  hisob: 'harflar',
+  yozuv: 'harflar',
+  shakl: 'rasm',
+  mantiq: 'ustaxona',
+  sher: 'rasm',
+}
+
 export default function App() {
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -81,7 +91,7 @@ export default function App() {
     screen.name === 'profiles' || screen.name === 'worlds' || screen.name === 'map' || screen.name === 'album' || screen.name === 'yard'
       ? 'map'
       : screen.name === 'game' || screen.name === 'path'
-        ? (screen.station as MusicId)
+        ? (STATION_MUSIC[screen.station] ?? (screen.station as MusicId))
         : screen.name === 'studio'
           ? 'rasm'
           : screen.name === 'sleep'

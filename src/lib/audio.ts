@@ -415,6 +415,22 @@ export function preloadMusic(...ids: MusicId[]) {
   }
 }
 
+/** Buferdagi haqiqiy tovush chegaralari (sekundda): boshdagi va oxirdagi deyarli jimlik tashlanadi */
+const boundsCache = new WeakMap<AudioBuffer, [number, number]>()
+function soundBounds(buf: AudioBuffer): [number, number] {
+  const hit = boundsCache.get(buf)
+  if (hit) return hit
+  const d = buf.getChannelData(0)
+  const thr = 0.002 // ≈ -54 dB
+  let a = 0
+  while (a < d.length && Math.abs(d[a]) < thr) a++
+  let b = d.length - 1
+  while (b > a && Math.abs(d[b]) < thr) b--
+  const r: [number, number] = b - a > buf.sampleRate * 0.5 ? [a / buf.sampleRate, (b + 1) / buf.sampleRate] : [0, buf.duration]
+  boundsCache.set(buf, r)
+  return r
+}
+
 /** Bitta uzluksiz qatlam (musiqa yoki muhit): bir vaqtda bitta trek, almashganda crossfade */
 class LoopLayer {
   private wanted: string | null = null
@@ -460,6 +476,12 @@ class LoopLayer {
     const gain = c.createGain()
     src.buffer = buf
     src.loop = !this.once(target)
+    if (src.loop) {
+      // Kodek bosh/oxirida qoldiradigan sukutni chetlab aylanamiz — loop chokida pauza bo'lmasin
+      const [a, b] = soundBounds(buf)
+      src.loopStart = a
+      src.loopEnd = b
+    }
     gain.gain.setValueAtTime(0, c.currentTime)
     gain.gain.linearRampToValueAtTime(1, c.currentTime + FADE)
     src.connect(gain).connect(this.bus())
