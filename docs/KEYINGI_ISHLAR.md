@@ -4,7 +4,7 @@
 > AI bilan yaratiladigan hamma narsa uchun qoidalar: [GENERATSIYA_QOIDALARI.md](GENERATSIYA_QOIDALARI.md).
 > Uzoq muddatli reja: [RIVOJLANISH_REJASI.md](RIVOJLANISH_REJASI.md) (egasi izoh yozmoqda — ✍️ joylar).
 
-Oxirgi yangilanish: 2026-11-24. Branch: `feat/audio-impl` (PR #6 → `dev`).
+Oxirgi yangilanish: 2026-11-24. Branch: `feat/audio-impl` (PR #6 → `dev`). Oxirgi APK: **v11** (`~/Downloads/mojiza-daftar-debug-v11.apk`).
 
 ---
 
