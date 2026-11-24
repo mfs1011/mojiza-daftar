@@ -112,6 +112,65 @@ export const ASSETS = [
   ...person('opa', 'a young Uzbek woman with long braids in a colorful atlas ikat dress'),
   ...person('bola', 'a cheerful little Uzbek boy with a blue cap and green t-shirt'),
 
+  // ---------- YANGI (2026-11): topishmoqlar, albom, xotira o'yini uchun ----------
+  // Hayvonlar (+12)
+  animal('ot', 'a brown horse with a dark mane and tail', 'shakes its mane, swishes its tail, lifts one front hoof'),
+  animal('tuya', 'a light brown two-humped Bactrian camel', 'chews slowly, blinks with long lashes, sways its neck'),
+  animal('quyon', 'a fluffy grey-white bunny rabbit with long ears, sitting', 'twitches its nose, ears flop, small hop in place'),
+  animal('tovuq', 'a plump brown hen with a small red comb', 'pecks the ground, bobs its head, fluffs its feathers'),
+  animal('joja', 'a tiny fluffy yellow baby chick', 'hops in place, flaps tiny wings, opens its little beak'),
+  animal('goz', 'a white goose with an orange beak and orange feet', 'stretches its neck, flaps its wings, waddles'),
+  animal('baliq', 'a bright orange fish with big fins, side view (not standing)', 'swims in place: tail and fins wave, bubbles rise'),
+  animal('kapalak', 'a colorful butterfly with big orange-blue wings, top view (not standing)', 'flaps its wings slowly, antennae wiggle'),
+  animal('ari', 'a cute round honeybee with yellow-black stripes and small wings (not standing)', 'buzzes in place, wings blur, bobs up and down'),
+  animal('toshbaqa', 'a small turtle with a brown patterned shell', 'pokes its head out, blinks, slow step in place'),
+  animal('ayiq', 'a brown bear cub', 'waves a paw, rocks side to side, blinks'),
+  animal('fil', 'a small grey elephant calf with big ears', 'raises its trunk, flaps its big ears, sways'),
+
+  // Sabzavotlar (yangi turkum, 8)
+  ...[
+    ['sabzi', 'an orange carrot with green leafy top'],
+    ['piyoz', 'a golden-brown onion with a little sprout'],
+    ['kartoshka', 'a light brown potato'],
+    ['pomidor', 'a shiny round red tomato with a small green stem'],
+    ['bodring', 'a fresh green cucumber with small bumps'],
+    ['karam', 'a round light green cabbage head'],
+    ['qalampir', 'a bright red bell pepper with a green stem'],
+    ['oshqovoq', 'a round orange pumpkin with a curly stem'],
+  ].map(([id, what]) => ({ path: `veg/${id}`, kind: 'object', size: 512, prompt: `${what}, one single vegetable, cute glossy toy-like look` })),
+
+  // Buyumlar (12) — o'zbek uyi va bolalar dunyosi
+  ...[
+    ['choynak', 'a traditional Uzbek white porcelain teapot with blue cotton-boll (paxta) pattern'],
+    ['piyola', 'a traditional Uzbek tea bowl (piyola) with blue cotton-boll pattern'],
+    ['non', 'a round Uzbek flatbread (non) with a stamped pattern in the middle, golden crust'],
+    ['doppi', 'a black-and-white Uzbek doppi skullcap with pepper-pod embroidery'],
+    ['qoshiq', 'a wooden spoon'],
+    ['soat', 'a red round alarm clock with two bells on top'],
+    ['kitob', 'an open colorful children picture book'],
+    ['qalam', 'a yellow pencil with a pink eraser'],
+    ['koptok', 'a colorful striped rubber ball'],
+    ['mashina', 'a small red toy car'],
+    ['velosiped', 'a small blue children bicycle, side view'],
+    ['soyabon', 'an open colorful umbrella'],
+  ].map(([id, what]) => ({ path: `obj/${id}`, kind: 'object', size: 512, prompt: `${what}, one single object, cute toy-like look` })),
+
+  // Tabiat (6)
+  ...[
+    ['quyosh', 'a smiling bright yellow sun with soft rays'],
+    ['oy', 'a smiling pale yellow crescent moon'],
+    ['yulduz', 'a smiling golden five-pointed star'],
+    ['bulut', 'a fluffy white cloud with a gentle smile'],
+    ['yomgir', 'a small grey rain cloud with falling blue raindrops'],
+    ['gul', 'a red tulip flower with two leaves'],
+  ].map(([id, what]) => ({ path: `nature/${id}`, kind: 'object', size: 512, prompt: `${what}, one single object, cute toy-like look` })),
+
+  // Kasblar (+4, odamlar kabi: oddiy va xursand holat)
+  ...person('shifokor', 'a kind Uzbek woman doctor in a white coat with a stethoscope'),
+  ...person('oshpaz', 'a cheerful Uzbek cook with a white chef hat and apron, holding a ladle'),
+  ...person('haydovchi', 'a friendly Uzbek driver with a cap and blue uniform'),
+  ...person('dehqon', 'a smiling Uzbek farmer with a doppi skullcap and a small hoe'),
+
   // ---------- Xarita bekatlari (dumaloq ikonka sifatida ishlatiladi) ----------
   { path: 'station/rasm', kind: 'object', size: 384, prompt: 'a small wooden easel with a colorful child drawing and crayons, game map icon' },
   { path: 'station/bog', kind: 'object', size: 384, prompt: 'a small fruit tree full of red apples, game map icon' },
