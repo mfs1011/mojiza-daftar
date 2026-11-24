@@ -19,7 +19,6 @@ export interface GardenAssets {
 
 const MODEL: Partial<Record<FruitKind, string>> = {
   olma: 'food_apple_01',
-  nok: 'food_pears_asian_01',
   anor: 'food_pomegranate_01',
 }
 

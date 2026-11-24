@@ -513,6 +513,20 @@ export function makeTree(crownY: number): TreeParts {
 
 // ---------- Barglar buluti (asosiy daraxt, teraklar, fondagi daraxtlar) ----------
 
+/**
+ * Barg kartochkalari ikki tomonlama: orqa tomoni ko'ringanda three.js normalni teskari qiladi va barg qorayadi.
+ * Toj bitta hajmdek yoritilishi uchun bu teskari qilishni bekor qilamiz (normal — doim tojdan tashqariga).
+ */
+function foliageShading(m: THREE.MeshStandardMaterial) {
+  m.onBeforeCompile = (sh) => {
+    sh.fragmentShader = sh.fragmentShader.replace(
+      '#include <normal_fragment_begin>',
+      '#include <normal_fragment_begin>\n#ifdef DOUBLE_SIDED\nnormal *= faceDirection;\n#endif',
+    )
+  }
+  m.customProgramCacheKey = () => 'foliage'
+}
+
 let leafMatCache: { mat: THREE.MeshStandardMaterial; depth: THREE.MeshDepthMaterial; card: boolean } | null = null
 function leafMaterial() {
   if (leafMatCache) return leafMatCache
@@ -531,12 +545,14 @@ function leafMaterial() {
       g.putImageData(d, 0, 0)
     })
     const mat = new THREE.MeshStandardMaterial({ map: card, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.65 })
+foliageShading(mat)
     const depth = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: card, alphaTest: 0.5 })
     leafMatCache = { mat, depth, card: true }
     return leafMatCache
   }
   const silhouette = leafTexture()
   const mat = new THREE.MeshStandardMaterial({ map: silhouette, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.7 })
+  foliageShading(mat)
   const depth = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: silhouette, alphaTest: 0.5 })
   leafMatCache = { mat, depth, card: false }
   return leafMatCache
@@ -568,18 +584,12 @@ function leafCloud(blobs: number[][], perBlob: number, size: number, tint = '#ff
       const d = rnd(0.86, 1.02)
       p.set(x + n.x * rx * d, y + n.y * ry * d, z + n.z * rz * d)
       q.setFromUnitVectors(Z, n).multiply(new THREE.Quaternion().setFromAxisAngle(Z, rnd(0, Math.PI * 2)))
-      q.multiply(new THREE.Quaternion().setFromAxisAngle(X, rnd(-0.6, 0.6)))
+      q.multiply(new THREE.Quaternion().setFromAxisAngle(X, rnd(-0.3, 0.3)))
       m4.compose(p, q, new THREE.Vector3(1, 1, 1).multiplyScalar(rnd(0.75, 1.2)))
       leaves.setMatrixAt(k, m4)
-      // Yuqoridagi barglar quyoshda ochroq
-      const light = 0.78 + 0.22 * Math.max(0, n.y) + rnd(-0.08, 0.08)
-      leaves.setColorAt(
-        k,
-        col
-          .copy(base)
-          .multiplyScalar(light)
-          .multiply(new THREE.Color(rnd(0.92, 1.05), 1, rnd(0.88, 1))),
-      )
+      // Soya (ambient occlusion): pastki va ichkaridagi barglar to'qroq, tepadagilar quyoshda ochroq
+      const ao = (0.55 + 0.45 * (n.y * 0.5 + 0.5)) * (0.75 + (0.25 * (d - 0.86)) / 0.16)
+      leaves.setColorAt(k, col.copy(base).multiplyScalar(ao * rnd(0.92, 1.06)).multiply(new THREE.Color(rnd(0.94, 1.04), 1, rnd(0.9, 1))))
       k++
     }
   }
