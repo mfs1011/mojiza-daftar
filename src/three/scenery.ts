@@ -1,4 +1,11 @@
 import * as THREE from 'three'
+import type { GardenAssets } from './realAssets'
+
+/** Haqiqiy foto-teksturalar (Poly Haven) yuklangan bo'lsa — ular ishlatiladi, aks holda kanvas chizmalari */
+let A: GardenAssets | null = null
+export function setSceneryAssets(a: GardenAssets | null) {
+  A = a
+}
 
 // 🌳 Bog' manzarasi: haqiqiyroq daraxt (egri tana, po'stloq, minglab barg), o't-o'lan va gullar,
 // fonda teraklar, mevali daraxtlar, uzoqdagi qorli tog'lar, suzib yurgan bulutlar.
@@ -22,7 +29,8 @@ function lumpy(geo: THREE.BufferGeometry, amp: number, seed = Math.random() * 10
   const v = new THREE.Vector3()
   for (let i = 0; i < pos.count; i++) {
     v.fromBufferAttribute(pos, i)
-    const n = 1 + amp * (Math.sin(v.x * 5.1 + seed) * Math.sin(v.y * 4.3 + seed * 1.7) * Math.sin(v.z * 4.7 + seed * 0.6) + 0.5 * Math.sin(v.x * 11 + v.z * 9 + seed))
+    const n =
+      1 + amp * (Math.sin(v.x * 5.1 + seed) * Math.sin(v.y * 4.3 + seed * 1.7) * Math.sin(v.z * 4.7 + seed * 0.6) + 0.5 * Math.sin(v.x * 11 + v.z * 9 + seed))
     v.multiplyScalar(n)
     pos.setXYZ(i, v.x, v.y, v.z)
   }
@@ -33,6 +41,13 @@ function lumpy(geo: THREE.BufferGeometry, amp: number, seed = Math.random() * 10
 // ---------- Osmon va bulutlar ----------
 
 export function makeSky(scene: THREE.Scene) {
+  if (A?.skyBg) {
+    // Haqiqiy HDRI osmon (bulutlari bilan) — fon; yorug'lik Garden3D da environment sifatida
+    scene.background = A.skyBg
+    scene.backgroundIntensity = 1
+    scene.fog = new THREE.Fog('#c9d6d2', 20, 95)
+    return () => {}
+  }
   scene.background = canvasTex(2, 512, (g) => {
     const grd = g.createLinearGradient(0, 0, 0, 512)
     grd.addColorStop(0, '#5fa8d3')
@@ -117,7 +132,24 @@ export function makeGround(scene: THREE.Scene) {
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping
   tex.repeat.set(7, 4)
   tex.anisotropy = 4
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(90, 50), new THREE.MeshStandardMaterial({ map: tex, roughness: 1 }))
+  const groundMat = new THREE.MeshStandardMaterial({ map: tex, roughness: 1 })
+  if (A?.tex.grass) {
+    // Fotoskanerlangan o'tloq: rang, relyef (normal) va g'adir-budurlik xaritalari
+    const rep = (t: THREE.Texture) => {
+      const c = t.clone()
+      c.repeat.set(80, 60)
+      c.needsUpdate = true
+      return c
+    }
+    groundMat.map = rep(A.tex.grass)
+    if (A.tex.grassNor) {
+      groundMat.normalMap = rep(A.tex.grassNor)
+      groundMat.normalScale.set(1.2, 1.2)
+    }
+    if (A.tex.grassArm) groundMat.roughnessMap = rep(A.tex.grassArm)
+    groundMat.color.set('#c9d8a8')
+  }
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(420, 320), groundMat)
   ground.rotation.x = -Math.PI / 2
   ground.receiveShadow = true
   scene.add(ground)
@@ -145,7 +177,7 @@ export function makeGround(scene: THREE.Scene) {
     q.setFromEuler(e)
     m.compose(new THREE.Vector3(x, 0, z), q, new THREE.Vector3(rnd(0.8, 1.4), h, 1))
     blades.setMatrixAt(i, m)
-    blades.setColorAt(i, col.setHSL(rnd(0.24, 0.3), rnd(0.45, 0.6), rnd(0.75, 1.0)))
+    blades.setColorAt(i, A?.tex.grass ? col.setRGB(rnd(0.5, 0.68), rnd(0.62, 0.78), rnd(0.32, 0.42)) : col.setHSL(rnd(0.24, 0.3), rnd(0.45, 0.6), rnd(0.75, 1.0)))
   }
   blades.receiveShadow = true
   scene.add(blades)
@@ -169,14 +201,17 @@ export function makeGround(scene: THREE.Scene) {
 export function makeBackdrop(scene: THREE.Scene) {
   const mat = (color: string, rough = 0.95) => new THREE.MeshStandardMaterial({ color, roughness: rough, flatShading: false })
 
-  // Uzoqdagi qorli tog'lar (O'zbekiston manzarasi)
+  // Uzoqdagi qorli tog'lar (O'zbekiston manzarasi) — haqiqiy osmonda ufq bor, chizma tog' kerak emas
   const snow = mat('#f1f5f9', 0.8)
-  ;[
-    [-24, -48, 9, 11, '#8aa1b1'],
-    [-10, -52, 12, 14, '#7d94a6'],
-    [6, -50, 10, 12, '#8aa1b1'],
-    [22, -47, 11, 10, '#93a8b6'],
-  ].forEach(([x, z, r, h, c]) => {
+  ;(A?.skyBg
+    ? []
+    : [
+        [-24, -48, 9, 11, '#8aa1b1'],
+        [-10, -52, 12, 14, '#7d94a6'],
+        [6, -50, 10, 12, '#8aa1b1'],
+        [22, -47, 11, 10, '#93a8b6'],
+      ]
+  ).forEach(([x, z, r, h, c]) => {
     const g = lumpy(new THREE.ConeGeometry(r as number, h as number, 9, 4), 0.06)
     const mtn = new THREE.Mesh(g, mat(c as string))
     mtn.position.set(x as number, (h as number) / 2 - 1, z as number)
@@ -186,13 +221,13 @@ export function makeBackdrop(scene: THREE.Scene) {
     scene.add(cap)
   })
 
-  // Tepaliklar
-  ;[
+  // Tepaliklar (haqiqiy osmonda — kerak emas: ufqni tuman beradi)
+  ;(A?.skyBg ? [] : [
     [-12, -20, 10, '#9cc26e'],
     [3, -24, 13, '#a9c98a'],
     [16, -19, 9, '#9cc26e'],
     [-3, -15, 7, '#8fba63'],
-  ].forEach(([x, z, r, c]) => {
+  ]).forEach(([x, z, r, c]) => {
     const h = new THREE.Mesh(lumpy(new THREE.SphereGeometry(r as number, 40, 20), 0.03), mat(c as string))
     h.scale.y = 0.32
     h.position.set(x as number, 0, z as number)
@@ -202,7 +237,7 @@ export function makeBackdrop(scene: THREE.Scene) {
 
   // Teraklar qatori (bog' chetida — o'zbek qishlog'ining belgisi)
   const poplarGeo = lumpy(new THREE.SphereGeometry(1, 24, 18), 0.09)
-  const poplarMats = ['#3f7d4e', '#4c8b58', '#356b43'].map((c) => mat(c, 0.85))
+  const poplarMats = (A?.tex.leaf ? ['#2c4826', '#304f29', '#284222'] : ['#3f7d4e', '#4c8b58', '#356b43']).map((c) => mat(c, 0.85))
   const trunkMat = mat('#6b4a2f')
   for (let i = 0; i < 12; i++) {
     const x = -1 + i * 1.25 + rnd(-0.15, 0.15)
@@ -216,11 +251,17 @@ export function makeBackdrop(scene: THREE.Scene) {
     p.position.set(x, 0.9 + h, z)
     p.castShadow = true
     scene.add(p)
+    // Terak barglari: to'q tana ustida haqiqiy barglar qatlami
+    if (A?.tex.leaf) {
+      const cloud = leafCloud([[0, 0, 0, 0.5, h * 1.02, 0.5]], 420, 0.26, '#7fa36a')
+      cloud.position.copy(p.position)
+      scene.add(cloud)
+    }
   }
 
   // Orqadagi mevali daraxtlar (dumaloq toj)
   const bushGeo = lumpy(new THREE.SphereGeometry(1, 28, 18), 0.08)
-  const bushMats = ['#5b9a52', '#6aa85d', '#4e8a49'].map((c) => mat(c, 0.85))
+  const bushMats = (A?.tex.leaf ? ['#2e4a27', '#33522b', '#2a4424'] : ['#5b9a52', '#6aa85d', '#4e8a49']).map((c) => mat(c, 0.85))
   ;[
     [-9.5, -9, 1.6],
     [-6.5, -11, 1.3],
@@ -237,6 +278,12 @@ export function makeBackdrop(scene: THREE.Scene) {
       b.position.set(x + rnd(-0.7, 0.7) * s, 1.9 * s + rnd(-0.2, 0.5) * s, z + rnd(-0.4, 0.4) * s)
       b.castShadow = true
       scene.add(b)
+      if (A?.tex.leaf) {
+        const rr = b.scale.x * 1.02
+        const cloud = leafCloud([[0, 0, 0, rr, rr, rr]], 420, 0.36, '#86a86f')
+        cloud.position.copy(b.position)
+        scene.add(cloud)
+      }
     }
   })
 
@@ -250,10 +297,20 @@ export function makeBackdrop(scene: THREE.Scene) {
   shape.closePath()
   const picketGeo = new THREE.ExtrudeGeometry(shape, { depth: 0.05, bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.01, bevelSegments: 1 })
   const fenceMat = mat('#c69563', 0.85)
+  if (A?.tex.wood) {
+    // Eskirgan yog'och taxtalar fotosi
+    fenceMat.map = A.tex.wood
+    fenceMat.color.set('#ffffff')
+    if (A.tex.woodNor) fenceMat.normalMap = A.tex.woodNor
+  }
   const pickets = new THREE.InstancedMesh(picketGeo, fenceMat, 30)
   const m = new THREE.Matrix4()
   for (let i = 0; i < 30; i++) {
-    m.compose(new THREE.Vector3(-10 + i * 0.72, 0, -3.6), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, rnd(-0.03, 0.03))), new THREE.Vector3(1, rnd(0.95, 1.05), 1))
+    m.compose(
+      new THREE.Vector3(-10 + i * 0.72, 0, -3.6),
+      new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, rnd(-0.03, 0.03))),
+      new THREE.Vector3(1, rnd(0.95, 1.05), 1),
+    )
     pickets.setMatrixAt(i, m)
   }
   pickets.castShadow = true
@@ -350,6 +407,21 @@ export function makeTree(crownY: number): TreeParts {
   barkTex.wrapS = barkTex.wrapT = THREE.RepeatWrapping
   barkTex.repeat.set(2, 1)
   const bark = new THREE.MeshStandardMaterial({ map: barkTex, roughness: 0.95, bumpMap: barkTex, bumpScale: 0.04 })
+  if (A?.tex.bark) {
+    // Haqiqiy po'stloq fotosi va relyefi
+    const rep = (t: THREE.Texture) => {
+      const c = t.clone()
+      c.repeat.set(1.5, 2.5)
+      c.needsUpdate = true
+      return c
+    }
+    bark.map = rep(A.tex.bark)
+    bark.bumpMap = null
+    if (A.tex.barkNor) {
+      bark.normalMap = rep(A.tex.barkNor)
+      bark.normalScale.set(1.5, 1.5)
+    }
+  }
 
   // Tana: pastda kengayadi (ildiz), biroz egilgan
   const trunkGeo = new THREE.CylinderGeometry(0.24, 0.42, crownY + 0.3, 20, 24)
@@ -406,7 +478,7 @@ export function makeTree(crownY: number): TreeParts {
     [0.8, 0.6, -0.8, 0.9],
   ]
   const fillGeo = lumpy(new THREE.SphereGeometry(1, 32, 22), 0.06)
-  const fillMat = new THREE.MeshStandardMaterial({ color: '#2f6b35', roughness: 0.9 })
+  const fillMat = new THREE.MeshStandardMaterial({ color: A?.tex.leaf ? '#16240f' : '#2f6b35', roughness: 0.9 })
   const hit: THREE.Object3D[] = [trunk]
   for (const [x, y, z, r] of blobs) {
     const m = new THREE.Mesh(fillGeo, fillMat)
@@ -418,34 +490,11 @@ export function makeTree(crownY: number): TreeParts {
     hit.push(m)
   }
 
-  const leafTex = leafTexture()
-  const leafMat = new THREE.MeshStandardMaterial({ map: leafTex, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.7 })
-  const leafGeo = new THREE.PlaneGeometry(0.34, 0.34)
-  const perBlob = 230
-  const leaves = new THREE.InstancedMesh(leafGeo, leafMat, blobs.length * perBlob)
-  leaves.customDepthMaterial = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: leafTex, alphaTest: 0.5 })
-  const m4 = new THREE.Matrix4()
-  const q = new THREE.Quaternion()
-  const n = new THREE.Vector3()
-  const p = new THREE.Vector3()
-  const col = new THREE.Color()
-  let k = 0
-  for (const [x, y, z, r] of blobs) {
-    for (let i = 0; i < perBlob; i++) {
-      // Shar yuzasida tekis tarqoq nuqta
-      n.set(rnd(-1, 1), rnd(-1, 1), rnd(-1, 1)).normalize()
-      p.set(x, y, z).addScaledVector(n, r * rnd(0.86, 1.02))
-      // Barg tashqariga qaraydi, o'z atrofida tasodifiy buriladi
-      q.setFromUnitVectors(new THREE.Vector3(0, 0, 1), n).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), rnd(0, Math.PI * 2)))
-      q.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), rnd(-0.6, 0.6)))
-      m4.compose(p, q, new THREE.Vector3(1, 1, 1).multiplyScalar(rnd(0.75, 1.2)))
-      leaves.setMatrixAt(k, m4)
-      // Yuqoridagi barglar quyoshda ochroq
-      const light = 0.78 + 0.22 * Math.max(0, n.y) + rnd(-0.08, 0.08)
-      leaves.setColorAt(k, col.setRGB(light * rnd(0.9, 1.05), light, light * rnd(0.85, 1)))
-      k++
-    }
-  }
+  const leaves = leafCloud(
+    blobs.map(([x, y, z, r]) => [x, y, z, r, r, r]),
+    230,
+    0.34,
+  )
   leaves.castShadow = true
   leaves.receiveShadow = true
   crown.add(leaves)
@@ -460,4 +509,81 @@ export function makeTree(crownY: number): TreeParts {
   }
 
   return { tree, crown, hit, frontZ }
+}
+
+// ---------- Barglar buluti (asosiy daraxt, teraklar, fondagi daraxtlar) ----------
+
+let leafMatCache: { mat: THREE.MeshStandardMaterial; depth: THREE.MeshDepthMaterial; card: boolean } | null = null
+function leafMaterial() {
+  if (leafMatCache) return leafMatCache
+  const img = A?.tex.leaf?.image as (CanvasImageSource & { width: number; height: number }) | undefined
+  if (img && img.width) {
+    // Haqiqiy barg shoxchalari (foto atlasning chap qismi): qora fon shaffof qilinadi
+    const W = img.width
+    const H = img.height
+    const card = canvasTex(256, 512, (g) => {
+      g.drawImage(img, 0, 0, W * 0.44, H, 0, 0, 256, 512)
+      const d = g.getImageData(0, 0, 256, 512)
+      for (let i = 0; i < d.data.length; i += 4) {
+        const m = Math.max(d.data[i], d.data[i + 1], d.data[i + 2])
+        d.data[i + 3] = m < 22 ? 0 : 255
+      }
+      g.putImageData(d, 0, 0)
+    })
+    const mat = new THREE.MeshStandardMaterial({ map: card, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.65 })
+    const depth = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: card, alphaTest: 0.5 })
+    leafMatCache = { mat, depth, card: true }
+    return leafMatCache
+  }
+  const silhouette = leafTexture()
+  const mat = new THREE.MeshStandardMaterial({ map: silhouette, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.7 })
+  const depth = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: silhouette, alphaTest: 0.5 })
+  leafMatCache = { mat, depth, card: false }
+  return leafMatCache
+}
+
+/** Ellipsoidlar yuzasiga tarqatilgan barglar (InstancedMesh). blob: [x, y, z, rx, ry, rz] */
+function leafCloud(blobs: number[][], perBlob: number, size: number, tint = '#ffffff') {
+  const { mat, depth, card } = leafMaterial()
+  // Foto kartochka — bitta shoxchada o'nlab barg: kartochkalar kattaroq, soni kamroq
+  if (card) {
+    perBlob = Math.round(perBlob * 0.62)
+    tint = '#ffffff'
+  }
+  const geo = card ? new THREE.PlaneGeometry(size * 1.25, size * 2.5) : new THREE.PlaneGeometry(size, size)
+  const leaves = new THREE.InstancedMesh(geo, mat, blobs.length * perBlob)
+  leaves.customDepthMaterial = depth
+  const m4 = new THREE.Matrix4()
+  const q = new THREE.Quaternion()
+  const n = new THREE.Vector3()
+  const p = new THREE.Vector3()
+  const col = new THREE.Color()
+  const base = new THREE.Color(tint)
+  const Z = new THREE.Vector3(0, 0, 1)
+  const X = new THREE.Vector3(1, 0, 0)
+  let k = 0
+  for (const [x, y, z, rx, ry, rz] of blobs) {
+    for (let i = 0; i < perBlob; i++) {
+      n.set(rnd(-1, 1), rnd(-1, 1), rnd(-1, 1)).normalize()
+      const d = rnd(0.86, 1.02)
+      p.set(x + n.x * rx * d, y + n.y * ry * d, z + n.z * rz * d)
+      q.setFromUnitVectors(Z, n).multiply(new THREE.Quaternion().setFromAxisAngle(Z, rnd(0, Math.PI * 2)))
+      q.multiply(new THREE.Quaternion().setFromAxisAngle(X, rnd(-0.6, 0.6)))
+      m4.compose(p, q, new THREE.Vector3(1, 1, 1).multiplyScalar(rnd(0.75, 1.2)))
+      leaves.setMatrixAt(k, m4)
+      // Yuqoridagi barglar quyoshda ochroq
+      const light = 0.78 + 0.22 * Math.max(0, n.y) + rnd(-0.08, 0.08)
+      leaves.setColorAt(
+        k,
+        col
+          .copy(base)
+          .multiplyScalar(light)
+          .multiply(new THREE.Color(rnd(0.92, 1.05), 1, rnd(0.88, 1))),
+      )
+      k++
+    }
+  }
+  leaves.castShadow = true
+  leaves.receiveShadow = true
+  return leaves
 }
