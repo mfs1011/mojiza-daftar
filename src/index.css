@@ -4792,3 +4792,20 @@ button {
   width: 14.5vmin;
   height: 14.5vmin;
 }
+
+/* ✋ 3D qo'llar (barmoq bilan sanash) */
+.hands3d {
+  width: 46vmin;
+  height: 34vmin;
+}
+
+.hands3d.small {
+  width: 30vmin;
+  height: 22vmin;
+}
+
+.hands3d canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
