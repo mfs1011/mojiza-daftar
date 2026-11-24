@@ -1,4 +1,5 @@
 // Mo'jiza Daftar — barcha rasmlar ro'yxati va yagona uslub.
+// QOIDALAR: docs/GENERATSIYA_QOIDALARI.md (uslub, taqiqlar, kompozitsiya, namuna rasmlar) — o'zgartirishdan oldin o'qing.
 // `npm run gen:art` shu ro'yxat bo'yicha Gemini (Nano Banana) orqali rasm yaratadi.
 // Yo'l (path) = ilova qidiradigan fayl: public/assets/art/<path>.(png|jpg)
 
@@ -6,7 +7,8 @@ export const STYLE = [
   "Soft 3D children's cartoon illustration in the style of a premium mobile kids game",
   'rounded chunky friendly shapes, warm saturated but gentle colors, soft global illumination, subtle ambient occlusion',
   'clean readable silhouette, smooth matte clay-like materials, big expressive eyes where there is a face',
-  'Uzbek cultural flavor where relevant (blue tiled domes, carved wooden doors, atlas ikat patterns, suzani motifs, tandir, so\'ri, poplar trees)',
+  'subtle Uzbek flavor only as small decorative patterns (atlas ikat, suzani, cotton-boll motifs) on clothing, collars or dishes',
+  'absolutely NO doors, windows, domes, towers or building parts on any character, animal or object',
   'no text, no letters, no logos, no watermark, no border, no frame',
 ].join(', ')
 
@@ -37,12 +39,14 @@ export function objectText(key) {
   ].join(', ')
 }
 
-const fruit = (id, what) => ({ path: `fruit/${id}`, kind: 'object', size: 512, prompt: `${what}, one single fruit, cute glossy toy-like look` })
+/** Eski mevalar uslubi (olma, anor): yuzli — ikki katta yaltiroq ko'z, kichik tabassum, yengil qizil yanoq */
+const FACE = 'with a cute friendly face: two big glossy eyes, a small smile and soft pink cheeks'
+const fruit = (id, what) => ({ path: `fruit/${id}`, kind: 'object', size: 512, prompt: `${what}, one single fruit, ${FACE}, cute glossy toy-like look` })
 const animal = (id, what, motion) => ({
   path: `animal/${id}`,
   kind: 'object',
   size: 640,
-  prompt: `${what}, full body, standing on four legs (or two for birds), side view facing RIGHT, cute baby proportions, friendly smile`,
+  prompt: `${what}, full body, side view facing RIGHT, cute baby proportions, big expressive eyes, friendly smile, a colorful atlas-ikat patterned collar`,
   motion,
 })
 const person = (id, what) => [
@@ -50,14 +54,14 @@ const person = (id, what) => [
     path: `person/${id}`,
     kind: 'object',
     size: 640,
-    prompt: `${what}, full body, front view, standing, friendly calm smile, arms relaxed`,
+    prompt: `${what}, full body, front view, standing on a small round grass base, friendly calm smile, arms relaxed`,
     motion: 'gentle idle: breathing, blinks, a small friendly sway and a slight nod',
   },
   {
     path: `person/${id}-happy`,
     kind: 'object',
     size: 640,
-    prompt: `${what}, full body, front view, standing, very happy laughing with eyes closed, arms slightly raised`,
+    prompt: `${what}, full body, front view, standing on a small round grass base, very happy laughing with eyes closed, arms slightly raised`,
     motion: 'laughs happily and claps hands twice, a small joyful bounce',
   },
 ]
@@ -137,7 +141,7 @@ export const ASSETS = [
     ['karam', 'a round light green cabbage head'],
     ['qalampir', 'a bright red bell pepper with a green stem'],
     ['oshqovoq', 'a round orange pumpkin with a curly stem'],
-  ].map(([id, what]) => ({ path: `veg/${id}`, kind: 'object', size: 512, prompt: `${what}, one single vegetable, cute glossy toy-like look` })),
+  ].map(([id, what]) => ({ path: `veg/${id}`, kind: 'object', size: 512, prompt: `${what}, one single vegetable, ${FACE}, cute glossy toy-like look` })),
 
   // Buyumlar (12) — o'zbek uyi va bolalar dunyosi
   ...[
@@ -153,7 +157,7 @@ export const ASSETS = [
     ['mashina', 'a small red toy car'],
     ['velosiped', 'a small blue children bicycle, side view'],
     ['soyabon', 'an open colorful umbrella'],
-  ].map(([id, what]) => ({ path: `obj/${id}`, kind: 'object', size: 512, prompt: `${what}, one single object, cute toy-like look` })),
+  ].map(([id, what]) => ({ path: `obj/${id}`, kind: 'object', size: 512, prompt: `${what}, one single object, ${FACE}, cute toy-like look` })),
 
   // Tabiat (6)
   ...[
@@ -163,7 +167,7 @@ export const ASSETS = [
     ['bulut', 'a fluffy white cloud with a gentle smile'],
     ['yomgir', 'a small grey rain cloud with falling blue raindrops'],
     ['gul', 'a red tulip flower with two leaves'],
-  ].map(([id, what]) => ({ path: `nature/${id}`, kind: 'object', size: 512, prompt: `${what}, one single object, cute toy-like look` })),
+  ].map(([id, what]) => ({ path: `nature/${id}`, kind: 'object', size: 512, prompt: `${what}, one single object, ${FACE}, cute toy-like look` })),
 
   // Kasblar (+4, odamlar kabi: oddiy va xursand holat)
   ...person('shifokor', 'a kind Uzbek woman doctor in a white coat with a stethoscope'),
