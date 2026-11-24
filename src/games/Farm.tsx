@@ -4,6 +4,7 @@ import { ALL_ANIMALS, AnimalArt, type AnimalId } from '../art/Animal'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
+import { useHowTo } from '../components/useHowTo'
 import { say, sayAnimal, sfx } from '../lib/audio'
 import { pick, shuffle, wait } from '../lib/util'
 import { levelRow } from '../lib/stations'
@@ -61,7 +62,7 @@ function makeRound(cfg: FarmCfg): Round {
   return { animals, seq }
 }
 
-export function Farm({ level, onComplete, onExit }: GameProps) {
+export function Farm({ profile, level, onComplete, onExit }: GameProps) {
   // Rejim (kim/takrorla) butun o'yin uchun bitta; raundlar endless'da har xil bo'lishi mumkin
   const cfg = useMemo(() => farmCfg(level), [level])
   const [roundIdx, setRoundIdx] = useState(0)
@@ -86,9 +87,16 @@ export function Farm({ level, onComplete, onExit }: GameProps) {
     }
   }, [])
 
+  // "Qanday bajariladi?": qo'l navbatdagi to'g'ri hayvonni bosib ko'rsatadi
+  const howto = useHowTo(profile.id, 'ferma', () => howto.tap(`.farm-animal[data-id="${round.seq[progressRef.current]}"]`))
+  const progressRef = useRef(0)
+  progressRef.current = progress
+
   async function playSequence(first: boolean) {
     setPhase('listen')
     setProgress(0)
+    const explain = first ? howto.arm(cfg.mode) : []
+    if (explain.length) await say(...explain)
     if (first && roundIdx === 0) await say(cfg.mode === 'kim' ? 'ferma_kim' : 'ferma_takrorla')
     else if (first && cfg.mode === 'kim') await say('ferma_kim')
     await wait(300)
@@ -109,6 +117,7 @@ export function Farm({ level, onComplete, onExit }: GameProps) {
   }, [roundIdx])
 
   function solved() {
+    howto.done()
     setPhase('solved')
     sfx.success()
     react('happy', 1800)
@@ -142,6 +151,7 @@ export function Farm({ level, onComplete, onExit }: GameProps) {
       if (next === round.seq.length) solved()
     } else {
       mistakes.current++
+      howto.miss()
       sfx.wrong()
       react('oops')
       setWrong(a)
@@ -231,6 +241,7 @@ export function Farm({ level, onComplete, onExit }: GameProps) {
         </div>
       )}
 
+      {phase === 'input' && howto.overlay}
       {phase === 'finished' && <Celebration voice={[]} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.reduce((a, r) => a + r.seq.length, 0) })} />}
     </GameShell>
   )

@@ -4,6 +4,7 @@ import { AnimalArt, type AnimalId } from '../art/Animal'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
+import { pathBetween, useHowTo } from '../components/useHowTo'
 import { say, sayAnimal, sfx } from '../lib/audio'
 import { shuffle, wait } from '../lib/util'
 import { levelRow } from '../lib/stations'
@@ -72,7 +73,7 @@ function makeRound(cfg: ShadowCfg): { spots: Spot[]; tray: AnimalId[] } {
   return { spots, tray: shuffle(ids) }
 }
 
-export function Shadows({ level, onComplete, onExit }: GameProps) {
+export function Shadows({ profile, level, onComplete, onExit }: GameProps) {
   const [roundIdx, setRoundIdx] = useState(0)
   const rounds = useMemo(() => Array.from({ length: ROUNDS }, () => makeRound(shadowCfg(level))), [level])
   const round = rounds[roundIdx]
@@ -85,8 +86,15 @@ export function Shadows({ level, onComplete, onExit }: GameProps) {
   /** Har joylashtirishda +1: eski ovoz ketma-ketligi yangisini bosib ketmasin */
   const speech = useRef(0)
 
+  // "Qanday bajariladi?": qo'l hayvonni o'z soyasiga sudrab ko'rsatadi
+  const howto = useHowTo(profile.id, 'qora', () => {
+    const id = round.tray.find((a) => !placed.has(a))
+    if (id) howto.drag(pathBetween(`.tray-animal[data-id="${id}"]`, `.silhouette[data-id="${id}"]`))
+  })
   useEffect(() => {
-    if (roundIdx === 0) void say('qora_intro')
+    const first = howto.arm('soya')
+    if (roundIdx === 0 || first.length) void say(...first, ...(roundIdx === 0 ? ['qora_intro'] : []))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roundIdx])
 
   function handleDrop(id: AnimalId, info: PanInfo) {
@@ -108,6 +116,7 @@ export function Shadows({ level, onComplete, onExit }: GameProps) {
       const next = new Set(placed).add(id)
       setPlaced(next)
       const last = next.size === round.spots.length
+      if (last) howto.done()
       const my = ++speech.current
       // Hayvon o'z ovozida "javob beradi", keyin ismi aytiladi; oxirgisidan keyin "Xayrli tun"
       void (async () => {
@@ -126,6 +135,7 @@ export function Shadows({ level, onComplete, onExit }: GameProps) {
       })()
     } else {
       mistakes.current++
+      howto.miss()
       sfx.wrong()
       react('oops')
       setWrongSpot(best.id)
@@ -196,6 +206,7 @@ export function Shadows({ level, onComplete, onExit }: GameProps) {
           ))}
       </div>
 
+      {!finished && howto.overlay}
       {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.reduce((a, r) => a + r.spots.length, 0) })} />}
     </GameShell>
   )

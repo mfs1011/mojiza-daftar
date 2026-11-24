@@ -4,6 +4,7 @@ import { ALL_TILES, TileArt, type TileId } from '../art/Tile'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
+import { useHowTo } from '../components/useHowTo'
 import { say, sfx } from '../lib/audio'
 import { pick, shuffle } from '../lib/util'
 import { levelRow } from '../lib/stations'
@@ -63,7 +64,7 @@ function makeRound(cfg: WorkshopCfg): Round {
   return { seq, shown, options }
 }
 
-export function Workshop({ level, onComplete, onExit }: GameProps) {
+export function Workshop({ profile, level, onComplete, onExit }: GameProps) {
   const [roundIdx, setRoundIdx] = useState(0)
   const rounds = useMemo(() => Array.from({ length: ROUNDS }, () => makeRound(workshopCfg(level))), [level])
   const round = rounds[roundIdx]
@@ -77,8 +78,12 @@ export function Workshop({ level, onComplete, onExit }: GameProps) {
   const blanks = round.seq.length - round.shown
   const expected = round.seq[round.shown + filled]
 
+  // "Qanday bajariladi?": qo'l keyingi to'g'ri plitkani bosib ko'rsatadi
+  const howto = useHowTo(profile.id, 'ustaxona', () => howto.tap(`.tile-option[data-id="${round.seq[round.shown + filled]}"]`))
   useEffect(() => {
-    if (roundIdx === 0) void say('ustaxona_intro')
+    const first = howto.arm('naqsh')
+    if (roundIdx === 0 || first.length) void say(...first, ...(roundIdx === 0 ? ['ustaxona_intro'] : []))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roundIdx])
 
   function choose(t: TileId) {
@@ -89,6 +94,7 @@ export function Workshop({ level, onComplete, onExit }: GameProps) {
       const n = filled + 1
       setFilled(n)
       if (n === blanks) {
+        howto.done()
         react('happy', 1800)
         void say(pick(['barakalla', 'zor']))
         setBands((b) => [...b, round.seq.slice(0, 6)])
@@ -103,6 +109,7 @@ export function Workshop({ level, onComplete, onExit }: GameProps) {
       } else react('happy', 800)
     } else {
       mistakes.current++
+      howto.miss()
       sfx.wrong()
       react('oops')
       setWrong(t)
@@ -196,6 +203,7 @@ export function Workshop({ level, onComplete, onExit }: GameProps) {
         ))}
       </div>
 
+      {!finished && howto.overlay}
       {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, tasks: rounds.reduce((a, r) => a + r.seq.length - r.shown, 0) })} />}
     </GameShell>
   )

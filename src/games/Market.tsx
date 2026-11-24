@@ -5,6 +5,7 @@ import { ALL_PEOPLE, CoinArt, PersonArt, type PersonId } from '../art/Scenery'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
+import { useHowTo } from '../components/useHowTo'
 import { hasVoice, say, sfx } from '../lib/audio'
 import { MARKET_FRUITS } from '../lib/names'
 import { pick, randInt } from '../lib/util'
@@ -77,7 +78,7 @@ function customerOrder(person: PersonId, want: number, fruit: FruitKind): string
   return hasVoice(n) && hasVoice(f) ? [n, f] : [`son_${want}`, `meva_${fruit}`]
 }
 
-export function Market({ level, onComplete, onExit }: GameProps) {
+export function Market({ profile, level, onComplete, onExit }: GameProps) {
   // Endless'da tasodifiy tanlanadi: bitta o'yin davomida o'zgarmasin
   const [cfg] = useState(() => marketCfg(level))
   const [round, setRound] = useState(0)
@@ -93,13 +94,18 @@ export function Market({ level, onComplete, onExit }: GameProps) {
   const showPictures = cfg.auto || tries >= cfg.hintAfter
   const { want, fruit } = customer
 
+  // "Qanday bajariladi?": kam bo'lsa — mevani bosadi, ko'p bo'lsa — savatdan qaytaradi, teng bo'lsa — "Berish"
+  const howto = useHowTo(profile.id, 'bozor', () =>
+    howto.tap(given < want ? '.crate-fruit' : given > want ? '.cell-fruit:last-of-type' : '.give-btn'),
+  )
   useEffect(() => {
-    void say(...(round === 0 ? ['bozor_intro'] : []), ...customerLine(customer.person, 'salom'), ...customerOrder(customer.person, want, fruit))
+    void say(...howto.arm(cfg.auto ? 'oddiy' : 'sana'), ...(round === 0 ? ['bozor_intro'] : []), ...customerLine(customer.person, 'salom'), ...customerOrder(customer.person, want, fruit))
     // Har yangi mijoz kelganda
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [round])
 
   function complete() {
+    howto.done()
     setHappy(true)
     sfx.coin()
     react('happy', 2000)
@@ -140,6 +146,7 @@ export function Market({ level, onComplete, onExit }: GameProps) {
     if (happy) return
     if (given === want) return complete()
     mistakes.current++
+    howto.miss()
     sfx.wrong()
     react('oops')
     setTries((t) => t + 1)
@@ -254,6 +261,7 @@ export function Market({ level, onComplete, onExit }: GameProps) {
         </div>
       )}
 
+      {!happy && !finished && howto.overlay}
       {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, coins: earned, tasks: ROUNDS })} />}
     </GameShell>
   )

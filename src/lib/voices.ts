@@ -176,6 +176,12 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     { key: 'mantiq_tiz', text: 'Eng kichigidan boshlab, kattasigacha bos!', group: 'Mantiq' },
     { key: 'mantiq_labirint', text: "Qahramonni yo'ldan olib borib, uyiga yetkaz!", group: 'Mantiq' },
     // "Qanday bajariladi?" — har topshiriq birinchi marta chiqqanda yoki "?" bosilganda
+    { key: 'ustaxona_naqsh_t', text: "Plitkalarga qara: ular bir tartibda takrorlanyapti. Keyingisi qaysi bo'ladi? Pastdan topib bos.", group: 'Ustaxona' },
+    { key: 'qora_soya_t', text: "Har bir hayvonni barmog'ing bilan ushlab, o'zining soyasi ustiga olib bor va qo'yib yubor.", group: "Kechki qo'ra" },
+    { key: 'ferma_kim_t', text: "Diqqat bilan tingla: kim ovoz chiqaryapti? Keyin o'sha hayvonni bos.", group: 'Ferma' },
+    { key: 'ferma_takrorla_t', text: "Hayvonlar navbat bilan ovoz chiqaradi. Eslab qol va xuddi shu tartibda bos.", group: 'Ferma' },
+    { key: 'bozor_oddiy_t', text: "Mijoz nechta meva so'rasa, shuncha mevani bos. Har birini sanab tur.", group: 'Bozor' },
+    { key: 'bozor_sana_t', text: "Mijoz nechta meva so'rasa, shuncha mevani savatga sol. Ko'p bo'lib ketsa, savatdagisini bosib qaytar. Keyin «Berish» tugmasini bos.", group: 'Bozor' },
     { key: 'hisob_qosh_t', text: "Ikkala guruhdagi mevalarni birga sana. Hammasi nechta bo'lsa, pastdan o'sha raqamni bos.", group: 'Hisob maktabi' },
     { key: 'hisob_ayir_t', text: "Avval nechta meva borligini ko'r. Bir nechtasi ketib qoladi. Qolganlarini sana va pastdan o'sha raqamni bos.", group: 'Hisob maktabi' },
     { key: 'hisob_misol_t', text: "Qo'shuv belgisi — qo'shamiz, ayiruv belgisi — ayiramiz. Barmoqlaring bilan sanab ko'r, javobni pastdan bos.", group: 'Hisob maktabi' },

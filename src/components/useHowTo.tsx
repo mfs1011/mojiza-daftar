@@ -14,6 +14,11 @@ import { centerOf, HandHint, type HandPath } from './HandHint'
 export interface HowTo {
   /** Raund boshlanganda chaqiriladi: yangi bo'lsa tushuntiradi, aks holda qisqa buyruqni aytadi */
   start: (task: string, instruction: string[]) => void
+  /**
+   * Faqat yoqish: "?" tugmasi va avtomatik yordam ishlaydi, lekin hech narsa aytilmaydi
+   * (o'yinning o'z kirish ovozi bor bo'lsa). Birinchi marta bo'lsa — tushuntirish kalitini qaytaradi.
+   */
+  arm: (task: string) => string[]
   /** Xato bo'ldi — ikkinchisidan keyin ko'rsatadi */
   miss: () => void
   /** Raund yechildi — qo'l yo'qoladi, kuzatish to'xtaydi */
@@ -84,6 +89,18 @@ export function useHowTo(profileId: string, prefix: string, demo: () => void): H
         markTaskSeen(profileId, key)
         void explain()
       } else void say(...instruction)
+    },
+    arm(t) {
+      task.current = t
+      instr.current = []
+      misses.current = 0
+      lastAct.current = Date.now()
+      setHint(null)
+      setActive(true)
+      const key = `${prefix}_${t}`
+      if (!isNewTask(profileId, key)) return []
+      markTaskSeen(profileId, key)
+      return [`${key}_t`]
     },
     miss() {
       if (++misses.current === 2) setTimeout(runDemo, 900)
