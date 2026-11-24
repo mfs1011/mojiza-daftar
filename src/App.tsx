@@ -8,6 +8,7 @@ import { Garden } from './games/Garden'
 import { Letters } from './games/Letters'
 import { LogicGame } from './games/LogicGame'
 import { MathGame } from './games/MathGame'
+import { MusicGame } from './games/MusicGame'
 import { PoemsGame } from './games/PoemsGame'
 import { ShapesGame } from './games/ShapesGame'
 import { WritingGame } from './games/WritingGame'
@@ -44,6 +45,7 @@ const GAMES: Record<GameStation, ComponentType<GameProps>> = {
   mantiq: LogicGame,
   yozuv: WritingGame,
   sher: PoemsGame,
+  musiqa: MusicGame,
 }
 
 /** Hovli sovg'asi variantlari: hali hovlida yo'q narsalar birinchi navbatda taklif qilinadi */

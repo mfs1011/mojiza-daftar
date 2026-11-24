@@ -27,6 +27,7 @@ export const STATIONS: Station[] = [
   { id: 'mantiq', name: 'Mantiq', x: 80, y: 58, daily: true },
   { id: 'yozuv', name: 'Yozuv maktabi', x: 87.5, y: 82, daily: true },
   { id: 'sher', name: "She'rlar", x: 95, y: 58, daily: true },
+  { id: 'musiqa', name: 'Musiqa uyi', x: 96, y: 84, daily: true },
 ]
 
 export const stationsFor = (age: Age) => STATIONS.filter((s) => !s.minAge || age >= s.minAge)

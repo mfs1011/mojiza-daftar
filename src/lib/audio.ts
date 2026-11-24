@@ -356,6 +356,12 @@ export function mascotCall() {
   if (v.length) sample(v[Math.floor(Math.random() * v.length)])
 }
 
+/** Musiqa uyi cholg'ulari uchun: audio konteksti va effektlar shinasi (slayder va tungi rejim amal qiladi) */
+export function instrumentOut(): { c: AudioContext; dest: AudioNode } {
+  const c = ac()
+  return { c, dest: fxBus }
+}
+
 /** Tayyor ovoz fayli bormi (ota-ona yozuvisiz): personaj ovozi yo'q bo'lsa umumiy ko'rsatmaga qaytish uchun */
 export const hasVoice = (key: string) => !!audioUrl(`voices/${key}`)
 
@@ -363,7 +369,7 @@ export const hasVoice = (key: string) => !!audioUrl(`voices/${key}`)
 // Har ekran o'z trekini so'raydi (playMusic/playAmbience). Treklar AudioBufferSourceNode bilan
 // uzluksiz aylanadi, almashganda crossfade qilinadi. Fayl bo'lmasa — jimlik (sintez kuy yo'q).
 
-export type MusicId = 'map' | 'bog' | 'bozor' | 'ferma' | 'ustaxona' | 'qora' | 'harflar' | 'raqam' | 'hisob' | 'shakl' | 'mantiq' | 'yozuv' | 'sher' | 'rasm' | 'uyqu'
+export type MusicId = 'map' | 'bog' | 'bozor' | 'ferma' | 'ustaxona' | 'qora' | 'harflar' | 'raqam' | 'hisob' | 'shakl' | 'mantiq' | 'yozuv' | 'sher' | 'musiqa' | 'rasm' | 'uyqu'
 export type AmbienceId = 'bog' | 'bozor' | 'ferma' | 'ustaxona' | 'qora' | 'harflar'
 
 /** Siqilgan fayl baytlari (kichik) keshlanadi; dekodlangan bufer katta, shuning uchun faqat oxirgi ikkitasi */

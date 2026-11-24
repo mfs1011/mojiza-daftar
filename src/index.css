@@ -3868,3 +3868,316 @@ button {
   background: #ef476f;
   color: #fff;
 }
+
+/* ---------- 🎵 Musiqa uyi ---------- */
+
+.music {
+  background: radial-gradient(ellipse at 50% 0%, #f1e3ff, #b388eb 70%, #7b5ea7);
+}
+
+.music-top {
+  position: absolute;
+  top: 2.5vmin;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2vmin;
+  z-index: 20;
+}
+
+.inst-btn {
+  width: 11vmin;
+  height: 11vmin;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0.8vmin 0 #0003;
+  font-size: 6vmin;
+  display: grid;
+  place-items: center;
+  opacity: 0.75;
+}
+
+.inst-btn.on {
+  opacity: 1;
+  box-shadow:
+    0 0 0 1vmin #ffd166,
+    0 0.8vmin 0 #0003;
+}
+
+.mode-btn {
+  margin-left: 2vmin;
+  padding: 0 3vmin;
+  border-radius: 6vmin;
+  background: #fff;
+  font-size: 4vmin;
+  font-weight: 800;
+  color: #5a189a;
+  box-shadow: 0 0.8vmin 0 #0003;
+}
+
+.mode-btn.on {
+  background: #ffd166;
+}
+
+.song-dots {
+  position: absolute;
+  top: 17vmin;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2vmin;
+  z-index: 10;
+}
+
+.song-dot {
+  width: 5vmin;
+  height: 5vmin;
+  border-radius: 50%;
+  background: #ffffff66;
+  border: 0.6vmin solid #fff;
+}
+
+.song-replay,
+.rec-btn {
+  margin-left: 2vmin;
+  height: 8vmin;
+  padding: 0 3vmin;
+  border-radius: 4vmin;
+  background: #fff;
+  font-size: 4.2vmin;
+  font-weight: 800;
+  box-shadow: 0 0.7vmin 0 #0003;
+}
+
+.rec-btn.on {
+  background: #ef476f;
+  color: #fff;
+}
+
+.instrument {
+  position: absolute;
+  left: 4vmin;
+  right: 4vmin;
+  top: 28vmin;
+  bottom: 4vmin;
+  display: flex;
+  gap: 1.2vmin;
+  padding: 2vmin;
+  border-radius: 4vmin;
+}
+
+.instrument.waiting .key {
+  filter: saturate(0.7);
+}
+
+.key {
+  position: relative;
+  flex: 1;
+  border-radius: 0 0 2.5vmin 2.5vmin;
+  touch-action: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 3vmin;
+}
+
+.key-name {
+  font-size: 5vmin;
+  font-weight: 900;
+  color: #3d2c1e;
+  pointer-events: none;
+}
+
+/* Pianino: oq klavishlar, tepasida rangli chiziq; botganda yonadi */
+.inst-pianino .instrument {
+  background: linear-gradient(#2b2d42, #1d1e2c);
+  box-shadow: 0 2vmin 0 #0004, inset 0 1vmin 2vmin #0006;
+}
+
+.inst-pianino .key {
+  background: linear-gradient(#fff 80%, #e9ecef);
+  box-shadow:
+    inset 0 1.4vmin 0 var(--c),
+    0 1.2vmin 0 #adb5bd,
+    0 1.6vmin 1vmin #0005;
+}
+
+.inst-pianino .key.lit {
+  background: linear-gradient(color-mix(in srgb, var(--c) 35%, #fff) 80%, var(--c));
+}
+
+/* Ksilofon: yog'och ramkada rang-barang plastinkalar, kattadan kichikka */
+.inst-ksilofon .instrument {
+  align-items: center;
+  background: linear-gradient(#a0522d, #6b3e26);
+  box-shadow: 0 2vmin 0 #0004;
+}
+
+.inst-ksilofon .key {
+  height: calc(100% - var(--i) * 4%);
+  border-radius: 2vmin;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--c) 70%, #000) 0, var(--c) 18%, color-mix(in srgb, var(--c) 60%, #fff) 50%, var(--c) 82%, color-mix(in srgb, var(--c) 70%, #000) 100%);
+  box-shadow: 0 1.2vmin 1vmin #0006;
+  align-items: center;
+  padding: 0;
+}
+
+.inst-ksilofon .key::before,
+.inst-ksilofon .key::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 2vmin;
+  height: 2vmin;
+  margin-left: -1vmin;
+  border-radius: 50%;
+  background: radial-gradient(#eee, #888);
+}
+
+.inst-ksilofon .key::before {
+  top: 2vmin;
+}
+
+.inst-ksilofon .key::after {
+  bottom: 2vmin;
+}
+
+.inst-ksilofon .key.lit {
+  filter: brightness(1.25);
+  box-shadow: 0 0 3vmin var(--c), 0 1.2vmin 1vmin #0006;
+}
+
+.inst-ksilofon .key-name {
+  color: #fff;
+  text-shadow: 0 0.3vmin 0 #0006;
+}
+
+/* Dutor: yog'och dasta ustida torlar; chertilganda tor titraydi */
+.inst-dutor .instrument {
+  background: linear-gradient(90deg, #5c3317, #8b5a2b 30%, #a0693a 50%, #8b5a2b 70%, #5c3317);
+  box-shadow: 0 2vmin 0 #0004, inset 0 0 4vmin #0006;
+}
+
+.inst-dutor .key {
+  background: transparent;
+  border-radius: 1vmin;
+}
+
+.inst-dutor .key.lit {
+  background: color-mix(in srgb, var(--c) 30%, transparent);
+}
+
+.inst-dutor .string {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: calc(0.6vmin + (7 - var(--i)) * 0.14vmin);
+  margin-left: -0.4vmin;
+  background: linear-gradient(90deg, #b08d57, #fff3c4, #b08d57);
+  box-shadow: 0 0 1vmin #0006;
+}
+
+.inst-dutor .string.twang {
+  animation: twang 0.35s linear;
+  background: linear-gradient(90deg, var(--c), #fff, var(--c));
+}
+
+@keyframes twang {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-0.8vmin); }
+  40% { transform: translateX(0.7vmin); }
+  60% { transform: translateX(-0.4vmin); }
+  80% { transform: translateX(0.3vmin); }
+}
+
+.inst-dutor .key-name {
+  color: #fff;
+  background: #0005;
+  padding: 0 1.2vmin;
+  border-radius: 2vmin;
+}
+
+/* Nay: yog'och quvur, katta teshiklar */
+.inst-nay .instrument {
+  top: 38vmin;
+  bottom: 16vmin;
+  align-items: center;
+  border-radius: 20vmin;
+  background: linear-gradient(#d4a373 0, #f2cc8f 35%, #c38e5d 70%, #8d5524);
+  box-shadow: 0 2vmin 1.5vmin #0005;
+}
+
+.inst-nay .key {
+  height: 100%;
+  background: transparent;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.inst-nay .hole {
+  width: 11vmin;
+  height: 11vmin;
+  border-radius: 50%;
+  background: radial-gradient(#2b1a0e 50%, #5c3317);
+  box-shadow: inset 0 1vmin 1vmin #000a, 0 0 0 0.8vmin var(--c);
+}
+
+.inst-nay .key.lit .hole {
+  background: radial-gradient(var(--c) 40%, #5c3317);
+  box-shadow: 0 0 3vmin var(--c), 0 0 0 0.8vmin #fff;
+}
+
+.inst-nay .key-name {
+  position: absolute;
+  bottom: -9vmin;
+  color: #fff;
+}
+
+/* Doira: urma patlar — terisi tortilgan, chekkasida halqachalar */
+.inst-doira .instrument {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3vmin;
+  background: transparent;
+}
+
+.inst-doira .key {
+  border-radius: 50%;
+  aspect-ratio: 1;
+  max-height: 32vmin;
+  justify-self: center;
+  align-items: center;
+  padding: 0;
+  background: radial-gradient(circle at 40% 35%, #fff8e7, #f2cc8f 55%, color-mix(in srgb, var(--c) 60%, #8d5524) 70%);
+  border: 1.6vmin solid color-mix(in srgb, var(--c) 70%, #3d2c1e);
+  box-shadow: 0 1.6vmin 0 #0004, inset 0 -1vmin 2vmin #0003;
+}
+
+.inst-doira .key.lit {
+  background: radial-gradient(circle at 40% 35%, #fff, var(--c) 70%);
+}
+
+.fly-note {
+  position: absolute;
+  bottom: 40%;
+  font-size: 9vmin;
+  font-weight: 900;
+  pointer-events: none;
+  text-shadow: 0 0.5vmin 0 #0003;
+  z-index: 5;
+}
+
+/* Musiqa uyida daraja nuqtalari kuy nuqtalari yonida (tepada cholg'ular turadi) */
+.music .pips {
+  top: auto;
+  bottom: 1vmin;
+  z-index: 25;
+}
+
+.mode-btn {
+  white-space: nowrap;
+}

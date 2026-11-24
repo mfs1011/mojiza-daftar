@@ -321,6 +321,17 @@ const STATION_ICONS: Record<StationId, React.ReactNode> = {
       <path d="M18 40H40M18 52H40M18 64H36" fill="none" stroke="#adb5bd" strokeWidth={3} />
     </>
   ),
+  musiqa: (
+    <>
+      <rect x={8} y={40} width={84} height={46} rx={6} fill="#3d2c1e" />
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <rect key={i} x={13 + i * 13} y={46} width={11} height={36} rx={2} fill={['#ef476f', '#f78c6b', '#ffd166', '#06d6a0', '#118ab2', '#8e5bd6'][i]} />
+      ))}
+      <path d="M58 30V10L78 6V26" fill="none" strokeWidth={4} />
+      <circle cx={54} cy={30} r={6} fill="#8e5bd6" />
+      <circle cx={74} cy={26} r={6} fill="#8e5bd6" />
+    </>
+  ),
 }
 
 export function StationIcon({ id, className }: { id: StationId; className?: string }) {
