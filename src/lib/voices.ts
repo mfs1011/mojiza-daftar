@@ -39,6 +39,11 @@ export const CUSTOMER_VOICES = {
   aka: 'Orus', // yosh yigit
   opa: 'Leda', // yengil, yosh qiz
   bola: 'Puck', // sho'x bola
+  // Kasblar (egasi tinglab tanlagan)
+  shifokor: 'Callirrhoe', // mehribon ayol shifokor
+  oshpaz: 'Fenrir', // quvnoq oshpaz
+  haydovchi: 'Schedar', // vazmin haydovchi
+  dehqon: 'Rasalgethi', // mehnatkash dehqon
 } as const
 export type CustomerId = keyof typeof CUSTOMER_VOICES
 
@@ -51,6 +56,10 @@ const CUSTOMER_LINES: Record<CustomerId, Record<'salom' | 'kam' | 'kop' | 'rahma
   aka: { salom: "Salom, do'stim!", kam: 'Yana kerak!', kop: "Ko'p bo'ldi-ku!", rahmat: "Rahmat, do'stim! Ol, tanga." },
   opa: { salom: 'Salom, jonim!', kam: 'Yana bitta kerak!', kop: "Ko'p bo'lib qoldi!", rahmat: 'Rahmat! Mana senga tanga.' },
   bola: { salom: 'Salom!', kam: 'Yana!', kop: "Ko'p bo'ldi!", rahmat: 'Rahmat! Tanga ol!' },
+  shifokor: { salom: 'Assalomu alaykum, aqlli bola!', kam: 'Yana kerak, azizim.', kop: "Ko'p bo'lib qoldi, azizim.", rahmat: "Rahmat! Mevalar sog'liq uchun foydali. Mana tanga." },
+  oshpaz: { salom: 'Salom, kichkina sotuvchi!', kam: 'Yana kerak, oshga yetmaydi!', kop: "Voy, ko'p bo'lib ketdi!", rahmat: 'Rahmat! Mazali taom qilaman. Ol, tanga!' },
+  haydovchi: { salom: "Salom, do'stim!", kam: 'Yana kerak!', kop: "Ko'p bo'ldi, do'stim.", rahmat: 'Rahmat! Yo\'lda yeyman. Mana tanga.' },
+  dehqon: { salom: 'Assalomu alaykum, bolam!', kam: 'Yana kerak, bolam.', kop: "Ko'p bo'lib qoldi, bolam.", rahmat: 'Barakalla, bolam! Mana tanga.' },
 }
 
 const cap = (w: string) => w[0].toUpperCase() + w.slice(1)
@@ -61,6 +70,10 @@ const DIFF_LINES: Record<CustomerId, { kam: (w: string) => string; kop: (w: stri
   aka: { kam: (w) => `Yana ${w} kerak!`, kop: (w) => `${cap(w)} ko'p bo'ldi-ku!` },
   opa: { kam: (w) => `Yana ${w} kerak!`, kop: (w) => `${cap(w)} ko'p bo'lib qoldi!` },
   bola: { kam: (w) => `Yana ${w}!`, kop: (w) => `${cap(w)} ko'p!` },
+  shifokor: { kam: (w) => `Yana ${w} kerak, azizim.`, kop: (w) => `${cap(w)} ko'p bo'lib qoldi, azizim.` },
+  oshpaz: { kam: (w) => `Yana ${w} kerak!`, kop: (w) => `Voy, ${w} ko'p bo'lib ketdi!` },
+  haydovchi: { kam: (w) => `Yana ${w} kerak.`, kop: (w) => `${cap(w)} ko'p bo'ldi.` },
+  dehqon: { kam: (w) => `Yana ${w} kerak, bolam.`, kop: (w) => `${cap(w)} ko'p bo'lib qoldi, bolam.` },
 }
 
 const NUMBERS = ['Bir', 'Ikki', 'Uch', "To'rt", 'Besh', 'Olti', 'Yetti', 'Sakkiz', "To'qqiz", "O'n",

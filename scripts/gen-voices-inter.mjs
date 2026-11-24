@@ -48,6 +48,10 @@ const PERSONA = {
   aka: `${NATIVE}, a friendly cheerful young man of about 25 buying fruit from a small child at a village bazaar`,
   opa: `${NATIVE}, a cheerful young woman of about 20 buying fruit from a small child at a village bazaar, light friendly voice`,
   bola: `${NATIVE}, a playful energetic 7-year-old boy buying fruit at a village bazaar, childlike voice`,
+  shifokor: `${NATIVE}, a kind caring woman doctor of about 35 buying fruit from a small child at a village bazaar, warm calm voice`,
+  oshpaz: `${NATIVE}, a cheerful jolly man cook of about 40 buying fruit from a small child at a village bazaar, warm hearty voice`,
+  haydovchi: `${NATIVE}, a friendly calm man driver of about 30 buying fruit from a small child at a village bazaar`,
+  dehqon: `${NATIVE}, a kind hardworking farmer of about 50 buying fruit from a small child at a village bazaar, warm earthy voice`,
 }
 const PAUSE = ' Read every line as a separate short phrase and make a long pause of about two seconds after each line.'
 
