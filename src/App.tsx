@@ -8,7 +8,9 @@ import { Garden } from './games/Garden'
 import { Letters } from './games/Letters'
 import { LogicGame } from './games/LogicGame'
 import { MathGame } from './games/MathGame'
+import { PoemsGame } from './games/PoemsGame'
 import { ShapesGame } from './games/ShapesGame'
+import { WritingGame } from './games/WritingGame'
 import { Numbers } from './games/Numbers'
 import { Market } from './games/Market'
 import { Shadows } from './games/Shadows'
@@ -37,6 +39,8 @@ const GAMES: Record<GameStation, ComponentType<GameProps>> = {
   hisob: MathGame,
   shakl: ShapesGame,
   mantiq: LogicGame,
+  yozuv: WritingGame,
+  sher: PoemsGame,
 }
 
 /** Sovg'a variantlari: hali qishloqda yo'q narsalar birinchi navbatda taklif qilinadi */

@@ -303,6 +303,24 @@ const STATION_ICONS: Record<StationId, React.ReactNode> = {
       <path d="M42 46L50 36L58 46M50 36V60" fill="none" stroke="#f77f00" strokeWidth={4} />
     </>
   ),
+  yozuv: (
+    <>
+      <rect x={14} y={14} width={72} height={72} rx={6} fill="#fff" />
+      <path d="M24 34H76M24 50H76M24 66H60" fill="none" stroke="#83c5be" strokeWidth={3} />
+      <path d="M70 84L88 28L96 31L80 88Z" fill="#ffd166" />
+      <path d="M70 84L80 88L72 96Z" fill="#3d2c1e" />
+    </>
+  ),
+  sher: (
+    <>
+      <path d="M50 22C38 14 22 14 8 20V82C22 76 38 76 50 84Z" fill="#fefae0" />
+      <path d="M50 22C62 14 78 14 92 20V82C78 76 62 76 50 84Z" fill="#fff" />
+      <path d="M68 40V60M68 40L80 36V56" fill="none" stroke="#e76f51" strokeWidth={4} />
+      <circle cx={64} cy={60} r={5} fill="#e76f51" />
+      <circle cx={76} cy={56} r={5} fill="#e76f51" />
+      <path d="M18 40H40M18 52H40M18 64H36" fill="none" stroke="#adb5bd" strokeWidth={3} />
+    </>
+  ),
 }
 
 export function StationIcon({ id, className }: { id: StationId; className?: string }) {

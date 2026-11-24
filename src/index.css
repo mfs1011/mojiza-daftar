@@ -3236,3 +3236,100 @@ button {
 .maze-hero {
   z-index: 2;
 }
+
+/* ---------- ✏️ Yozuv maktabi ---------- */
+
+.writing {
+  background: linear-gradient(#edf6f9 74%, #83c5be 74%);
+}
+
+.write-board {
+  position: absolute;
+  inset: 13vmin 4vw 4vmin;
+  display: grid;
+  place-items: center;
+}
+
+.write-board .chalkboard {
+  position: relative;
+  left: auto;
+  top: auto;
+  margin: 0;
+  width: 66vh;
+  height: 66vh;
+  max-height: 100%;
+  background: #2f4f3e;
+  border: 1.4vmin solid #8d5524;
+  border-radius: 3vmin;
+}
+
+/* ---------- 📖 She'rlar ---------- */
+
+.poems {
+  background: linear-gradient(#fff8e7 68%, #e9c46a 68%);
+}
+
+.poem-board {
+  position: absolute;
+  left: 4vw;
+  right: 4vw;
+  top: 12vmin;
+  bottom: 34vmin;
+  display: grid;
+  place-items: center;
+}
+
+.poem-book {
+  position: relative;
+  width: 46vmin;
+  height: 36vmin;
+}
+
+.poem-book.reading {
+  animation: book-read 1.4s ease-in-out infinite;
+}
+
+@keyframes book-read {
+  50% {
+    transform: translateY(-1.5vmin) rotate(-2deg);
+  }
+}
+
+.poem-answer {
+  position: absolute;
+  right: -10vmin;
+  top: -6vmin;
+  width: 24vmin;
+  height: 24vmin;
+  padding: 2vmin;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1.2vmin #06d6a0,
+    0 1.4vmin 0 #0002;
+}
+
+.poem-choices {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 5vmin;
+  display: flex;
+  justify-content: center;
+  gap: 2.5vmin;
+}
+
+.poem-opt {
+  width: 20vmin;
+  height: 20vmin;
+  padding: 2vmin;
+  border-radius: 4vmin;
+  background: #fff;
+  box-shadow: 0 1.4vmin 0 #0002;
+}
+
+.poem-opt.right {
+  box-shadow:
+    0 0 0 1.4vmin #06d6a0,
+    0 1.4vmin 0 #0002;
+}

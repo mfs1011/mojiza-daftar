@@ -41,6 +41,8 @@ const THEME: Record<GameStation, [string, string]> = {
   hisob: ['#fff1e6', '#f4a261'],
   shakl: ['#fde2e4', '#cdb4db'],
   mantiq: ['#e2ece9', '#84a59d'],
+  yozuv: ['#edf6f9', '#83c5be'],
+  sher: ['#fff8e7', '#e9c46a'],
 }
 
 export function LevelPath({ profile, station, unlocked, stars, justDone, onPlay, onBack }: Props) {

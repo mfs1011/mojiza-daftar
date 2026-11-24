@@ -11,7 +11,7 @@ export interface Profile {
   color: string
 }
 
-export type StationId = 'rasm' | 'bog' | 'bozor' | 'ferma' | 'ustaxona' | 'qora' | 'harflar' | 'raqam' | 'hisob' | 'shakl' | 'mantiq'
+export type StationId = 'rasm' | 'bog' | 'bozor' | 'ferma' | 'ustaxona' | 'qora' | 'harflar' | 'raqam' | 'hisob' | 'shakl' | 'mantiq' | 'yozuv' | 'sher'
 /** O'yin bekatlari (Rasm uyidan tashqari hammasi) */
 export type GameStation = Exclude<StationId, 'rasm'>
 

@@ -44,3 +44,9 @@ export function initialOf(name: string): string {
   if (/^[OoGg]['ʻ‘’`]/.test(n)) return n[0].toUpperCase() + "'"
   return n[0].toUpperCase()
 }
+
+/** O'zbek lotin alifbosi (bosh harflar) */
+export const ALPHABET = ['A', 'B', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'X', 'Y', 'Z', "O'", "G'", 'Sh', 'Ch']
+
+/** Harf ovoz kaliti: O' va G' — alohida (aks holda O va G bilan to'qnashadi) */
+export const letterVoice = (l: string) => `harf_${l === "O'" ? 'O2' : l === "G'" ? 'G2' : l}`
