@@ -101,5 +101,20 @@
  "hovli_sovga": "gemini-3.8-flash-lite-tts",
  "hovli_joyla": "gemini-3.8-flash-lite-tts",
  "qora_soya_t": "gemini-3.8-flash-lite-tts",
- "ustaxona_naqsh_t": "gemini-3.8-flash-lite-tts"
+ "ustaxona_naqsh_t": "gemini-3.8-flash-lite-tts",
+ "odam_bobo": "gemini-3.8-flash-lite-tts",
+ "odam_buvi": "gemini-3.8-flash-lite-tts",
+ "odam_aka": "gemini-3.8-flash-lite-tts",
+ "odam_opa": "gemini-3.8-flash-lite-tts",
+ "odam_bola": "gemini-3.8-flash-lite-tts",
+ "narsa_terak": "gemini-3.8-flash-lite-tts",
+ "narsa_olma_daraxt": "gemini-3.8-flash-lite-tts",
+ "narsa_anor_daraxt": "gemini-3.8-flash-lite-tts",
+ "narsa_gul": "gemini-3.8-flash-lite-tts",
+ "narsa_kungaboqar": "gemini-3.8-flash-lite-tts",
+ "narsa_uy": "gemini-3.8-flash-lite-tts",
+ "narsa_sori": "gemini-3.8-flash-lite-tts",
+ "narsa_tandir": "gemini-3.8-flash-lite-tts",
+ "narsa_quduq": "gemini-3.8-flash-lite-tts",
+ "narsa_koza": "gemini-3.8-flash-lite-tts"
 }

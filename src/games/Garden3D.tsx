@@ -4,6 +4,7 @@ import { COLOR_HEX, type ColorId, type FruitKind } from '../art/Fruit'
 import { burst } from '../components/Fx'
 import { haptic, sfx } from '../lib/audio'
 import { FRUIT_R, makeBasket, makeFruit } from '../three/fruit3d'
+import { makeBackdrop, makeGround, makeSky, makeTree } from '../three/scenery'
 
 // 🌳 Bog' — 3D sahna: loy uslubidagi daraxt, haqiqiy 3D mevalar, to'qilgan savatlar.
 //   • daraxtga bosish yoki uni barmoq bilan silkitish → shox-shabba prujinadek tebranadi, barglar to'kiladi
@@ -77,21 +78,8 @@ export function Garden3D({ items, groups, holdMax, showHint, onAllDown, onShake,
     host.appendChild(renderer.domElement)
 
     const scene = new THREE.Scene()
-    // Osmon: yuqoridan pastga gradient
-    const sky = document.createElement('canvas')
-    sky.width = 2
-    sky.height = 256
-    const sg = sky.getContext('2d')!
-    const grd = sg.createLinearGradient(0, 0, 0, 256)
-    grd.addColorStop(0, '#8ecae6')
-    grd.addColorStop(0.6, '#cfe9f7')
-    grd.addColorStop(1, '#fdf3dc')
-    sg.fillStyle = grd
-    sg.fillRect(0, 0, 2, 256)
-    const skyTex = new THREE.CanvasTexture(sky)
-    skyTex.colorSpace = THREE.SRGBColorSpace
-    scene.background = skyTex
-    scene.fog = new THREE.Fog('#e6f2ea', 16, 34)
+    // Osmon gradienti va suzib yurgan bulutlar
+    const updateSky = makeSky(scene)
 
     const camera = new THREE.PerspectiveCamera(38, 16 / 9, 0.1, 80)
     camera.position.set(0.3, 3.6, 11.2)
@@ -102,7 +90,7 @@ export function Garden3D({ items, groups, holdMax, showHint, onAllDown, onShake,
     const sun = new THREE.DirectionalLight('#fff1d6', 2.1)
     sun.position.set(-4, 9, 6)
     sun.castShadow = true
-    sun.shadow.mapSize.set(1024, 1024)
+    sun.shadow.mapSize.set(2048, 2048)
     sun.shadow.camera.left = -8
     sun.shadow.camera.right = 8
     sun.shadow.camera.top = 8
@@ -111,113 +99,14 @@ export function Garden3D({ items, groups, holdMax, showHint, onAllDown, onShake,
     sun.shadow.bias = -0.0005
     scene.add(sun)
 
-    const soft = (color: string, rough = 0.9) => new THREE.MeshStandardMaterial({ color, roughness: rough })
+    // Yer, o't, gullar, tepaliklar, tog'lar, teraklar, panjara
+    makeGround(scene)
+    makeBackdrop(scene)
 
-    // Yer, tepaliklar, sarv daraxtlari, panjara
-    const grass = document.createElement('canvas')
-    grass.width = grass.height = 256
-    const gg = grass.getContext('2d')!
-    gg.fillStyle = '#95c47a'
-    gg.fillRect(0, 0, 256, 256)
-    for (let i = 0; i < 1400; i++) {
-      gg.fillStyle = ['#88b86c', '#a3cf86', '#8cbf70', '#9fca80'][i % 4]
-      gg.globalAlpha = 0.55
-      gg.beginPath()
-      gg.ellipse(Math.random() * 256, Math.random() * 256, 1 + Math.random() * 3, 0.6 + Math.random() * 1.4, Math.random() * 3, 0, 7)
-      gg.fill()
-    }
-    const grassTex = new THREE.CanvasTexture(grass)
-    grassTex.colorSpace = THREE.SRGBColorSpace
-    grassTex.wrapS = grassTex.wrapT = THREE.RepeatWrapping
-    grassTex.repeat.set(18, 9)
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(60, 30), new THREE.MeshStandardMaterial({ map: grassTex, roughness: 0.95 }))
-    ground.rotation.x = -Math.PI / 2
-    ground.receiveShadow = true
-    scene.add(ground)
-    ;[
-      [-9, -14, 7, '#a7c957'],
-      [2, -17, 9, '#b5c99a'],
-      [12, -13, 6, '#a7c957'],
-      [-2, -11, 5, '#90be6d'],
-    ].forEach(([x, z, r, c]) => {
-      const h = new THREE.Mesh(new THREE.SphereGeometry(r as number, 32, 16), soft(c as string))
-      h.scale.y = 0.35
-      h.position.set(x as number, 0, z as number)
-      scene.add(h)
-    })
-    for (let i = 0; i < 9; i++) {
-      const c = new THREE.Mesh(new THREE.ConeGeometry(0.45, 3.2, 14), soft(i % 2 ? '#2d6a4f' : '#40916c', 0.8))
-      c.position.set(1 + i * 1.4, 1.6, -6.5 - (i % 3) * 0.8)
-      c.castShadow = true
-      scene.add(c)
-    }
-    const fenceMat = soft('#c08a57', 0.85)
-    for (let i = 0; i < 26; i++) {
-      const p = new THREE.Mesh(new THREE.BoxGeometry(0.16, 1, 0.1), fenceMat)
-      p.position.set(-9 + i * 0.75, 0.5, -3.6)
-      p.castShadow = true
-      scene.add(p)
-    }
-    for (const y of [0.35, 0.75]) {
-      const rail = new THREE.Mesh(new THREE.BoxGeometry(19.5, 0.1, 0.06), fenceMat)
-      rail.position.set(0.4, y, -3.55)
-      scene.add(rail)
-    }
-
-    // ---------- Daraxt ----------
-    const tree = new THREE.Group()
+    // ---------- Daraxt (egri tana, po'stloq, minglab barg) ----------
+    const { tree, crown, hit: crownHit, frontZ } = makeTree(CROWN_Y)
     tree.position.copy(TREE)
     scene.add(tree)
-    const bark = soft('#8d5524', 0.85)
-    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.46, CROWN_Y, 14), bark)
-    trunk.position.y = CROWN_Y / 2
-    trunk.castShadow = true
-    tree.add(trunk)
-    for (const s of [-1, 1]) {
-      const br = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.17, 1.4, 10), bark)
-      br.position.set(s * 0.45, CROWN_Y - 0.1, 0)
-      br.rotation.z = -s * 0.85
-      br.castShadow = true
-      tree.add(br)
-    }
-    // Shox-shabba alohida guruh: tebranganda mevalar ham u bilan birga qimirlaydi
-    const crown = new THREE.Group()
-    crown.position.y = CROWN_Y
-    tree.add(crown)
-    const leafMats = ['#52b788', '#40916c', '#74c69d', '#2d6a4f'].map((c) => soft(c, 0.75))
-    const blobs: [number, number, number, number][] = [
-      [0, 0.9, 0, 1.25],
-      [-1.15, 0.35, 0.2, 0.95],
-      [1.15, 0.35, 0.2, 0.95],
-      [-0.6, 1.55, -0.2, 0.85],
-      [0.65, 1.5, -0.1, 0.85],
-      [0, 0.2, 0.75, 0.9],
-      [-1.6, -0.2, -0.3, 0.7],
-      [1.6, -0.2, -0.3, 0.7],
-      [0, 1.9, 0.3, 0.7],
-      [-0.75, 0.6, -0.8, 0.9],
-      [0.8, 0.6, -0.8, 0.9],
-    ]
-    const leafGeo = new THREE.SphereGeometry(1, 40, 28)
-    // "Barg" bo'rtiqlari: tepalarni biroz siljitamiz — silliq shar emas, buta ko'rinishi
-    const pos = leafGeo.attributes.position
-    for (let i = 0; i < pos.count; i++) {
-      const v = new THREE.Vector3().fromBufferAttribute(pos, i)
-      const n = 1 + 0.05 * Math.sin(v.x * 7) * Math.sin(v.y * 6) * Math.sin(v.z * 5)
-      v.multiplyScalar(n)
-      pos.setXYZ(i, v.x, v.y, v.z)
-    }
-    leafGeo.computeVertexNormals()
-    const crownHit: THREE.Object3D[] = [trunk]
-    blobs.forEach(([x, y, z, r], i) => {
-      const m = new THREE.Mesh(leafGeo, leafMats[i % leafMats.length])
-      m.position.set(x, y, z)
-      m.scale.setScalar(r)
-      m.castShadow = true
-      m.receiveShadow = true
-      crown.add(m)
-      crownHit.push(m)
-    })
 
     // ---------- Mevalar: shox-shabbaning old yuzasiga ----------
     const fruits: Fruit[] = items.map((item, i) => {
@@ -228,7 +117,9 @@ export function Garden3D({ items, groups, holdMax, showHint, onAllDown, onShake,
       const a = -2.2 + (4.4 * (i + 0.5)) / n + (Math.random() - 0.5) * 0.25
       const row = i % 3
       const y = 0.05 + row * 0.75 + (Math.random() - 0.5) * 0.15
-      obj.position.set(Math.sin(a * 0.7) * 1.75, y, 1.05 + Math.cos(a * 0.7) * 0.35)
+      const fx = Math.sin(a * 0.7) * 1.75
+      // Barglar ustida osilib tursin (yarmi barg ichida — shoxga bog'langandek)
+      obj.position.set(fx, y, Math.max(1.05, frontZ(fx, y) - 0.05) + FRUIT_R[item.kind] * item.scale * 0.35)
       obj.rotation.set(Math.random() * 0.4, Math.random() * 6, Math.random() * 0.4)
       crown.add(obj)
       return {
@@ -441,6 +332,7 @@ export function Garden3D({ items, groups, holdMax, showHint, onAllDown, onShake,
     renderer.setAnimationLoop(() => {
       const dt = Math.min(clock.getDelta(), 1 / 30)
       const t = clock.elapsedTime
+      updateSky(dt)
 
       // Daraxt: prujina + yengil shabada
       swingV += (-28 * swing - 3.2 * swingV) * dt
