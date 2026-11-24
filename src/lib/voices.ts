@@ -32,10 +32,11 @@ export interface VoicePrompt {
 
 /** Bozor mijozlari: har biri o'z ovozida gapiradi (Gemini TTS ovozlari) */
 export const CUSTOMER_VOICES = {
-  bobo: 'Algenib', // xirildoq, keksa erkak
-  buvi: 'Gacrux', // yetuk, mehribon ayol
+  // Interactions API + Gemini 3.8 Flash TTS bilan tinglab tanlangan (o'zbekchasi tabiiy)
+  bobo: 'Charon', // chuqur, vazmin erkak ovozi
+  buvi: 'Kore', // mehribon, aniq ayol ovozi
   aka: 'Orus', // yosh yigit
-  opa: 'Aoede', // yengil, yosh qiz
+  opa: 'Leda', // yengil, yosh qiz
   bola: 'Puck', // sho'x bola
 } as const
 export type CustomerId = keyof typeof CUSTOMER_VOICES
