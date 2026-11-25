@@ -1,3 +1,5 @@
+import { ThingArt } from '../art/Thing'
+import type { ThingId } from '../lib/things'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { AnimalArt } from '../art/Animal'
@@ -14,6 +16,7 @@ export function StickerArt({ s }: { s: Sticker }) {
   if (s.kind === 'animal') return <AnimalArt id={s.ref as AnimalId} />
   if (s.kind === 'fruit') return <FruitArt kind={s.ref as FruitKind} />
   if (s.kind === 'person') return <PersonArt id={s.ref as PersonId} />
+  if (s.kind === 'thing') return <ThingArt id={s.ref as ThingId} />
   return <ShapeArt shape={s.ref as ShapeId} color="sariq" />
 }
 

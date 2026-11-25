@@ -766,6 +766,20 @@ function animalVariants(id: AnimalId): string[] {
  * Ferma o'yini bolaga haqiqiy hayvonni tanitadi, shuning uchun yozuv ota-ona taqlididan ustun.
  * `steady` — doim asosiy variant ("Eshit va takrorla": xotira o'yini barqaror tovush talab qiladi).
  */
+/** Hayvon ovozlarini oldindan yuklash (birinchi ijroda kechikish bo'lmasin) */
+const preloaded = new Map<string, HTMLAudioElement>()
+export function preloadAnimals(ids: AnimalId[]) {
+  for (const id of ids)
+    for (const url of animalVariants(id)) {
+      if (preloaded.has(url)) continue
+      const a = new Audio()
+      a.preload = 'auto'
+      a.src = url
+      a.load()
+      preloaded.set(url, a)
+    }
+}
+
 export async function sayAnimal(id: AnimalId, opts: { steady?: boolean } = {}): Promise<void> {
   stopVoice()
   const my = token

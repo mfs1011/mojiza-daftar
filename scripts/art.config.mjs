@@ -1,4 +1,5 @@
 // Mo'jiza Daftar — barcha rasmlar ro'yxati va yagona uslub.
+// QOIDALAR: docs/GENERATSIYA_QOIDALARI.md (uslub, taqiqlar, kompozitsiya, namuna rasmlar) — o'zgartirishdan oldin o'qing.
 // `npm run gen:art` shu ro'yxat bo'yicha Gemini (Nano Banana) orqali rasm yaratadi.
 // Yo'l (path) = ilova qidiradigan fayl: public/assets/art/<path>.(png|jpg)
 
@@ -6,7 +7,8 @@ export const STYLE = [
   "Soft 3D children's cartoon illustration in the style of a premium mobile kids game",
   'rounded chunky friendly shapes, warm saturated but gentle colors, soft global illumination, subtle ambient occlusion',
   'clean readable silhouette, smooth matte clay-like materials, big expressive eyes where there is a face',
-  'Uzbek cultural flavor where relevant (blue tiled domes, carved wooden doors, atlas ikat patterns, suzani motifs, tandir, so\'ri, poplar trees)',
+  'subtle Uzbek flavor only as small decorative patterns (atlas ikat, suzani, cotton-boll motifs) on clothing, collars or dishes',
+  'absolutely NO doors, windows, domes, towers or building parts on any character, animal or object',
   'no text, no letters, no logos, no watermark, no border, no frame',
 ].join(', ')
 
@@ -37,12 +39,14 @@ export function objectText(key) {
   ].join(', ')
 }
 
-const fruit = (id, what) => ({ path: `fruit/${id}`, kind: 'object', size: 512, prompt: `${what}, one single fruit, cute glossy toy-like look` })
+/** Eski mevalar uslubi (olma, anor): yuzli — ikki katta yaltiroq ko'z, kichik tabassum, yengil qizil yanoq */
+const FACE = 'with a cute friendly face: two big glossy eyes, a small smile and soft pink cheeks'
+const fruit = (id, what) => ({ path: `fruit/${id}`, kind: 'object', size: 512, prompt: `${what}, one single fruit, ${FACE}, cute glossy toy-like look` })
 const animal = (id, what, motion) => ({
   path: `animal/${id}`,
   kind: 'object',
   size: 640,
-  prompt: `${what}, full body, standing on four legs (or two for birds), side view facing RIGHT, cute baby proportions, friendly smile`,
+  prompt: `${what}, full body, side view facing RIGHT, cute baby proportions, big expressive eyes, friendly smile, a colorful atlas-ikat patterned collar`,
   motion,
 })
 const person = (id, what) => [
@@ -50,14 +54,14 @@ const person = (id, what) => [
     path: `person/${id}`,
     kind: 'object',
     size: 640,
-    prompt: `${what}, full body, front view, standing, friendly calm smile, arms relaxed`,
+    prompt: `${what}, full body, front view, standing on a small round grass base, friendly calm smile, arms relaxed`,
     motion: 'gentle idle: breathing, blinks, a small friendly sway and a slight nod',
   },
   {
     path: `person/${id}-happy`,
     kind: 'object',
     size: 640,
-    prompt: `${what}, full body, front view, standing, very happy laughing with eyes closed, arms slightly raised`,
+    prompt: `${what}, full body, front view, standing on a small round grass base, very happy laughing with eyes closed, arms slightly raised`,
     motion: 'laughs happily and claps hands twice, a small joyful bounce',
   },
 ]
@@ -111,6 +115,93 @@ export const ASSETS = [
   ...person('aka', 'a young Uzbek man with a doppi skullcap and white shirt with dark vest'),
   ...person('opa', 'a young Uzbek woman with long braids in a colorful atlas ikat dress'),
   ...person('bola', 'a cheerful little Uzbek boy with a blue cap and green t-shirt'),
+
+  // ---------- YANGI (2026-11): topishmoqlar, albom, xotira o'yini uchun ----------
+  // Hayvonlar (+12)
+  animal('ot', 'a brown horse with a dark mane and tail', 'shakes its mane, swishes its tail, lifts one front hoof'),
+  animal('tuya', 'a light brown two-humped Bactrian camel', 'chews slowly, blinks with long lashes, sways its neck'),
+  animal('quyon', 'a fluffy grey-white bunny rabbit with long ears, sitting', 'twitches its nose, ears flop, small hop in place'),
+  animal('tovuq', 'a plump brown hen with a small red comb', 'pecks the ground, bobs its head, fluffs its feathers'),
+  animal('joja', 'a tiny fluffy yellow baby chick', 'hops in place, flaps tiny wings, opens its little beak'),
+  animal('goz', 'a white goose with an orange beak and orange feet', 'stretches its neck, flaps its wings, waddles'),
+  animal('baliq', 'a bright orange fish with big fins, side view (not standing)', 'swims in place: tail and fins wave, bubbles rise'),
+  animal('kapalak', 'a colorful butterfly with big orange-blue wings, top view (not standing)', 'flaps its wings slowly, antennae wiggle'),
+  animal('ari', 'a cute round honeybee with yellow-black stripes and small wings (not standing)', 'buzzes in place, wings blur, bobs up and down'),
+  animal('toshbaqa', 'a small turtle with a brown patterned shell', 'pokes its head out, blinks, slow step in place'),
+  animal('ayiq', 'a brown bear cub', 'waves a paw, rocks side to side, blinks'),
+  animal('fil', 'a small grey elephant calf with big ears', 'raises its trunk, flaps its big ears, sways'),
+
+  // Sabzavotlar (yangi turkum, 8)
+  ...[
+    ['sabzi', 'an orange carrot with green leafy top'],
+    ['piyoz', 'a golden-brown onion with a little sprout'],
+    ['kartoshka', 'a light brown potato'],
+    ['pomidor', 'a shiny round red tomato with a small green stem'],
+    ['bodring', 'a fresh green cucumber with small bumps'],
+    ['karam', 'a round light green cabbage head'],
+    ['qalampir', 'a bright red bell pepper with a green stem'],
+    ['oshqovoq', 'a round orange pumpkin with a curly stem'],
+  ].map(([id, what]) => ({ path: `veg/${id}`, kind: 'object', size: 512, prompt: `${what}, one single vegetable, ${FACE}, cute glossy toy-like look` })),
+
+  // Buyumlar (12) — o'zbek uyi va bolalar dunyosi
+  ...[
+    ['choynak', 'a traditional Uzbek white porcelain teapot with blue cotton-boll (paxta) pattern'],
+    ['piyola', 'a traditional Uzbek tea bowl (piyola) with blue cotton-boll pattern'],
+    ['non', 'a round Uzbek flatbread (non) with a stamped pattern in the middle, golden crust'],
+    ['doppi', 'a black-and-white Uzbek doppi skullcap with pepper-pod embroidery'],
+    ['qoshiq', 'a wooden spoon'],
+    ['soat', 'a red round alarm clock with two bells on top'],
+    ['kitob', 'an open colorful children picture book'],
+    ['qalam', 'a yellow pencil with a pink eraser'],
+    ['koptok', 'a colorful striped rubber ball'],
+    ['mashina', 'a small red toy car'],
+    ['velosiped', 'a small blue children bicycle, side view'],
+    ['soyabon', 'an open colorful umbrella'],
+  ].map(([id, what]) => ({ path: `obj/${id}`, kind: 'object', size: 512, prompt: `${what}, one single object, ${FACE}, cute toy-like look` })),
+
+  // Tabiat (6)
+  ...[
+    ['quyosh', 'a smiling bright yellow sun with soft rays'],
+    ['oy', 'a smiling pale yellow crescent moon'],
+    ['yulduz', 'a smiling golden five-pointed star'],
+    ['bulut', 'a fluffy white cloud with a gentle smile'],
+    ['yomgir', 'a small grey rain cloud with falling blue raindrops'],
+    ['gul', 'a red tulip flower with two leaves'],
+  ].map(([id, what]) => ({ path: `nature/${id}`, kind: 'object', size: 512, prompt: `${what}, one single object, ${FACE}, cute toy-like look` })),
+
+  // Alifbo uchun qo'shimcha (har harfga kamida 2 ta narsa) — qoidalar: docs/GENERATSIYA_QOIDALARI.md
+  animal('hakka', 'a black-and-white magpie bird with a long tail', 'hops, tilts its head, flicks its long tail'),
+  animal('ilon', 'a friendly green-and-yellow cartoon snake coiled with its head raised (no legs)', 'sways its head side to side, flicks its tongue, blinks'),
+  animal('jirafa', 'a baby giraffe with a long neck and brown spots', 'bends its long neck, blinks, twitches its ears'),
+  animal('laylak', 'a white stork with black wing tips, long red beak and long red legs', 'stands on one leg, flaps its wings, nods'),
+  animal('zebra', 'a baby zebra with black and white stripes', 'swishes its tail, nods, flicks its ears'),
+  animal('chumoli', 'a cute red-brown ant with six small legs and antennae', 'wiggles its antennae, taps its legs, bobs'),
+  animal('sher', 'a friendly lion cub with a small fluffy golden mane', 'shakes its little mane, yawns, swishes its tail'),
+  ...[
+    ['joxori', 'a yellow corn cob with green husk leaves'],
+    ['limon', 'a bright yellow lemon with a small green leaf'],
+    ['xurmo', 'a ripe orange persimmon with a green four-leaf cap'],
+  ].map(([id, what]) => ({ path: `veg/${id}`, kind: 'object', size: 512, prompt: `${what}, one single fruit or vegetable, ${FACE}, cute glossy toy-like look` })),
+  ...[
+    ['fonar', 'a small old-fashioned lantern with a warm glowing light'],
+    ['gilam', 'a small rolled-out Uzbek carpet with red geometric pattern, seen from above at an angle'],
+    ['ip', 'a round ball of red knitting yarn with a loose thread end'],
+    ['raketa', 'a small red-and-white toy rocket'],
+    ['ruchka', 'a blue ballpoint pen'],
+    ['uy', 'a small cozy cartoon house with a red roof and a little chimney'],
+    ['uzuk', 'a golden ring with a small red gem'],
+    ['vertolyot', 'a small yellow toy helicopter'],
+    ['xalta', 'a small embroidered cloth bag with a drawstring and suzani pattern'],
+    ['zina', 'a small wooden ladder'],
+    ['gildirak', 'a single black rubber wheel with a red hub'],
+    ['shar', 'a shiny red balloon on a string'],
+  ].map(([id, what]) => ({ path: `obj/${id}`, kind: 'object', size: 512, prompt: `${what}, one single object, ${FACE}, cute toy-like look` })),
+
+  // Kasblar (+4, odamlar kabi: oddiy va xursand holat)
+  ...person('shifokor', 'a kind Uzbek woman doctor in a white coat with a stethoscope'),
+  ...person('oshpaz', 'a cheerful Uzbek cook with a white chef hat and apron, holding a ladle'),
+  ...person('haydovchi', 'a friendly Uzbek driver with a cap and blue uniform'),
+  ...person('dehqon', 'a smiling Uzbek farmer with a doppi skullcap and a small hoe'),
 
   // ---------- Xarita bekatlari (dumaloq ikonka sifatida ishlatiladi) ----------
   { path: 'station/rasm', kind: 'object', size: 384, prompt: 'a small wooden easel with a colorful child drawing and crayons, game map icon' },

@@ -8,7 +8,7 @@ import { GameShell, useMascot } from '../components/GameShell'
 import { useHowTo } from '../components/useHowTo'
 import { hasVoice, say, sfx } from '../lib/audio'
 import { MARKET_FRUITS } from '../lib/names'
-import { pick, randInt } from '../lib/util'
+import { pick, randInt, wait } from '../lib/util'
 import { levelRow } from '../lib/stations'
 import type { GameProps } from '../types'
 import { Icon } from '../art/Icon'
@@ -75,6 +75,7 @@ function customerLine(person: PersonId, line: 'salom' | 'kam' | 'kop' | 'rahmat'
 function customerOrder(person: PersonId, want: number, fruit: FruitKind): string[] {
   const n = `mijoz_${person}_son_${want}`
   const f = `mijoz_${person}_meva_${fruit}`
+  // Buyurtmani bitta ovoz aytadi: mijozda ikkala qism ham bo'lsa — mijoz, aks holda tarbiyachi (yarmi-yarmi g'alati)
   return hasVoice(n) && hasVoice(f) ? [n, f] : [`son_${want}`, `meva_${fruit}`]
 }
 
@@ -90,6 +91,14 @@ export function Market({ profile, level, onComplete, onExit }: GameProps) {
   const [finished, setFinished] = useState(false)
   const [mascot, react] = useMascot()
   const mistakes = useRef(0)
+  // O'yindan chiqib ketilsa, kechikkan "keyingi mijoz" ishlamasin
+  const alive = useRef(true)
+  useEffect(() => {
+    alive.current = true
+    return () => {
+      alive.current = false
+    }
+  }, [])
   const bagRef = useRef<HTMLDivElement>(null)
   const showPictures = cfg.auto || tries >= cfg.hintAfter
   const { want, fruit } = customer
@@ -111,8 +120,10 @@ export function Market({ profile, level, onComplete, onExit }: GameProps) {
     react('happy', 2000)
     burstAt(bagRef.current, ['#f6bd60', '#ffd166', '#fff'], 18)
     setEarned((e) => e + want)
-    void say(...customerLine(customer.person, 'rahmat', 'bozor_rahmat'))
-    setTimeout(() => {
+    // Keyingi mijoz "Rahmat! Mana tanga." gapi TUGAGANDAN keyin keladi (kamida 2,3 s — tanga yomg'iri ko'rinsin)
+    const thanks = say(...customerLine(customer.person, 'rahmat', 'bozor_rahmat'))
+    void Promise.all([thanks, wait(2300)]).then(() => wait(400)).then(() => {
+      if (!alive.current) return
       if (round + 1 >= ROUNDS) {
         setFinished(true)
         return
@@ -123,7 +134,7 @@ export function Market({ profile, level, onComplete, onExit }: GameProps) {
       setGiven(0)
       setTries(0)
       setHappy(false)
-    }, 2300)
+    })
   }
 
   function give() {
@@ -150,7 +161,10 @@ export function Market({ profile, level, onComplete, onExit }: GameProps) {
     sfx.wrong()
     react('oops')
     setTries((t) => t + 1)
-    void say(...(given > want ? customerLine(customer.person, 'kop', 'bozor_kop') : customerLine(customer.person, 'kam', 'bozor_kam')))
+    // Mijoz farqni aniq aytadi ("Yana toʻrtta kerak!"); bunday ovoz bo'lmasa — umumiy "kam/ko'p"
+    const diff = Math.abs(given - want)
+    const exact = `mijoz_${customer.person}_${given > want ? 'kop' : 'kam'}_${diff}`
+    void say(...(hasVoice(exact) ? [exact] : given > want ? customerLine(customer.person, 'kop', 'bozor_kop') : customerLine(customer.person, 'kam', 'bozor_kam')))
   }
 
   const cells = cfg.max <= 5 ? 5 : 10

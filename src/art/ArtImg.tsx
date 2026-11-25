@@ -13,6 +13,8 @@ export function ArtSprite({ anim, className, style }: { anim: Anim; className?: 
       <div
         className="sprite"
         style={{
+          // --a: kenglik/bo'y nisbati — "sig'dirish" (contain) qoidalari uchun
+          ['--a' as string]: anim.aspect,
           aspectRatio: anim.aspect,
           backgroundImage: `url("${anim.url}")`,
           backgroundSize: `${anim.frames * 100}% 100%`,

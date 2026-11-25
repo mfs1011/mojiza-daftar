@@ -151,8 +151,11 @@ export function Numbers({ profile, level, onComplete, onExit }: GameProps) {
       for (let k = 1; k <= r.n; k++) {
         if (my !== demoToken.current) return
         setLit(k)
-        void say(`son_${k}`)
-        await wait(750)
+        // Son to'liq aytilib bo'lgach keyingisi (qat'iy vaqt bilan keyingisi oldingisini kesib qo'yardi);
+        // juda qisqa ovozda ham bola sanab ulgurishi uchun kamida 0,6 s
+        await Promise.all([say(`son_${k}`), wait(600)])
+        if (my !== demoToken.current) return
+        await wait(180)
       }
     }
     if (my !== demoToken.current) return

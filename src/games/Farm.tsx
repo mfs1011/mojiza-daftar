@@ -5,7 +5,7 @@ import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
 import { useHowTo } from '../components/useHowTo'
-import { say, sayAnimal, sfx } from '../lib/audio'
+import { preloadAnimals, say, sayAnimal, sfx } from '../lib/audio'
 import { pick, shuffle, wait } from '../lib/util'
 import { levelRow } from '../lib/stations'
 import type { GameProps } from '../types'
@@ -22,7 +22,7 @@ interface FarmCfg {
   length: number
 }
 
-// 0–4: "Kim gapiryapti?" (bitta ovoz, tanlov kengayadi).
+// 0–4: "Bu qaysi hayvon?" (bitta ovoz, tanlov kengayadi).
 // 5+: "Eshit va takrorla" — ketma-ketlik uzayadi, hayvonlar ko'payadi (ekranga 6 tagacha sig'adi).
 // Endless band (10–14) hammasi "takrorla": bitta o'yin ichida rejim almashmasligi uchun.
 const FARM_LEVELS: FarmCfg[] = [
@@ -92,22 +92,36 @@ export function Farm({ profile, level, onComplete, onExit }: GameProps) {
   const progressRef = useRef(0)
   progressRef.current = progress
 
+  /** Har ketma-ketlik o'z raqamini oladi: yangisi boshlansa (yoki effekt ikki marta ishlasa), eskisi to'xtaydi */
+  const seqToken = useRef(0)
+  /** Bola bosgan oxirgi hayvon ovozi — "Barakalla" uni kesib qo'ymasin */
+  const lastSound = useRef<Promise<void>>(Promise.resolve())
+
+  // Hayvon ovozlari oldindan yuklanadi: birinchi ijroda kechikish/sakrash bo'lmasin
+  useEffect(() => {
+    preloadAnimals(round.animals)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roundIdx])
+
   async function playSequence(first: boolean) {
+    const my = ++seqToken.current
+    const live = () => alive.current && my === seqToken.current
     setPhase('listen')
     setProgress(0)
     const explain = first ? howto.arm(cfg.mode) : []
     if (explain.length) await say(...explain)
+    if (!live()) return
     if (first && roundIdx === 0) await say(cfg.mode === 'kim' ? 'ferma_kim' : 'ferma_takrorla')
     else if (first && cfg.mode === 'kim') await say('ferma_kim')
-    await wait(300)
+    await wait(400)
     for (const a of round.seq) {
-      if (!alive.current) return
+      if (!live()) return
       setLit(cfg.mode === 'kim' ? null : a)
       await sayAnimal(a, { steady: cfg.mode === 'takrorla' })
       setLit(null)
-      await wait(250)
+      await wait(350)
     }
-    if (alive.current) setPhase('input')
+    if (live()) setPhase('input')
   }
 
   useEffect(() => {
@@ -124,6 +138,9 @@ export function Farm({ profile, level, onComplete, onExit }: GameProps) {
     const last = round.seq[round.seq.length - 1]
     burstAt(cardRefs.current[last])
     void (async () => {
+      // Oxirgi bosilgan hayvon ovozi tugashini kutamiz
+      await lastSound.current
+      await wait(250)
       if (cfg.mode === 'kim') {
         await sayAnimal(last)
         await say(`hayvon_${last}`, 'barakalla')
@@ -145,7 +162,7 @@ export function Farm({ profile, level, onComplete, onExit }: GameProps) {
       sfx.pop()
       setLit(a)
       setTimeout(() => setLit((x) => (x === a ? null : x)), 400)
-      if (cfg.mode === 'takrorla') void sayAnimal(a, { steady: true })
+      if (cfg.mode === 'takrorla') lastSound.current = sayAnimal(a, { steady: true })
       const next = progress + 1
       setProgress(next)
       if (next === round.seq.length) solved()

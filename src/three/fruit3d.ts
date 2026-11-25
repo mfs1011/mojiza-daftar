@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import type { FruitKind } from '../lib/names'
+import { normalized, realBasket } from './realAssets'
 
 // 🍎 3D mevalar va savatlar — protsedural (fayl kerak emas), "loy" uslubida: yumshoq, mat, ozgina jilo.
 // Har model markazi (0,0,0), radiusi `FRUIT_R[kind]` atrofida: fizika shu radius bilan dumalatadi.
@@ -17,8 +18,15 @@ export const FRUIT_R: Record<FruitKind, number> = {
   anjir: 0.27,
 }
 
-const mat = (color: string, rough = 0.55, extra: Partial<THREE.MeshStandardMaterialParameters> = {}) =>
-  new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: 0, ...extra })
+// Fizik material: jilo (clearcoat), mo'mig' (sheen) — mevalar haqiqiyroq ko'rinsin
+const mat = (color: string, rough = 0.55, extra: Partial<THREE.MeshPhysicalMaterialParameters> = {}) =>
+  new THREE.MeshPhysicalMaterial({ color, roughness: rough, metalness: 0, ...extra })
+
+/** Haqiqiy (skanerlangan) modellar yuklangan bo'lsa — protsedural o'rniga ular ishlatiladi */
+let REAL: { fruits: Partial<Record<FruitKind, THREE.Object3D>>; basket: THREE.Object3D | null } | null = null
+export function setRealAssets(a: typeof REAL) {
+  REAL = a
+}
 
 /** Kanvasdan tekstura (tarvuz yo'llari, qovun to'ri, savat to'qimasi) */
 function canvasTex(w: number, h: number, draw: (g: CanvasRenderingContext2D) => void) {
@@ -61,6 +69,20 @@ function textures() {
         g.stroke()
       }
     }),
+    orik: canvasTex(256, 128, (g) => {
+      // To'q sariq asos, bir tomonida qizil qizarish, mayda nuqtachalar
+      g.fillStyle = '#f29e2e'
+      g.fillRect(0, 0, 256, 128)
+      const grd = g.createRadialGradient(70, 64, 5, 70, 64, 90)
+      grd.addColorStop(0, 'rgba(214,60,30,0.85)')
+      grd.addColorStop(1, 'rgba(214,60,30,0)')
+      g.fillStyle = grd
+      g.fillRect(0, 0, 256, 128)
+      for (let i = 0; i < 260; i++) {
+        g.fillStyle = 'rgba(150,40,20,0.35)'
+        g.fillRect(Math.random() * 256, Math.random() * 128, 1.2, 1.2)
+      }
+    }),
     savat: canvasTex(256, 128, (g) => {
       // To'qilgan savat: navbatma-navbat chiziqlar
       g.fillStyle = '#b07d4f'
@@ -100,15 +122,17 @@ function stem(h = 0.12, color = '#6b4226') {
 }
 
 function leaf(size = 0.16) {
-  const l = new THREE.Mesh(new THREE.SphereGeometry(size, 12, 8), mat('#52b788', 0.6))
+  const l = new THREE.Mesh(new THREE.SphereGeometry(size, 16, 10), mat('#3f7d3a', 0.45, { clearcoat: 0.4 }))
   l.scale.set(1, 0.18, 0.5)
   return l
 }
 
 /** Meva modeli. Har qismi soya tashlaydi */
 export function makeFruit(kind: FruitKind): THREE.Group {
-  const g = new THREE.Group()
   const r = FRUIT_R[kind]
+  const real = REAL?.fruits[kind]
+  if (real) return normalized(real, r)
+  const g = new THREE.Group()
   const tex = textures()
   switch (kind) {
     case 'olma': {
@@ -153,7 +177,11 @@ export function makeFruit(kind: FruitKind): THREE.Group {
       break
     }
     case 'orik': {
-      const body = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 18), mat('#f77f00', 0.5))
+      // O'rik: duxoba po'st (sheen), bir yonida qizil qizarish
+      const body = new THREE.Mesh(
+        new THREE.SphereGeometry(r, 40, 28),
+        mat('#ffffff', 0.62, { map: tex.orik, sheen: 0.9, sheenColor: new THREE.Color('#ffe0b5'), sheenRoughness: 0.45 }),
+      )
       body.scale.set(1, 0.95, 0.9)
       g.add(body)
       const s = stem(0.08)
@@ -192,8 +220,8 @@ export function makeFruit(kind: FruitKind): THREE.Group {
           [0.45, 0.9],
           [0.001, 0.98],
         ].map(([x, y]) => [x * r, y * r] as [number, number]),
-        mat('#ffd166', 0.6),
-        14,
+        mat('#e6c34a', 0.7, { sheen: 1, sheenColor: new THREE.Color('#fff6cf'), sheenRoughness: 0.5 }),
+        40,
       )
       g.add(body)
       const l = leaf(0.13)
@@ -205,7 +233,7 @@ export function makeFruit(kind: FruitKind): THREE.Group {
     case 'gilos': {
       // Ikkita gilos bitta bandda
       for (const dx of [-0.11, 0.11]) {
-        const c = new THREE.Mesh(new THREE.SphereGeometry(r * 0.55, 18, 14), mat('#a4161a', 0.35))
+        const c = new THREE.Mesh(new THREE.SphereGeometry(r * 0.55, 32, 24), mat('#6d0a10', 0.18, { clearcoat: 1, clearcoatRoughness: 0.08 }))
         c.position.set(dx, -r * 0.35, 0)
         g.add(c)
         const st = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, r * 1.4, 6), mat('#386641', 0.8))
@@ -217,14 +245,17 @@ export function makeFruit(kind: FruitKind): THREE.Group {
     }
     case 'uzum': {
       // Shingil: pastga torayib boradigan donalar
-      const m = mat('#6a4c93', 0.35)
-      const rows = [5, 4, 3, 2, 1]
+      // Uzum: oq g'uborli (sheen) donalar, turli kattalikda, shingil shaklida
+      const m = mat('#3f2456', 0.38, { sheen: 0.9, sheenColor: new THREE.Color('#b9a6d6'), sheenRoughness: 0.7, clearcoat: 0.25, clearcoatRoughness: 0.4 })
+      const berry = new THREE.SphereGeometry(r * 0.2, 20, 16)
+      const rows = [6, 6, 5, 4, 3, 2, 1]
       rows.forEach((n, row) => {
         for (let i = 0; i < n; i++) {
-          const a = (i / n) * Math.PI * 2 + row
-          const rr = n === 1 ? 0 : r * 0.12 * n
-          const d = new THREE.Mesh(new THREE.SphereGeometry(r * 0.24, 12, 10), m)
-          d.position.set(Math.cos(a) * rr, r * 0.55 - row * r * 0.32, Math.sin(a) * rr)
+          const a = (i / n) * Math.PI * 2 + row * 0.7
+          const rr = n === 1 ? 0 : r * 0.085 * n
+          const d = new THREE.Mesh(berry, m)
+          d.position.set(Math.cos(a) * rr, r * 0.62 - row * r * 0.27, Math.sin(a) * rr)
+          d.scale.set(1, 1.12, 1).multiplyScalar(0.88 + Math.random() * 0.24)
           g.add(d)
         }
       })
@@ -234,13 +265,13 @@ export function makeFruit(kind: FruitKind): THREE.Group {
       break
     }
     case 'tarvuz': {
-      const body = new THREE.Mesh(new THREE.SphereGeometry(r, 32, 22), mat('#ffffff', 0.45, { map: tex.tarvuz }))
+      const body = new THREE.Mesh(new THREE.SphereGeometry(r, 48, 32), mat('#ffffff', 0.32, { map: tex.tarvuz, clearcoat: 0.5, clearcoatRoughness: 0.35 }))
       body.scale.set(1.15, 0.95, 1)
       g.add(body)
       break
     }
     case 'qovun': {
-      const body = new THREE.Mesh(new THREE.SphereGeometry(r, 32, 22), mat('#ffffff', 0.7, { map: tex.qovun }))
+      const body = new THREE.Mesh(new THREE.SphereGeometry(r, 48, 32), mat('#ffffff', 0.78, { map: tex.qovun, bumpMap: tex.qovun, bumpScale: 1.5 }))
       body.scale.set(1.25, 0.9, 0.95)
       g.add(body)
       break
@@ -256,7 +287,8 @@ export function makeFruit(kind: FruitKind): THREE.Group {
           [0.12, 1],
           [0.001, 1.05],
         ].map(([x, y]) => [x * r, y * r] as [number, number]),
-        mat('#5a189a', 0.45),
+        mat('#4b1f4f', 0.5, { sheen: 0.7, sheenColor: new THREE.Color('#a98bbd'), sheenRoughness: 0.5 }),
+        40,
       )
       g.add(body)
       break
@@ -273,6 +305,7 @@ export function makeFruit(kind: FruitKind): THREE.Group {
 
 /** To'qilgan savat: ochiq idish, qalin chekka, ruchka; `ribbon` — rang raundida savatdagi lenta */
 export function makeBasket(radius: number, ribbon?: string): THREE.Group {
+  if (REAL?.basket) return realBasket(REAL.basket, radius, ribbon)
   const g = new THREE.Group()
   const tex = textures().savat.clone()
   tex.repeat.set(3, 1)
@@ -297,11 +330,17 @@ export function makeBasket(radius: number, ribbon?: string): THREE.Group {
   bottom.rotation.x = -Math.PI / 2
   bottom.position.y = 0.05
   g.add(bottom)
-  const rim = new THREE.Mesh(new THREE.TorusGeometry(radius * 0.97, radius * 0.07, 10, 40), new THREE.MeshStandardMaterial({ color: '#a0693a', roughness: 0.8 }))
+  const rim = new THREE.Mesh(
+    new THREE.TorusGeometry(radius * 0.97, radius * 0.07, 10, 40),
+    new THREE.MeshStandardMaterial({ color: '#a0693a', roughness: 0.8 }),
+  )
   rim.rotation.x = Math.PI / 2
   rim.position.y = h
   g.add(rim)
-  const handle = new THREE.Mesh(new THREE.TorusGeometry(radius * 0.85, radius * 0.06, 8, 30, Math.PI), new THREE.MeshStandardMaterial({ color: '#a0693a', roughness: 0.8 }))
+  const handle = new THREE.Mesh(
+    new THREE.TorusGeometry(radius * 0.85, radius * 0.06, 8, 30, Math.PI),
+    new THREE.MeshStandardMaterial({ color: '#a0693a', roughness: 0.8 }),
+  )
   handle.position.y = h
   handle.rotation.y = Math.PI / 2
   g.add(handle)

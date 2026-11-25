@@ -2,6 +2,7 @@ import type { Profile } from '../types.ts'
 import { PAINT_NAMES, PAINT_ORDER, SHAPE_NAMES, SHAPE_ORDER } from './shapes.ts'
 import { ALPHABET, LETTER_NAMES, letterVoice, STROKE_LABELS } from './letters.ts'
 import { RIDDLES } from './poems.ts'
+import { THINGS } from './things.ts'
 import { PEOPLE } from './stickers.ts'
 
 const PERSON_NAMES: Record<(typeof PEOPLE)[number], string> = { bobo: 'Bobo', buvi: 'Buvi', aka: 'Aka', opa: 'Opa', bola: 'Bola' }
@@ -32,11 +33,17 @@ export interface VoicePrompt {
 
 /** Bozor mijozlari: har biri o'z ovozida gapiradi (Gemini TTS ovozlari) */
 export const CUSTOMER_VOICES = {
-  bobo: 'Algenib', // xirildoq, keksa erkak
-  buvi: 'Gacrux', // yetuk, mehribon ayol
+  // Interactions API + Gemini 3.8 Flash TTS bilan tinglab tanlangan (o'zbekchasi tabiiy)
+  bobo: 'Charon', // chuqur, vazmin erkak ovozi
+  buvi: 'Kore', // mehribon, aniq ayol ovozi
   aka: 'Orus', // yosh yigit
-  opa: 'Aoede', // yengil, yosh qiz
+  opa: 'Leda', // yengil, yosh qiz
   bola: 'Puck', // sho'x bola
+  // Kasblar (egasi tinglab tanlagan)
+  shifokor: 'Callirrhoe', // mehribon ayol shifokor
+  oshpaz: 'Fenrir', // quvnoq oshpaz
+  haydovchi: 'Schedar', // vazmin haydovchi
+  dehqon: 'Rasalgethi', // mehnatkash dehqon
 } as const
 export type CustomerId = keyof typeof CUSTOMER_VOICES
 
@@ -49,6 +56,24 @@ const CUSTOMER_LINES: Record<CustomerId, Record<'salom' | 'kam' | 'kop' | 'rahma
   aka: { salom: "Salom, do'stim!", kam: 'Yana kerak!', kop: "Ko'p bo'ldi-ku!", rahmat: "Rahmat, do'stim! Ol, tanga." },
   opa: { salom: 'Salom, jonim!', kam: 'Yana bitta kerak!', kop: "Ko'p bo'lib qoldi!", rahmat: 'Rahmat! Mana senga tanga.' },
   bola: { salom: 'Salom!', kam: 'Yana!', kop: "Ko'p bo'ldi!", rahmat: 'Rahmat! Tanga ol!' },
+  shifokor: { salom: 'Assalomu alaykum, aqlli bola!', kam: 'Yana kerak, azizim.', kop: "Ko'p bo'lib qoldi, azizim.", rahmat: "Rahmat! Mevalar sog'liq uchun foydali. Mana tanga." },
+  oshpaz: { salom: 'Salom, kichkina sotuvchi!', kam: 'Yana kerak, oshga yetmaydi!', kop: "Voy, ko'p bo'lib ketdi!", rahmat: 'Rahmat! Mazali taom qilaman. Ol, tanga!' },
+  haydovchi: { salom: "Salom, do'stim!", kam: 'Yana kerak!', kop: "Ko'p bo'ldi, do'stim.", rahmat: 'Rahmat! Yo\'lda yeyman. Mana tanga.' },
+  dehqon: { salom: 'Assalomu alaykum, bolam!', kam: 'Yana kerak, bolam.', kop: "Ko'p bo'lib qoldi, bolam.", rahmat: 'Barakalla, bolam! Mana tanga.' },
+}
+
+const cap = (w: string) => w[0].toUpperCase() + w.slice(1)
+/** Farq iboralari — har mijoz o'z xarakterida */
+const DIFF_LINES: Record<CustomerId, { kam: (w: string) => string; kop: (w: string) => string }> = {
+  bobo: { kam: (w) => `Yana ${w} kerak, bolam.`, kop: (w) => `Voy, ${w} ko'p bo'lib ketdi, bolam.` },
+  buvi: { kam: (w) => `Yana ${w} kerak, aylanay.`, kop: (w) => `${cap(w)} ko'p bo'lib qoldi, jonim.` },
+  aka: { kam: (w) => `Yana ${w} kerak!`, kop: (w) => `${cap(w)} ko'p bo'ldi-ku!` },
+  opa: { kam: (w) => `Yana ${w} kerak!`, kop: (w) => `${cap(w)} ko'p bo'lib qoldi!` },
+  bola: { kam: (w) => `Yana ${w}!`, kop: (w) => `${cap(w)} ko'p!` },
+  shifokor: { kam: (w) => `Yana ${w} kerak, azizim.`, kop: (w) => `${cap(w)} ko'p bo'lib qoldi, azizim.` },
+  oshpaz: { kam: (w) => `Yana ${w} kerak!`, kop: (w) => `Voy, ${w} ko'p bo'lib ketdi!` },
+  haydovchi: { kam: (w) => `Yana ${w} kerak.`, kop: (w) => `${cap(w)} ko'p bo'ldi.` },
+  dehqon: { kam: (w) => `Yana ${w} kerak, bolam.`, kop: (w) => `${cap(w)} ko'p bo'lib qoldi, bolam.` },
 }
 
 const NUMBERS = ['Bir', 'Ikki', 'Uch', "To'rt", 'Besh', 'Olti', 'Yetti', 'Sakkiz', "To'qqiz", "O'n",
@@ -120,6 +145,13 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
         voice: CUSTOMER_VOICES[c],
       })),
     ),
+    // Kam yoki ko'p berilganda mijoz farqni aytadi: "Yana toʻrtta kerak!", "Ikkita koʻp boʻlib qoldi!"
+    ...(Object.keys(CUSTOMER_LINES) as CustomerId[]).flatMap((c) =>
+      COUNT_WORDS.slice(0, 9).flatMap((w, i) => [
+        { key: `mijoz_${c}_kam_${i + 1}`, text: DIFF_LINES[c].kam(w), group: 'Bozor mijozlari', voice: CUSTOMER_VOICES[c] },
+        { key: `mijoz_${c}_kop_${i + 1}`, text: DIFF_LINES[c].kop(w), group: 'Bozor mijozlari', voice: CUSTOMER_VOICES[c] },
+      ]),
+    ),
     // Buyurtmani mijozning o'zi aytadi: "Menga beshta" + "olma bering!"
     ...(Object.keys(CUSTOMER_LINES) as CustomerId[]).flatMap((c) => [
       ...COUNT_WORDS.map((w, i) => ({ key: `mijoz_${c}_son_${i + 1}`, text: `Menga ${w}`, group: 'Bozor mijozlari', voice: CUSTOMER_VOICES[c] })),
@@ -178,7 +210,7 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     // "Qanday bajariladi?" — har topshiriq birinchi marta chiqqanda yoki "?" bosilganda
     { key: 'ustaxona_naqsh_t', text: "Plitkalarga qara: ular bir tartibda takrorlanyapti. Keyingisi qaysi bo'ladi? Pastdan topib bos.", group: 'Ustaxona' },
     { key: 'qora_soya_t', text: "Har bir hayvonni barmog'ing bilan ushlab, o'zining soyasi ustiga olib bor va qo'yib yubor.", group: "Kechki qo'ra" },
-    { key: 'ferma_kim_t', text: "Diqqat bilan tingla: kim ovoz chiqaryapti? Keyin o'sha hayvonni bos.", group: 'Ferma' },
+    { key: 'ferma_kim_t', text: "Diqqat bilan tingla: qaysi hayvon ovoz chiqaryapti? Keyin o'sha hayvonni bos.", group: 'Ferma' },
     { key: 'ferma_takrorla_t', text: "Hayvonlar navbat bilan ovoz chiqaradi. Eslab qol va xuddi shu tartibda bos.", group: 'Ferma' },
     { key: 'bozor_oddiy_t', text: "Mijoz nechta meva so'rasa, shuncha mevani bos. Har birini sanab tur.", group: 'Bozor' },
     { key: 'bozor_sana_t', text: "Mijoz nechta meva so'rasa, shuncha mevani savatga sol. Ko'p bo'lib ketsa, savatdagisini bosib qaytar. Keyin «Berish» tugmasini bos.", group: 'Bozor' },
@@ -198,7 +230,7 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     { key: 'mantiq_labirint_t', text: "Barmog'ing bilan qahramonni yo'l bo'ylab yurgiz. Devordan o'tib bo'lmaydi. Uyni top!", group: 'Mantiq' },
     { key: 'yozuv_chiziq_t', text: "Sariq nuqtadan boshla. Barmog'ingni ko'tarmasdan, yashil yo'l ustidan yurib chiz.", group: 'Yozuv maktabi' },
     { key: 'yozuv_belgi_t', text: "Harf yoki raqam ustidan barmog'ing bilan yurib yoz. Chiziqdan chiqmaslikka harakat qil.", group: 'Yozuv maktabi' },
-    { key: 'sher_topishmoq_t', text: "Men senga she'r-topishmoq aytaman. Diqqat bilan tingla: kim yoki nima haqida? Keyin pastdan o'sha rasmni bos.", group: "She'rlar" },
+    { key: 'sher_topishmoq_t', text: "Men senga she'r-topishmoq aytaman. Diqqat bilan tingla: bu nima haqida? Keyin pastdan o'sha rasmni bos.", group: "She'rlar" },
     { key: 'musiqa_kuy_nonlar', text: "Bugun «Issiq nonlar» kuyini o'rganamiz!", group: 'Musiqa uyi' },
     { key: 'musiqa_kuy_qozichoq', text: "Bugun «Qo'zichoq» kuyini o'rganamiz!", group: 'Musiqa uyi' },
     { key: 'musiqa_kuy_yulduzcha', text: "Bugun «Yulduzcha» kuyini o'rganamiz!", group: 'Musiqa uyi' },
@@ -215,7 +247,7 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     { key: 'musiqa_takrorla_t', text: "Men kuy chalaman, klavishlar yonadi. Diqqat bilan tingla va qara. Keyin xuddi shu tartibda o'zing chal.", group: 'Musiqa uyi' },
     { key: 'hisob_belgi', text: "Qaysi belgi to'g'ri keladi: katta, kichik yoki teng?", group: 'Hisob maktabi' },
 
-    { key: 'ferma_kim', text: 'Kim gapiryapti? Topchi!', group: 'Ferma' },
+    { key: 'ferma_kim', text: 'Bu qaysi hayvon? Topchi!', group: 'Ferma' },
     { key: 'ferma_takrorla', text: 'Diqqat bilan eshit, keyin xuddi shu tartibda bos!', group: 'Ferma' },
     ...ALL_ANIMALS.map((a) => ({ key: `hayvon_${a}`, text: ANIMAL_NAMES[a], group: 'Hayvonlar' })),
     ...ALL_ANIMALS.map((a) => ({
@@ -235,7 +267,9 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     ...ALPHABET.map((l) => ({ key: letterVoice(l), text: LETTER_NAMES[l], group: 'Harflar' })),
 
     ...RIDDLES.map((r) => ({ key: `sher_${r.id}`, text: r.text.replace(/\n/g, ' '), group: "She'rlar" })),
-    { key: 'sher_top', text: 'Bu kim yoki nima? Rasmini top!', group: "She'rlar" },
+    // Yangi narsalar nomi (albom, xotira o'yini)
+    ...Object.entries(THINGS).map(([k, t]) => ({ key: `nom_${k}`, text: t.name, group: 'Narsalar' })),
+    { key: 'sher_top', text: 'Bu nima? Rasmini top!', group: "She'rlar" },
 
     { key: 'yozuv_chiz', text: "Sariq nuqtadan boshlab, chiziq ustidan yurib chiz!", group: 'Yozuv maktabi' },
     { key: 'yozuv_harf', text: "Barmog'ing bilan yoz!", group: 'Yozuv maktabi' },

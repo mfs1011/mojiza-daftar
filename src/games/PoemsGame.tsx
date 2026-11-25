@@ -2,6 +2,8 @@ import { motion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimalArt } from '../art/Animal'
 import { FruitArt } from '../art/Fruit'
+import { ThingArt, thingReady } from '../art/Thing'
+import { ALL_THINGS, THINGS } from '../lib/things'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
@@ -47,22 +49,29 @@ const POEM_LEVELS: PoemCfg[] = [
 const keyOf = (a: RiddleAnswer) => `${a.k}-${a.id}`
 
 function options(r: Riddle, cfg: PoemCfg): RiddleAnswer[] {
-  const animals = ALL_ANIMALS.map((id) => ({ k: 'animal', id }) as RiddleAnswer)
-  const fruits = ALL_FRUITS.map((id) => ({ k: 'fruit', id }) as RiddleAnswer)
-  const pool = (cfg.same ? (r.answer.k === 'animal' ? animals : fruits) : [...animals, ...fruits]).filter((a) => keyOf(a) !== keyOf(r.answer))
+  const all: RiddleAnswer[] = [
+    ...ALL_ANIMALS.map((id) => ({ k: 'animal', id }) as RiddleAnswer),
+    ...ALL_FRUITS.map((id) => ({ k: 'fruit', id }) as RiddleAnswer),
+    ...ALL_THINGS.filter(thingReady).map((id) => ({ k: 'thing', id }) as RiddleAnswer),
+  ]
+  // "Bir turdagi" variantlar: hayvon — hayvonlar orasidan, meva/sabzavot — ular orasidan, buyum — buyumlardan…
+  const group = (a: RiddleAnswer) =>
+    a.k === 'animal' ? 'hayvon' : a.k === 'fruit' ? 'sabzavot' : THINGS[a.id].cat
+  const pool = (cfg.same ? all.filter((a) => group(a) === group(r.answer)) : all).filter((a) => keyOf(a) !== keyOf(r.answer))
   return shuffle([r.answer, ...shuffle(pool).slice(0, cfg.options - 1)])
 }
 
 function Pic({ a }: { a: RiddleAnswer }) {
-  return a.k === 'animal' ? <AnimalArt id={a.id} /> : <FruitArt kind={a.id} />
+  return a.k === 'animal' ? <AnimalArt id={a.id} /> : a.k === 'fruit' ? <FruitArt kind={a.id} /> : <ThingArt id={a.id} />
 }
 
 export function PoemsGame({ profile, level, onComplete, onExit }: GameProps) {
   const cfg = useMemo(() => levelRow(POEM_LEVELS, level), [level])
   // Darajalar bo'ylab topishmoqlar navbatma-navbat almashadi (bir xil she'r ketma-ket kelmasin)
   const rounds = useMemo(() => {
-    const start = (level * 3) % RIDDLES.length
-    const list = [...RIDDLES.slice(start), ...RIDDLES.slice(0, start)].slice(0, cfg.count)
+    const ready = RIDDLES.filter((r) => r.answer.k !== 'thing' || thingReady(r.answer.id))
+    const start = (level * 3) % ready.length
+    const list = [...ready.slice(start), ...ready.slice(0, start)].slice(0, cfg.count)
     return list.map((r) => ({ riddle: r, options: options(r, cfg) }))
   }, [level, cfg])
   const [idx, setIdx] = useState(0)

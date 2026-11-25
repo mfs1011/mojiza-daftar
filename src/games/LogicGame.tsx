@@ -2,6 +2,8 @@ import { motion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimalArt } from '../art/Animal'
 import { FruitArt } from '../art/Fruit'
+import { ThingArt as ItemArt, thingReady } from '../art/Thing'
+import { ALL_THINGS, THINGS, type ThingCat, type ThingId } from '../lib/things'
 import { PAINT_ORDER, SHAPE_ORDER, ShapeArt, type PaintId, type ShapeId } from '../art/Shapes'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
@@ -56,6 +58,12 @@ type Thing =
   | { k: 'fruit'; id: FruitKind; scale?: number }
   | { k: 'animal'; id: AnimalId }
   | { k: 'shape'; shape: ShapeId; color: PaintId }
+  | { k: 'item'; id: ThingId }
+
+/** Rasmi tayyor yangi narsalar, turkum bo'yicha (hayvon/sabzavot/buyum/tabiat) */
+function newThings(cat?: ThingCat): Thing[] {
+  return ALL_THINGS.filter((id) => thingReady(id) && THINGS[id].cat !== 'kasb' && (!cat || THINGS[id].cat === cat)).map((id) => ({ k: 'item', id }) as Thing)
+}
 
 function ThingArt({ t }: { t: Thing }) {
   if (t.k === 'fruit')
@@ -65,6 +73,7 @@ function ThingArt({ t }: { t: Thing }) {
       </span>
     )
   if (t.k === 'animal') return <AnimalArt id={t.id} />
+  if (t.k === 'item') return <ItemArt id={t.id} />
   return <ShapeArt shape={t.shape} color={t.color} />
 }
 
@@ -85,8 +94,19 @@ function oddRound(tier: number): { items: Thing[]; odd: number } {
       one = { k: 'fruit', id: pick(ALL_FRUITS) }
     }
   } else if (t === 1) {
-    // Toifa: har xil mevalar + bitta hayvon (yoki har xil hayvonlar + meva)
-    if (Math.random() < 0.5) {
+    // Toifa: uchtasi bir turkumdan (meva, hayvon, sabzavot, buyum, tabiat), bittasi boshqasidan
+    const groups: Thing[][] = [
+      ALL_FRUITS.map((id) => ({ k: 'fruit', id }) as Thing),
+      [...ALL_ANIMALS.map((id) => ({ k: 'animal', id }) as Thing), ...newThings('hayvon')],
+      newThings('sabzavot'),
+      newThings('buyum'),
+      newThings('tabiat'),
+    ].filter((g) => g.length >= 3)
+    const [ga, gb] = shuffle(groups)
+    if (ga && gb) {
+      three = shuffle(ga).slice(0, 3)
+      one = pick(gb)
+    } else if (Math.random() < 0.5) {
       three = shuffle(ALL_FRUITS).slice(0, 3).map((id) => ({ k: 'fruit', id }) as Thing)
       one = { k: 'animal', id: pick(ALL_ANIMALS) }
     } else {
@@ -211,10 +231,11 @@ function makeRound(type: RType, cfg: LogicCfg): Round {
       return { type, ...oddRound(cfg.odd) }
     case 'juft': {
       const fruits = ALL_FRUITS.map((id) => ({ k: 'fruit', id }) as Thing)
-      const animals = ALL_ANIMALS.map((id) => ({ k: 'animal', id }) as Thing)
-      // Yuqori darajada juftlar bir toifadan (faqat mevalar yoki faqat hayvonlar) — farqlash qiyinroq
+      const animals = [...ALL_ANIMALS.map((id) => ({ k: 'animal', id }) as Thing), ...newThings('hayvon')]
+      // Yuqori darajada juftlar bir toifadan (faqat mevalar / hayvonlar / sabzavotlar / buyumlar) — farqlash qiyinroq
       const same = cfg.pairs >= 5
-      const base = same ? (Math.random() < 0.5 || cfg.pairs > animals.length ? fruits : animals) : [...fruits, ...animals]
+      const cats = [fruits, animals, newThings('sabzavot'), newThings('buyum')].filter((g) => g.length >= cfg.pairs)
+      const base = same && cats.length ? pick(cats) : [...fruits, ...animals, ...newThings()]
       const pool = shuffle(base).slice(0, cfg.pairs)
       // Boshida hamma kartalar ochiq turadi (eslab qolish uchun): oson darajada uzoqroq
       const preview = Math.max(1000, 3200 - cfg.pairs * 280)

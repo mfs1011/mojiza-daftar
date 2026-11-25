@@ -27,8 +27,8 @@ export function BasketArt({ ribbon, className }: { ribbon?: string; className?: 
 
 // ---------------- Odamlar (bozor mijozlari) ----------------
 
-export type PersonId = 'bobo' | 'buvi' | 'aka' | 'opa' | 'bola'
-export const ALL_PEOPLE: PersonId[] = ['bobo', 'buvi', 'aka', 'opa', 'bola']
+export type PersonId = 'bobo' | 'buvi' | 'aka' | 'opa' | 'bola' | 'shifokor' | 'oshpaz' | 'haydovchi' | 'dehqon'
+export const ALL_PEOPLE: PersonId[] = ['bobo', 'buvi', 'aka', 'opa', 'bola', 'shifokor', 'oshpaz', 'haydovchi', 'dehqon']
 
 export function PersonArt({ id, happy, className }: { id: PersonId; happy?: boolean; className?: string }) {
   const key = `person/${id}${happy ? '-happy' : ''}`
