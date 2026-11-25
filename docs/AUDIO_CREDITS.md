@@ -76,6 +76,8 @@ bo'lishi shart. CC BY bo'lsa, muallif ilovaning "Haqida" oynasida ko'rsatiladi.
 | `sfx/animals/ayiq.m4a` | [running grizzly.mp3](https://freesound.org/people/Nivatius/sounds/519600/) | Nivatius | CC0 | 2026-11-25 |
 | `sfx/animals/laylak.m4a` | [Storks bill-clapping](https://freesound.org/people/Breviceps/sounds/705861/) | Breviceps | CC0 | 2026-11-25 |
 | `sfx/animals/zebra.m4a` | [Zebras - Grant's Zebra Braying](https://freesound.org/people/TheKingOfGeeks360/sounds/850661/) | TheKingOfGeeks360 | CC0 | 2026-11-25 |
+| `sfx/animals/echki.m4a` | [Herd of goats bleating](https://commons.wikimedia.org/wiki/File:Herd_of_goats_bleating.ogg) (Wikimedia Commons) | — | Public domain | 2026-11-26 |
+| `sfx/animals/fil.m4a` | [Elephant voice - trumpeting](https://commons.wikimedia.org/wiki/File:Elephant_voice_-_trumpeting.ogg) (Wikimedia Commons) | — | CC0 | 2026-11-26 |
 
 Hayvon ovozlari Wikimedia Commons'dan: asl yozuvdan eng toza bo'lak kesilgan, balandligi
 normallashtirilgan va AAC'ga o'tkazilgan. CC BY-SA fayllarning o'zgartirilgan nusxalari ham

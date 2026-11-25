@@ -41,7 +41,7 @@ Hovli fonidagi daraxt (`art/bg/` hovli foni): yuzli, plastilin tanali, shaftoli/
 - [ ] Quyon GIF qayta (ichki kvadrat qulog'ini qirqadi) — manba tozalangan rasmdan (`/tmp/gifsrc/animal__quyon2.png`).
 - [ ] `veg/zamburug` rasmi ("Z" harfi uchun; nom, topishmoq, ovoz tayyor) — Gemini.
 - [x] "Zina" → "Narvon" (rasm narvon edi): nom, topishmoq, ovozlar.
-- [ ] Echki va fil uchun yangi CC0 ovoz (eskilari qo'y/yomon edi; Freesound 403 qaytaryapti — kalit/limitni tekshirish).
+- [x] Echki va fil — Wikimedia Commons'dan (Freesound IP'ni bloklagan, 403). Egasi tinglab tasdiqlashi kerak.
 
 ### 2. Yangi narsalarni boshqa o'yinlarga ulash
 - [x] Bozor: shifokor, oshpaz, haydovchi, dehqon mijoz bo'ldi (egasi tanlagan ovozlar: Callirrhoe, Fenrir, Schedar, Rasalgethi).
