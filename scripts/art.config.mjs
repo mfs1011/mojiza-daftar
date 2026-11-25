@@ -181,6 +181,7 @@ export const ASSETS = [
     ['joxori', 'a yellow corn cob with green husk leaves'],
     ['limon', 'a bright yellow lemon with a small green leaf'],
     ['xurmo', 'a ripe orange persimmon with a green four-leaf cap'],
+    ['zamburug', 'a cute brown-capped forest mushroom with a cream stem'],
   ].map(([id, what]) => ({ path: `veg/${id}`, kind: 'object', size: 512, prompt: `${what}, one single fruit or vegetable, ${FACE}, cute glossy toy-like look` })),
   ...[
     ['fonar', 'a small old-fashioned lantern with a warm glowing light'],
@@ -192,7 +193,7 @@ export const ASSETS = [
     ['uzuk', 'a golden ring with a small red gem'],
     ['vertolyot', 'a small yellow toy helicopter'],
     ['xalta', 'a small embroidered cloth bag with a drawstring and suzani pattern'],
-    ['zina', 'a small wooden ladder'],
+    ['narvon', 'a small wooden ladder'],
     ['gildirak', 'a single black rubber wheel with a red hub'],
     ['shar', 'a shiny red balloon on a string'],
   ].map(([id, what]) => ({ path: `obj/${id}`, kind: 'object', size: 512, prompt: `${what}, one single object, ${FACE}, cute toy-like look` })),

@@ -78,6 +78,9 @@
 - ⚠️ Gemini GIF'ni **16:9 (640×360)** chiqaradi: kvadrat rasm berilsa, tepasi/pasti kesiladi (tuya boshi, quyon qulog'i).
   Shuning uchun manba avval **1280×720 xroma fonga, personaj balandligi ~70%** qilib joylanadi (`/tmp/gifsrc.sh <nom>`
   yoki ffmpeg `scale=500:500` + `overlay` markazga) va promptda "do NOT zoom in or crop, whole character visible" deyiladi.
+- ⚠️ Manbada personajning **o'z fonli kvadrati** qolmasin: Gemini animatsiyani shu ichki kvadrat ichida ushlab turadi va
+  sakraganda quloq/bosh kvadrat chetida qirqiladi (quyon, 2026-11-25). Manba = fonidan tozalangan `public/assets/art/<nom>.png`
+  bir tekis #00FF00 1280×720 ustiga, personaj ~55% balandlikda, tepada keng joy bilan.
 - Bir vaqtda faqat **bitta** GIF; tayyor bo'lgach sahifa yangilanmaydi — chat qayta ochilib "Скачать GIF" bosiladi.
 
 ## 3. Ovozlar

@@ -22,5 +22,13 @@ Yoqmagan rasmni qayta yarating va o'sha nom bilan qayta saqlang — import uni a
 animatsiya promptini yuboring (Gemini GIF qilib beradi) va `.gif` nomi bilan `art-inbox/` ga saqlang.
 O'yin animatsiyani rasmdan afzal ko'radi. Avval statik rasm, keyin animatsiya — shunday tartibda.
 
-**Jami: 3 ta yangi rasm.** Uslub bir xil chiqishi uchun har so'rovga oldingi rasmlardan birini (masalan `art/animal/sigir.png`) "STYLE reference" qilib biriktiring.
+**Jami: 1 ta yangi rasm.** Uslub bir xil chiqishi uchun har so'rovga oldingi rasmlardan birini (masalan `art/animal/sigir.png`) "STYLE reference" qilib biriktiring.
+
+## 🥕 Sabzavotlar
+
+### - [ ] `veg__zamburug.png`  ·  1:1 (kvadrat)
+
+```text
+a cute brown-capped forest mushroom with a cream stem, one single fruit or vegetable, with a cute friendly face: two big glossy eyes, a small smile and soft pink cheeks, cute glossy toy-like look. Soft 3D children's cartoon illustration in the style of a premium mobile kids game, rounded chunky friendly shapes, warm saturated but gentle colors, soft global illumination, subtle ambient occlusion, clean readable silhouette, smooth matte clay-like materials, big expressive eyes where there is a face, subtle Uzbek flavor only as small decorative patterns (atlas ikat, suzani, cotton-boll motifs) on clothing, collars or dishes, absolutely NO doors, windows, domes, towers or building parts on any character, animal or object, no text, no letters, no logos, no watermark, no border, no frame. a single object, centered, fully visible with generous empty margin around it, isolated on a perfectly flat solid pure chroma-key blue background (#0000FF), no shadow on the background, no ground, no other objects, no pure saturated blue color on the object itself.
+```
 

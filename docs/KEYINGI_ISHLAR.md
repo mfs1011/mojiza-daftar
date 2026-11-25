@@ -37,6 +37,11 @@ Hovli fonidagi daraxt (`art/bg/` hovli foni): yuzli, plastilin tanali, shaftoli/
 - [ ] Shaftoli/olxo'ri hozircha o'yin mevalari (FruitKind) emas — bog'ga qo'shilsa nom, ovoz, bozor ham kerak.
 - Hovli bezaklari (quduq, ko'za, so'ri, gul, daraxtcha…) ham 1b ro'yxatiga kiradi (eshik/gumbaz olib tashlanadi).
 
+### 1d. Kichik tuzatishlar (2026-11-25)
+- [ ] Quyon GIF qayta (ichki kvadrat qulog'ini qirqadi) — manba tozalangan rasmdan (`/tmp/gifsrc/animal__quyon2.png`).
+- [ ] `veg/zamburug` rasmi ("Z" harfi uchun; nom, topishmoq, ovoz tayyor) — Gemini.
+- [x] "Zina" → "Narvon" (rasm narvon edi): nom, topishmoq, ovozlar.
+
 ### 2. Yangi narsalarni boshqa o'yinlarga ulash
 - [x] Bozor: shifokor, oshpaz, haydovchi, dehqon mijoz bo'ldi (egasi tanlagan ovozlar: Callirrhoe, Fenrir, Schedar, Rasalgethi).
 - [x] Xotira o'yini: yangi narsalar hovuzda; yuqori darajada bir turkumdan.

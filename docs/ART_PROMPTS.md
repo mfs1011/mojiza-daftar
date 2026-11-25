@@ -22,7 +22,7 @@ Yoqmagan rasmni qayta yarating va o'sha nom bilan qayta saqlang — import uni a
 animatsiya promptini yuboring (Gemini GIF qilib beradi) va `.gif` nomi bilan `art-inbox/` ga saqlang.
 O'yin animatsiyani rasmdan afzal ko'radi. Avval statik rasm, keyin animatsiya — shunday tartibda.
 
-**Jami: 159 ta rasm.**
+**Jami: 160 ta rasm.**
 
 ## 🐦 Maskot — Popishak (ENG BIRINCHI shuni yarating)
 
@@ -816,6 +816,12 @@ a bright yellow lemon with a small green leaf, one single fruit or vegetable, wi
 a ripe orange persimmon with a green four-leaf cap, one single fruit or vegetable, with a cute friendly face: two big glossy eyes, a small smile and soft pink cheeks, cute glossy toy-like look. Soft 3D children's cartoon illustration in the style of a premium mobile kids game, rounded chunky friendly shapes, warm saturated but gentle colors, soft global illumination, subtle ambient occlusion, clean readable silhouette, smooth matte clay-like materials, big expressive eyes where there is a face, subtle Uzbek flavor only as small decorative patterns (atlas ikat, suzani, cotton-boll motifs) on clothing, collars or dishes, absolutely NO doors, windows, domes, towers or building parts on any character, animal or object, no text, no letters, no logos, no watermark, no border, no frame. a single object, centered, fully visible with generous empty margin around it, isolated on a perfectly flat solid pure chroma-key blue background (#0000FF), no shadow on the background, no ground, no other objects, no pure saturated blue color on the object itself.
 ```
 
+### - [ ] `veg__zamburug.png`  ·  1:1 (kvadrat)
+
+```text
+a cute brown-capped forest mushroom with a cream stem, one single fruit or vegetable, with a cute friendly face: two big glossy eyes, a small smile and soft pink cheeks, cute glossy toy-like look. Soft 3D children's cartoon illustration in the style of a premium mobile kids game, rounded chunky friendly shapes, warm saturated but gentle colors, soft global illumination, subtle ambient occlusion, clean readable silhouette, smooth matte clay-like materials, big expressive eyes where there is a face, subtle Uzbek flavor only as small decorative patterns (atlas ikat, suzani, cotton-boll motifs) on clothing, collars or dishes, absolutely NO doors, windows, domes, towers or building parts on any character, animal or object, no text, no letters, no logos, no watermark, no border, no frame. a single object, centered, fully visible with generous empty margin around it, isolated on a perfectly flat solid pure chroma-key blue background (#0000FF), no shadow on the background, no ground, no other objects, no pure saturated blue color on the object itself.
+```
+
 ## 🏠 Buyumlar
 
 ### - [ ] `obj__choynak.png`  ·  1:1 (kvadrat)
@@ -944,7 +950,7 @@ a small yellow toy helicopter, one single object, with a cute friendly face: two
 a small embroidered cloth bag with a drawstring and suzani pattern, one single object, with a cute friendly face: two big glossy eyes, a small smile and soft pink cheeks, cute toy-like look. Soft 3D children's cartoon illustration in the style of a premium mobile kids game, rounded chunky friendly shapes, warm saturated but gentle colors, soft global illumination, subtle ambient occlusion, clean readable silhouette, smooth matte clay-like materials, big expressive eyes where there is a face, subtle Uzbek flavor only as small decorative patterns (atlas ikat, suzani, cotton-boll motifs) on clothing, collars or dishes, absolutely NO doors, windows, domes, towers or building parts on any character, animal or object, no text, no letters, no logos, no watermark, no border, no frame. a single object, centered, fully visible with generous empty margin around it, isolated on a perfectly flat solid pure chroma-key green background (#00FF00), no shadow on the background, no ground, no other objects, no green color on the object itself.
 ```
 
-### - [ ] `obj__zina.png`  ·  1:1 (kvadrat)
+### - [ ] `obj__narvon.png`  ·  1:1 (kvadrat)
 
 ```text
 a small wooden ladder, one single object, with a cute friendly face: two big glossy eyes, a small smile and soft pink cheeks, cute toy-like look. Soft 3D children's cartoon illustration in the style of a premium mobile kids game, rounded chunky friendly shapes, warm saturated but gentle colors, soft global illumination, subtle ambient occlusion, clean readable silhouette, smooth matte clay-like materials, big expressive eyes where there is a face, subtle Uzbek flavor only as small decorative patterns (atlas ikat, suzani, cotton-boll motifs) on clothing, collars or dishes, absolutely NO doors, windows, domes, towers or building parts on any character, animal or object, no text, no letters, no logos, no watermark, no border, no frame. a single object, centered, fully visible with generous empty margin around it, isolated on a perfectly flat solid pure chroma-key green background (#00FF00), no shadow on the background, no ground, no other objects, no green color on the object itself.

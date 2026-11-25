@@ -718,5 +718,9 @@
  "dokon_rahmat": "inter:gemini-3.8-flash-tts:Sulafat",
  "dokon_qoldi": "inter:gemini-3.8-flash-tts:Sulafat",
  "dokon_hovliga": "inter:gemini-3.8-flash-tts:Sulafat",
- "dokon_sandiq": "inter:gemini-3.8-flash-tts:Sulafat"
+ "dokon_sandiq": "inter:gemini-3.8-flash-tts:Sulafat",
+ "sher_narvon": "inter:gemini-3.8-flash-tts:Sulafat",
+ "nom_narvon": "inter:gemini-3.8-flash-tts:Sulafat",
+ "sher_zamburug": "inter:gemini-3.8-flash-tts:Sulafat",
+ "nom_zamburug": "inter:gemini-3.8-flash-tts:Sulafat"
 }

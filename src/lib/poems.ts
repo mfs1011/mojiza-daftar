@@ -381,9 +381,14 @@ export const RIDDLES: Riddle[] = [
     text: "Otga o'xshar, lekin\nOq-qora yo'l-yo'li bor.\nAfrika dalalarida\nChopib yurar u tez-tez.",
   },
   {
-    id: 'zina',
-    answer: N('zina'),
-    text: "Pog'onama-pog'ona,\nYuqoriga chiqamiz.\nBitta-bitta bosib,\nEhtiyot bo'lib tushamiz.",
+    id: 'zamburug',
+    answer: N('zamburug'),
+    text: "Yomg'irdan keyin o'rmonda\nBoshida qalpoq, bir oyoq.\nO'tlar orasida turar,\nSavatga terar bolalar.",
+  },
+  {
+    id: 'narvon',
+    answer: N('narvon'),
+    text: "Devorga suyab qo'ysang,\nPog'onama-pog'ona chiqasan.\nTomga ham, daraxtga ham\nUnga tirmashib yetasan.",
   },
   {
     id: 'gildirak',
