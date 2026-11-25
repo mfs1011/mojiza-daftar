@@ -51,6 +51,17 @@ const WANT = [
   { type: 'animal', out: 'sher', must: /\blion/i, not: /sea lion/i, q: 'lion roar', dur: [0.5, 10], max: 2.5, n: 1 },
   { type: 'animal', out: 'ari', must: /\bbee|bees|bumble|buzz/i, not: /electric|razor|phone|fly\b|firecracker|cracker|fire/i, q: 'bumblebee buzzing', dur: [0.5, 10], max: 2, n: 1 },
   { type: 'animal', out: 'hakka', must: /magpie/i, q: 'magpie', dur: [0.3, 15], max: 1.8, n: 1 },
+  // Ovoz chiqarmaydigan / kam ovozli hayvonlar — xarakterli tovush (bola eshitib taniydi)
+  { type: 'animal', out: 'quyon', must: /rabbit|bunny|hare/i, not: /trap|gun|hunt/i, q: 'rabbit', dur: [0.3, 20], max: 1.5, n: 1 },
+  { type: 'animal', out: 'baliq', must: /bubble|bubbles|blub/i, not: /pop|wrap|gum|machine/i, q: 'underwater bubbles', dur: [0.5, 15], max: 1.6, n: 1 },
+  { type: 'animal', out: 'kapalak', must: /flutter|wing|flap/i, not: /bird|pigeon|dove|helicopter|flag|chicken|duck/i, q: 'soft wing flutter', dur: [0.2, 20], max: 1.2, n: 1, snr: 22 },
+  { type: 'animal', out: 'toshbaqa', must: /turtle|tortoise/i, not: /breed|mating|mate|sex/i, q: 'turtle', dur: [0.3, 60], max: 1.8, n: 1, snr: 22 },
+  { type: 'animal', out: 'ayiq', must: /bears?|grizzly/i, not: /trap|teddy|beer|bearing/i, q: 'bear', dur: [0.5, 60], max: 2, n: 1, snr: 22 },
+  { type: 'animal', out: 'jirafa', must: /giraffe/i, q: 'giraffe', dur: [0.3, 120], max: 2, n: 1, snr: 18 },
+  { type: 'animal', out: 'laylak', must: /stork/i, q: 'stork', dur: [0.3, 120], max: 2, n: 1, snr: 18 },
+  { type: 'animal', out: 'zebra', must: /zebra/i, not: /bass|music|synth|crossing|beat|delay|deelay/i, q: 'zebra', dur: [0.3, 120], max: 2, n: 1, snr: 18 },
+  { type: 'animal', out: 'chumoli', must: /footstep|scurry|crawl|patter|tiny|tap/i, not: /cockroach|spider|creepy|horror|shoe|heel|boot/i, q: 'tiny footsteps', dur: [0.2, 20], max: 1.2, n: 1, snr: 25 },
+  { type: 'animal', out: 'ilon', must: /hiss|snake/i, not: /steam|cat|tire|tyre|air|gas/i, q: 'snake hiss', dur: [0.3, 15], max: 1.6, n: 1 },
   // Hovli narsalari (bosganda)
   { type: 'sfx', out: 'obj-terak', must: /leaf|leaves|rustl/i, not: /snap|break|crack/i, q: 'leaves rustle', dur: [0.5, 6], max: 1.2, n: 1 },
   { type: 'sfx', out: 'obj-olma_daraxt', q: 'tree branch shake leaves', dur: [0.5, 6], max: 1.2, n: 1 },
@@ -186,13 +197,13 @@ for (const w of WANT) {
   cand.sort((x, y) => y.score - x.score)
   const pickd = []
   for (const c of cand) {
-    if (c.a.snr < 35) continue // shovqinli — olmaymiz
+    if (c.a.snr < (w.snr ?? 35)) continue // shovqinli — olmaymiz
     if (pickd.some((p) => p.r.username === c.r.username) && cand.length > w.n * 2) continue
     pickd.push(c)
     if (pickd.length >= w.n) break
   }
   if (!pickd.length) {
-    console.log(`✗ ${w.out}: toza (SNR ≥ 35) yozuv topilmadi — ${cand.map((c) => Math.round(c.a.snr)).join(', ')}`)
+    console.log(`✗ ${w.out}: toza (SNR ≥ ${w.snr ?? 35}) yozuv topilmadi — ${cand.map((c) => Math.round(c.a.snr)).join(', ')}`)
     continue
   }
   pickd.forEach((c, i) => {

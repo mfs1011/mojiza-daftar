@@ -74,6 +74,12 @@ bo'lishi shart. CC BY bo'lsa, muallif ilovaning "Haqida" oynasida ko'rsatiladi.
 | `sfx/animals/tuya.m4a` | [S30-27 Camels grunt and call; birds in bg.wav](https://freesound.org/people/craigsmith/sounds/675449/) | craigsmith | CC0 | 2026-11-25 |
 | `sfx/animals/joja.m4a` | [Baby Chicks Chirp.boaay](https://freesound.org/people/BOAAY/sounds/519193/) | BOAAY | CC0 | 2026-11-25 |
 | `sfx/animals/ari.m4a` | [Bee flyby LkMboro June 19 2026](https://freesound.org/people/kvgarlic/sounds/859690/) | kvgarlic | CC0 | 2026-11-25 |
+| `sfx/animals/quyon.m4a` | [Rabbit snarls and growls](https://freesound.org/people/kessir/sounds/372076/) | kessir | CC0 | 2026-11-25 |
+| `sfx/animals/baliq.m4a` | [Bubbles 004.wav](https://freesound.org/people/ristooooo1/sounds/539819/) | ristooooo1 | CC0 | 2026-11-25 |
+| `sfx/animals/ilon.m4a` | [Snake Hiss](https://freesound.org/people/xoiziox/sounds/553374/) | xoiziox | CC0 | 2026-11-25 |
+| `sfx/animals/ayiq.m4a` | [running grizzly.mp3](https://freesound.org/people/Nivatius/sounds/519600/) | Nivatius | CC0 | 2026-11-25 |
+| `sfx/animals/laylak.m4a` | [Storks bill-clapping](https://freesound.org/people/Breviceps/sounds/705861/) | Breviceps | CC0 | 2026-11-25 |
+| `sfx/animals/zebra.m4a` | [Zebras - Grant's Zebra Braying](https://freesound.org/people/TheKingOfGeeks360/sounds/850661/) | TheKingOfGeeks360 | CC0 | 2026-11-25 |
 
 Hayvon ovozlari Wikimedia Commons'dan: asl yozuvdan eng toza bo'lak kesilgan, balandligi
 normallashtirilgan va AAC'ga o'tkazilgan. CC BY-SA fayllarning o'zgartirilgan nusxalari ham
