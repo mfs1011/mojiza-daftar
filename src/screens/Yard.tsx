@@ -13,6 +13,13 @@ import type { AnimalId, FruitKind } from '../lib/names'
 import type { ThingId } from '../lib/things'
 import type { FruitStore, PlacedDecor, Profile } from '../types'
 
+/** Hovli daraxtidagi mevalar (fondagi eski daraxt kabi shaftoli va olxo'ri): [rasm, x%, y%] — daraxt rasmiga nisbatan */
+const TREE_FRUITS: [string, number, number][] = [
+  ['shaftoli', 24, 20], ['olxori', 42, 16], ['shaftoli', 62, 18], ['olxori', 76, 22],
+  ['olxori', 14, 34], ['shaftoli', 34, 28], ['shaftoli', 54, 32], ['olxori', 70, 40],
+  ['shaftoli', 84, 36], ['olxori', 26, 48], ['shaftoli', 46, 50], ['shaftoli', 16, 26],
+]
+
 // 🏡 Mening hovlim: bekat yo'llarida yutilgan sovg'alar shu yerga joylanadi (qishloq xaritasi toza qoladi).
 //   • pastdagi qutidan sovg'ani tanlab, hovlining istalgan joyiga bosib qo'yadi
 //   • qo'yilgan narsani sudrab joyini o'zgartiradi
@@ -44,6 +51,8 @@ export function Yard({ profile, village, inbox, store, owned, onSave, onFeed, on
   const fruits = storeKinds(store)
   const toys = owned.filter((t): t is ThingId => thingReady(t as ThingId))
   const bg = artUrl('bg/garden')
+  const treeImg = artUrl('bog/daraxt')
+  const [treeShake, setTreeShake] = useState(0)
 
   useEffect(() => {
     if (inbox.length) void say('hovli_joyla')
@@ -96,6 +105,29 @@ export function Yard({ profile, village, inbox, store, owned, onSave, onFeed, on
 
   return (
     <div className="screen yard" style={bg ? { backgroundImage: `url("${bg}")` } : undefined}>
+      {/* Fondagi yuzli daraxt (bog/daraxt) — fon rasmida daraxt yo'q; tebranib turadi, bosilsa silkinadi */}
+      {treeImg && (
+        <motion.button
+          type="button"
+          className="yard-tree"
+          aria-label="Daraxt"
+          key={`tree-${treeShake}`}
+          animate={treeShake ? { rotate: [0, -4, 4, -3, 3, 0] } : {}}
+          transition={{ duration: 0.6 }}
+          onClick={() => {
+            sfx.rustle()
+            setTreeShake((n) => n + 1)
+          }}
+        >
+          <span className="tree-sway">
+            <img src={treeImg} alt="" draggable={false} />
+            {TREE_FRUITS.map(([kind, x, y], i) => {
+              const src = artUrl(`bog/${kind}`)
+              return src ? <img key={i} src={src} alt="" draggable={false} className="tree-fruit" style={{ left: `${x}%`, top: `${y}%` }} /> : null
+            })}
+          </span>
+        </motion.button>
+      )}
       <div className="yard-ground" ref={groundRef} onClick={place}>
         {village
           .map((d, i) => ({ d, i }))
