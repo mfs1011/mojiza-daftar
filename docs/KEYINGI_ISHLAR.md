@@ -4,7 +4,7 @@
 > AI bilan yaratiladigan hamma narsa uchun qoidalar: [GENERATSIYA_QOIDALARI.md](GENERATSIYA_QOIDALARI.md).
 > Uzoq muddatli reja: [RIVOJLANISH_REJASI.md](RIVOJLANISH_REJASI.md) (egasi izoh yozmoqda — ✍️ joylar).
 
-Oxirgi yangilanish: 2026-11-25. Branch: `feat/audio-impl` (PR #6 → `dev`). Oxirgi APK: **v17** (`~/Downloads/mojiza-daftar-debug-v17.apk`).
+Oxirgi yangilanish: 2026-11-25. Branch: `feat/audio-impl` (PR #6 → `dev`). Oxirgi APK: **v18** (`~/Downloads/mojiza-daftar-debug-v18.apk`).
 
 ---
 
@@ -41,6 +41,7 @@ Hovli fonidagi daraxt (`art/bg/` hovli foni): yuzli, plastilin tanali, shaftoli/
 - [ ] Quyon GIF qayta (ichki kvadrat qulog'ini qirqadi) — manba tozalangan rasmdan (`/tmp/gifsrc/animal__quyon2.png`).
 - [ ] `veg/zamburug` rasmi ("Z" harfi uchun; nom, topishmoq, ovoz tayyor) — Gemini.
 - [x] "Zina" → "Narvon" (rasm narvon edi): nom, topishmoq, ovozlar.
+- [ ] Echki va fil uchun yangi CC0 ovoz (eskilari qo'y/yomon edi; Freesound 403 qaytaryapti — kalit/limitni tekshirish).
 
 ### 2. Yangi narsalarni boshqa o'yinlarga ulash
 - [x] Bozor: shifokor, oshpaz, haydovchi, dehqon mijoz bo'ldi (egasi tanlagan ovozlar: Callirrhoe, Fenrir, Schedar, Rasalgethi).
