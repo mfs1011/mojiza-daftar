@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { useEffect, useMemo } from 'react'
 import { Mascot } from '../art/Mascot'
-import { jingle, say, sfx } from '../lib/audio'
+import { afterSpeech, jingle, say, sfx } from '../lib/audio'
 import { wait } from '../lib/util'
 
 interface Props {
@@ -30,7 +30,10 @@ export function Celebration({ voice, onDone }: Props) {
     let cancelled = false
     sfx.success()
     jingle('win')
-    void Promise.all([say(...voice), wait(2600)]).then(() => {
+    // O'yinning oxirgi gapi ("Bu «Be» harfi… barakalla", shakl nomi) kesilmasin: avval u tugaydi;
+    // o'sha gap "barakalla" bilan tugagan bo'lsa — ikkinchi marta aytilmaydi
+    const spoken = afterSpeech().then((prev) => say(...voice.filter((k) => k !== prev[prev.length - 1])))
+    void Promise.all([spoken, wait(2600)]).then(() => {
       if (!cancelled) onDone()
     })
     return () => {

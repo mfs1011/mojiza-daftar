@@ -643,7 +643,24 @@ export function speaking(): boolean {
   return !!current && !current.paused && !current.ended
 }
 
-export async function say(...keys: string[]): Promise<void> {
+/** Hozir aytilayotgan gap (tugashini kutish uchun) va uning kalitlari */
+let curSpeech: Promise<void> = Promise.resolve()
+let speakingKeys: string[] = []
+
+/** Joriy gap tugashini kutadi; qaytaradi — o'sha gapning kalitlari (masalan, oxiri "barakalla"mi) */
+export async function afterSpeech(): Promise<string[]> {
+  const keys = speakingKeys
+  await curSpeech
+  return keys
+}
+
+export function say(...keys: string[]): Promise<void> {
+  speakingKeys = keys
+  curSpeech = sayNow(keys)
+  return curSpeech
+}
+
+async function sayNow(keys: string[]): Promise<void> {
   stopVoice()
   const my = token
   duck(true)
