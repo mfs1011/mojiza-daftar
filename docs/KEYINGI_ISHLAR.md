@@ -4,16 +4,14 @@
 > AI bilan yaratiladigan hamma narsa uchun qoidalar: [GENERATSIYA_QOIDALARI.md](GENERATSIYA_QOIDALARI.md).
 > Uzoq muddatli reja: [RIVOJLANISH_REJASI.md](RIVOJLANISH_REJASI.md) (egasi izoh yozmoqda — ✍️ joylar).
 
-Oxirgi yangilanish: 2026-11-25. Branch: `feat/audio-impl` (PR #6 → `dev`). Oxirgi APK: **v12** (`~/Downloads/mojiza-daftar-debug-v12.apk`).
+Oxirgi yangilanish: 2026-11-25. Branch: `feat/audio-impl` (PR #6 → `dev`). Oxirgi APK: **v13** (`~/Downloads/mojiza-daftar-debug-v13.apk`).
 
 ---
 
 ## ⬜ Ochiq ishlar (ustuvorlik tartibida)
 
-### 1. GIF animatsiyalar (yangi personajlar) — DAVOM ETADI
-✅ Yangi 18 hayvonning hammasi (2026-11-25, 16:9 manba — kesilmagan) + bog' daraxti.
-Qolgani (navbat: `/tmp/gif-queue.txt`): 1b dan keyin GIF'i o'chirilgan 11 ta — sigir, qo'y, echki, it, mushuk, o'rdak,
-eshak, bobo, bobo-happy, aka, aka-happy; kasblar 8 ta — shifokor, oshpaz, haydovchi, dehqon (oddiy + `-happy`).
+### 1. GIF animatsiyalar — ✅ TUGADI (2026-11-25)
+✅ Hammasi: 18 yangi hayvon, bog' daraxti, tozalangan 7 ferma hayvoni, bobo/aka (×2), 4 kasb (×2). 16:9 manba — kesilmagan.
 - ⚠️ Gemini **bir vaqtda faqat bitta GIF** yaratadi (parallel so'rovlar "capacity error" bilan rad etiladi) va kunlik
   GIF limiti bor (2026-11-24 da ~2 ta GIF'dan keyin tugadi). Ketma-ket: bittasi tayyor → yuklab olinadi → keyingisi.
 - Qanday: asl **yashil/magenta fonli** rasm (`~/Downloads/<nom>.png`; hakka uchun fonini yashilga almashtirilgani)
@@ -27,7 +25,7 @@ sigir, it, mushuk, o'rdak, bobo). Egasi: "eshik deraza kabi narsalar juda ko'pay
       mushuk, o'rdak, eshak), bobo/aka × 2 holat, 7 hovli bezagi (anor/olma daraxti, gul, ko'za, kungaboqar, quduq,
       tandir) — eskisi bilan solishtirilib import qilindi. Xo'roz, olma, anor, opa, buvi, bola, maskot — avvaldan toza.
       Saboqlar → `GENERATSIYA_QOIDALARI.md` 1.6. Eski fayllar: `~/Downloads/rasmlar-eski-uslubsiz/izli/`.
-- [ ] Ularning GIF'lari qayta (1-bo'limdagi 11 ta).
+- [x] Ularning GIF'lari qayta (2026-11-25).
 
 ### 1c. Bog' daraxti — hovli fonidagidek (egasi so'radi, 2026-11-25)
 Hovli fonidagi daraxt (`art/bg/` hovli foni): yuzli, plastilin tanali, shaftoli/olxo'ri mevali. Bog'da xuddi shunday:
