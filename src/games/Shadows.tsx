@@ -2,6 +2,9 @@ import { motion, type PanInfo } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ALL_ANIMALS, AnimalArt, type AnimalId } from '../art/Animal'
 import { ThingArt, thingReady } from '../art/Thing'
+import { preloadSprites } from '../art/ArtImg'
+import { animOf } from '../lib/assets'
+import { THINGS } from '../lib/things'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
@@ -93,6 +96,11 @@ export function Shadows({ profile, level, onComplete, onExit }: GameProps) {
   const [roundIdx, setRoundIdx] = useState(0)
   const rounds = useMemo(() => Array.from({ length: ROUNDS }, () => makeRound(shadowCfg(level), level)), [level])
   const round = rounds[roundIdx]
+  // Hamma raund animatsiyalari oldindan yuklanadi — hayvonlar birdaniga, to'liq chiqadi
+  useMemo(() => {
+    const urls = rounds.flatMap((r) => r.tray).map((id) => animOf(isFarm(id) ? `animal/${id}` : THINGS[id].art)?.url)
+    preloadSprites(urls.filter((u): u is string => !!u))
+  }, [rounds])
   const [placed, setPlaced] = useState<Set<CritterId>>(new Set())
   const [wrongSpot, setWrongSpot] = useState<CritterId | null>(null)
   const [finished, setFinished] = useState(false)
