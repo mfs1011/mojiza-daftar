@@ -12,10 +12,7 @@ bo'lishi shart. CC BY bo'lsa, muallif ilovaning "Haqida" oynasida ko'rsatiladi.
 | `sfx/popishak-3.m4a` | [Upupa epops.ogg](https://commons.wikimedia.org/wiki/File:Upupa_epops.ogg) | Vladimir Yu. Arkhipov, Arkhivov | CC BY-SA 3.0 | 2026-11-23 |
 | `sfx/animals/sigir.m4a` | [Moo 1 - Moo Moo the Cow](https://freesound.org/people/manofham/sounds/700378/) | manofham | CC0 | 2026-11-24 |
 | `sfx/animals/sigir-2.m4a` | [Cow - Moan 2 - 96kHz.wav](https://freesound.org/people/JarredGibb/sounds/233146/) | JarredGibb | CC0 | 2026-11-24 |
-| `sfx/animals/qoy.m4a` | [Ewe Shetland Sheep Baa](https://freesound.org/people/satoristudios3/sounds/692900/) | satoristudios3 | CC0 | 2026-11-24 |
-| `sfx/animals/qoy-2.m4a` | [Sheep baaing 3 - Norwegian sheep expressing itself concisely](https://freesound.org/people/michaelperfect/sounds/710298/) | michaelperfect | CC0 | 2026-11-24 |
-| `sfx/animals/echki.m4a` | [Single Goat Bleating 2x](https://freesound.org/people/Kinoton/sounds/581240/) | Kinoton | CC0 | 2026-11-24 |
-| `sfx/animals/echki-2.m4a` | [Goats - LaMancha Goat, Three Bleats from Nanny and Baby](https://freesound.org/people/TheKingOfGeeks360/sounds/754616/) | TheKingOfGeeks360 | CC0 | 2026-11-24 |
+| `sfx/animals/qoy.m4a` | [Single Goat Bleating 2x](https://freesound.org/people/Kinoton/sounds/581240/) | Kinoton | CC0 | 2026-11-24 |
 | `sfx/animals/xoroz.m4a` | [Quiquiriquí](https://freesound.org/people/cocoricosound/sounds/165876/) | cocoricosound | CC0 | 2026-11-24 |
 | `sfx/animals/xoroz-2.m4a` | [Rooster Crow 3](https://freesound.org/people/BenjaminNelan/sounds/435506/) | BenjaminNelan | CC0 | 2026-11-24 |
 | `sfx/animals/it.m4a` | [Dog Barking Single 2.wav](https://freesound.org/people/SpaceJoe/sounds/483180/) | SpaceJoe | CC0 | 2026-11-24 |
@@ -68,7 +65,6 @@ bo'lishi shart. CC BY bo'lsa, muallif ilovaning "Haqida" oynasida ko'rsatiladi.
 | `sfx/animals/tovuq.m4a` | [Chicken](https://freesound.org/people/D4XX/sounds/607245/) | D4XX | CC0 | 2026-11-25 |
 | `sfx/animals/tovuq-2.m4a` | [chicken.wav](https://freesound.org/people/JhennaSide/sounds/455905/) | JhennaSide | CC0 | 2026-11-25 |
 | `sfx/animals/goz.m4a` | [goose honk](https://freesound.org/people/jahjahjahjah/sounds/805297/) | jahjahjahjah | CC0 | 2026-11-25 |
-| `sfx/animals/fil.m4a` | [Angry Elephant.aiff](https://freesound.org/people/Danjocross/sounds/507467/) | Danjocross | CC0 | 2026-11-25 |
 | `sfx/animals/sher.m4a` | [Lions_roar](https://freesound.org/people/smokediggity/sounds/795986/) | smokediggity | CC0 | 2026-11-25 |
 | `sfx/animals/hakka.m4a` | [Magpie](https://freesound.org/people/kangaroovindaloo/sounds/584903/) | kangaroovindaloo | CC0 | 2026-11-25 |
 | `sfx/animals/tuya.m4a` | [S30-27 Camels grunt and call; birds in bg.wav](https://freesound.org/people/craigsmith/sounds/675449/) | craigsmith | CC0 | 2026-11-25 |

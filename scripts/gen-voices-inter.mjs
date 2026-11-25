@@ -62,7 +62,8 @@ function sayText(p) {
   // Harf nomi yolg'iz bo'g'in bo'lsa ("Be", "E") model uni inglizcha o'qishi mumkin: o'zbekcha gap ichida
   // o'qitiladi, keyin aligner faqat «…» ichidagi nomni kesib oladi
   // Talaffuz yozuvi: "Je" TTS'da ruscha "Же" bo'lib o'qiladi — o'zbekcha [dʒe] uchun "Dje"
-  if (/^harf_(?!chiz$|top$)/.test(p.key)) return `Bu «${text === 'Je' ? 'Dje' : text}» harfi.`
+  // Harf gap OXIRIDA: undan keyin jimlik — unlini to'liq kesish mumkin ("Bu «Be» harfi"da oxiri qirqilardi)
+  if (/^harf_(?!chiz$|top$)/.test(p.key)) return `Bu harf — «${text === 'Je' ? 'Dje' : text}».`
   return text
 }
 /** Tekshiruv uchun: kesib olinadigan qism uzunligi */
@@ -210,7 +211,7 @@ function splitAligned(wavBuf, x, items) {
     if (a1 - a0 < min || a1 - a0 > 1.5 + chars * 0.2) return null
     // Gap ichidan so'z kesilsa — aniq chegarada (atrofidagi gap kirmasin), aks holda qo'shni jumlalar o'rtasidan
     const from = marked ? Math.max(0, a0 - 0.05) : i === 0 ? Math.max(0, a0 - 0.15) : (t[i - 1].a1 + a0) / 2
-    const to = marked ? Math.min(total, a1 + 0.12) : i === items.length - 1 ? Math.min(total, a1 + 0.3) : (a1 + t[i + 1].a0) / 2
+    const to = marked ? Math.min(total, a1 + (/»\.?$/.test(items[i].say) ? 0.35 : 0.12)) : i === items.length - 1 ? Math.min(total, a1 + 0.3) : (a1 + t[i + 1].a0) / 2
     segs.push(x.subarray(Math.round(from * SR), Math.round(to * SR)))
   }
   return segs

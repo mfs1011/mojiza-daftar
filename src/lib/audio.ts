@@ -669,6 +669,8 @@ async function sayNow(keys: string[]): Promise<void> {
     const url = await urlFor(key)
     if (!url || my !== token) continue
     await playUrl(url)
+    // Harf nomidan keyin qisqa pauza — keyingi so'z harfni "uzib" qo'ymasin
+    if (/^harf_[A-Z]/.test(key)) await new Promise((r) => setTimeout(r, 300))
   }
   if (my === token) duck(false)
 }
