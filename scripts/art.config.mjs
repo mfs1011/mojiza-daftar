@@ -262,6 +262,19 @@ export const ASSETS = [
     prompt: `${what}, glossy 3D mobile game UI icon, chunky rounded shape, bright saturated colors, soft highlight on top, no background element, no circle behind it`,
   })),
 
+  // ---------- Bog' daraxti (hovli fonidagi daraxt kabi; mevalar alohida, shoxga qo'yiladi va uziladi) ----------
+  // Daraxtdagi mayda mevalar — yuzsiz (fondagi daraxt kabi); daraxtning o'zida yuz bor.
+  {
+    path: 'bog/daraxt',
+    kind: 'object',
+    size: 768,
+    prompt:
+      'a big friendly fruit tree WITHOUT any fruit: a thick warm terracotta-clay trunk with a gentle smiling face in the middle of the trunk (two big glossy brown eyes, soft brows, a small smile), short roots spreading at the base, a wide round crown made of many plump rounded matte green clay leaves in several shades of green, no fruit, no flowers, no birds',
+    motion: 'the crown of leaves sways very gently in a soft breeze, the face blinks slowly and smiles, the trunk stays still',
+  },
+  { path: 'bog/shaftoli', kind: 'object', size: 256, prompt: 'one single small ripe round peach with a soft orange and pink blush, a tiny brown stem and one small green leaf, matte clay, no face' },
+  { path: 'bog/olxori', kind: 'object', size: 256, prompt: 'one single small ripe oval plum, deep purple with a soft bloom, a tiny brown twig on top, matte clay, no face' },
+
   // ---------- Boshqa ----------
   { path: 'ui/basket', kind: 'object', size: 384, prompt: 'an empty woven wicker basket with a handle, front view' },
   { path: 'ui/coin', kind: 'object', size: 256, prompt: 'a shiny golden coin, front view' },

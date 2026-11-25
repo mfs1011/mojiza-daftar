@@ -22,7 +22,7 @@ Yoqmagan rasmni qayta yarating va o'sha nom bilan qayta saqlang — import uni a
 animatsiya promptini yuboring (Gemini GIF qilib beradi) va `.gif` nomi bilan `art-inbox/` ga saqlang.
 O'yin animatsiyani rasmdan afzal ko'radi. Avval statik rasm, keyin animatsiya — shunday tartibda.
 
-**Jami: 156 ta rasm.**
+**Jami: 159 ta rasm.**
 
 ## 🐦 Maskot — Popishak (ENG BIRINCHI shuni yarating)
 
