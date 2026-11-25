@@ -84,6 +84,8 @@
 - **Usul:** Gemini TTS, **Interactions API** (`scripts/gen-voices-inter.mjs`). Uslub `speech_metadata` maydonida —
   ovoz chiqarib o'qilmaydi. Asosiy model `gemini-3.8-flash-tts`, zaxira `…-lite-tts`. (3.1 uslubni qo'llamaydi;
   eski `generateContent` usuli ishlatilmaydi.)
+- Lokal o'zbekcha TTS **Gapiring v1** (offline) 2026-11-25 da sinaldi — harf nomlari va personajlar ovozi Gemini'dan
+  ancha past (faqat 2 ovoz), egasi rad etdi. Bu loyihada faqat Gemini.
 - **Ovozlar (o'zgartirilmaydi):** tarbiyachi/hikoyachi — **Sulafat**; bobo — **Charon**; buvi — **Kore**;
   aka — **Orus**; opa — **Leda**; bola — **Puck**.
 - **Uslub matni:** "native Uzbek speaker from Tashkent, natural Uzbek intonation and word stress, no English,
