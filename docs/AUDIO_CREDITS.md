@@ -63,6 +63,17 @@ bo'lishi shart. CC BY bo'lsa, muallif ilovaning "Haqida" oynasida ko'rsatiladi.
 | `ambience/ustaxona.m4a` | [Fireplace woodstove with the lid open](https://freesound.org/people/HullMusic/sounds/718202/) | HullMusic | CC0 | 2026-11-24 |
 | `ambience/harflar.m4a` | [Foley_Object_Clock_Old_Tick_Sequence_Stereo](https://freesound.org/people/Nox_Sound/sounds/790019/) | Nox_Sound | CC0 | 2026-11-24 |
 | `ambience/qora.m4a` | [200906 Cricket, single close loud, PEC pm.flac](https://freesound.org/people/TRP/sounds/568820/) | TRP | CC0 | 2026-11-24 |
+| `sfx/animals/ot.m4a` | [Horse](https://freesound.org/people/poodaddy69/sounds/521246/) | poodaddy69 | CC0 | 2026-11-25 |
+| `sfx/animals/ot-2.m4a` | [Renill de cavall / Horse Neigh](https://freesound.org/people/Salsero_classic/sounds/826753/) | Salsero_classic | CC0 | 2026-11-25 |
+| `sfx/animals/tovuq.m4a` | [Chicken](https://freesound.org/people/D4XX/sounds/607245/) | D4XX | CC0 | 2026-11-25 |
+| `sfx/animals/tovuq-2.m4a` | [chicken.wav](https://freesound.org/people/JhennaSide/sounds/455905/) | JhennaSide | CC0 | 2026-11-25 |
+| `sfx/animals/goz.m4a` | [goose honk](https://freesound.org/people/jahjahjahjah/sounds/805297/) | jahjahjahjah | CC0 | 2026-11-25 |
+| `sfx/animals/fil.m4a` | [Angry Elephant.aiff](https://freesound.org/people/Danjocross/sounds/507467/) | Danjocross | CC0 | 2026-11-25 |
+| `sfx/animals/sher.m4a` | [Lions_roar](https://freesound.org/people/smokediggity/sounds/795986/) | smokediggity | CC0 | 2026-11-25 |
+| `sfx/animals/hakka.m4a` | [Magpie](https://freesound.org/people/kangaroovindaloo/sounds/584903/) | kangaroovindaloo | CC0 | 2026-11-25 |
+| `sfx/animals/tuya.m4a` | [S30-27 Camels grunt and call; birds in bg.wav](https://freesound.org/people/craigsmith/sounds/675449/) | craigsmith | CC0 | 2026-11-25 |
+| `sfx/animals/joja.m4a` | [Baby Chicks Chirp.boaay](https://freesound.org/people/BOAAY/sounds/519193/) | BOAAY | CC0 | 2026-11-25 |
+| `sfx/animals/ari.m4a` | [Bee flyby LkMboro June 19 2026](https://freesound.org/people/kvgarlic/sounds/859690/) | kvgarlic | CC0 | 2026-11-25 |
 
 Hayvon ovozlari Wikimedia Commons'dan: asl yozuvdan eng toza bo'lak kesilgan, balandligi
 normallashtirilgan va AAC'ga o'tkazilgan. CC BY-SA fayllarning o'zgartirilgan nusxalari ham

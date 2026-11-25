@@ -42,8 +42,10 @@ Hovli fonidagi daraxt (`art/bg/` hovli foni): yuzli, plastilin tanali, shaftoli/
 - [x] Bozor: shifokor, oshpaz, haydovchi, dehqon mijoz bo'ldi (egasi tanlagan ovozlar: Callirrhoe, Fenrir, Schedar, Rasalgethi).
 - [x] Xotira o'yini: yangi narsalar hovuzda; yuqori darajada bir turkumdan.
 - [x] "Ortiqchasini top": turkum darajasi hayvon/meva/sabzavot/buyum/tabiat bilan.
-- [ ] Soyalar o'yini: yangi hayvonlar (ularning **haqiqiy ovozi** yo'q — Ferma/Soyalarga ulash uchun avval CC0 hayvon
-      ovozlari kerak: `scripts/freesound.mjs` WANT ro'yxatiga qo'shish).
+- [x] Soyalar o'yini (2026-11-25): 2-darajadan yangi hayvonlar (ot, tuya, quyon, tovuq, jo'ja, g'oz, toshbaqa, ayiq,
+      fil, jirafa, zebra, sher) — 1 ta, 6-darajadan 2 ta. CC0 ovozlar: ot, tuya, tovuq, jo'ja, g'oz, fil, sher, ari, hakka
+      (tinglash: `~/Downloads/ovoz-solishtirish/yangi-hayvon-ovozlari.m4a`); ayiq/quyon va b. — faqat nomi aytiladi.
+- [ ] Ferma o'yiniga ham yangi hayvonlar (ovozi borlari) — keyinroq.
 
 ### 3. Iqtisod: olmacha va tangalar (RIVOJLANISH_REJASI.md, 4b-bo'lim)
 Egasi qarori: do'konda **hammasi** sotilsin (kiyim, hayvon, o'yinchoq, cholg'u), keyinchalik boyitiladi.

@@ -757,7 +757,7 @@ function synthAnimal(id: AnimalId): number {
 }
 
 /** Haqiqiy hayvon yozuvi: <id>, <id>-2, <id>-3 (bo'lganlari) */
-function animalVariants(id: AnimalId): string[] {
+function animalVariants(id: string): string[] {
   return [id, `${id}-2`, `${id}-3`].map((n) => audioUrl(`sfx/animals/${n}`)).filter((u): u is string => !!u)
 }
 
@@ -778,6 +778,21 @@ export function preloadAnimals(ids: AnimalId[]) {
       a.load()
       preloaded.set(url, a)
     }
+}
+
+/**
+ * Yangi hayvonlar (things.ts) ovozi: faqat haqiqiy yozuv bo'lsa chalinadi (sintez/taqlid yo'q).
+ * @returns yozuv bor-yo'qligi
+ */
+export async function sayCreature(id: string): Promise<boolean> {
+  const real = animalVariants(id)
+  if (!real.length) return false
+  stopVoice()
+  const my = token
+  duck(true)
+  await playUrl(real[Math.floor(Math.random() * real.length)])
+  if (my === token) duck(false)
+  return true
 }
 
 export async function sayAnimal(id: AnimalId, opts: { steady?: boolean } = {}): Promise<void> {

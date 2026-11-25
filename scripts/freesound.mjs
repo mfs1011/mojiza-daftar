@@ -41,6 +41,16 @@ const WANT = [
   { type: 'animal', out: 'mushuk', must: /\b(cat|kitten|kitty|meow)/i, q: 'cat meow', dur: [0.3, 5], max: 1.3, n: 3 },
   { type: 'animal', out: 'ordak', must: /\b(duck|mallard|quack)/i, q: 'duck quack', dur: [0.3, 6], max: 1.3, n: 2 },
   { type: 'animal', out: 'eshak', must: /\b(donkey|bray|burro)/i, q: 'donkey bray', dur: [1, 10], max: 2.5, n: 2 },
+  // Yangi hayvonlar (soyalar o'yini va albom uchun)
+  { type: 'animal', out: 'ot', must: /\b(horse|neigh|whinny|pony)/i, not: /hoof|gallop|carriage|trot/i, q: 'horse neigh', dur: [0.5, 8], max: 2.2, n: 2 },
+  { type: 'animal', out: 'tuya', must: /\bcamel/i, q: 'camel grunt', dur: [0.5, 30], max: 2.5, n: 1 },
+  { type: 'animal', out: 'tovuq', must: /\b(hen|chicken|cluck)/i, not: /rooster|crow|chick\b|frying|cook/i, q: 'chicken hen cluck', dur: [0.5, 10], max: 2, n: 2 },
+  { type: 'animal', out: 'joja', must: /\b(chick|chicks|peep|cheep)/i, not: /rooster|frying/i, q: 'chicks chirping', dur: [0.5, 30], max: 1.6, n: 2 },
+  { type: 'animal', out: 'goz', must: /\bgoose|geese|honk/i, not: /car|horn|traffic/i, q: 'goose honk', dur: [0.3, 8], max: 1.6, n: 2 },
+  { type: 'animal', out: 'fil', must: /elephant/i, q: 'elephant trumpet', dur: [0.5, 10], max: 2.5, n: 1 },
+  { type: 'animal', out: 'sher', must: /\blion/i, not: /sea lion/i, q: 'lion roar', dur: [0.5, 10], max: 2.5, n: 1 },
+  { type: 'animal', out: 'ari', must: /\bbee|bees|bumble|buzz/i, not: /electric|razor|phone|fly\b|firecracker|cracker|fire/i, q: 'bumblebee buzzing', dur: [0.5, 10], max: 2, n: 1 },
+  { type: 'animal', out: 'hakka', must: /magpie/i, q: 'magpie', dur: [0.3, 15], max: 1.8, n: 1 },
   // Hovli narsalari (bosganda)
   { type: 'sfx', out: 'obj-terak', must: /leaf|leaves|rustl/i, not: /snap|break|crack/i, q: 'leaves rustle', dur: [0.5, 6], max: 1.2, n: 1 },
   { type: 'sfx', out: 'obj-olma_daraxt', q: 'tree branch shake leaves', dur: [0.5, 6], max: 1.2, n: 1 },

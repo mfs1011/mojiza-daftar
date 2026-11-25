@@ -1,13 +1,15 @@
 import { motion, type PanInfo } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AnimalArt, type AnimalId } from '../art/Animal'
+import { ALL_ANIMALS, AnimalArt, type AnimalId } from '../art/Animal'
+import { ThingArt, thingReady } from '../art/Thing'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
 import { pathBetween, useHowTo } from '../components/useHowTo'
-import { say, sayAnimal, sfx } from '../lib/audio'
+import { say, sayAnimal, sayCreature, sfx } from '../lib/audio'
 import { shuffle, wait } from '../lib/util'
 import { levelRow } from '../lib/stations'
+import type { ThingId } from '../lib/things'
 import type { GameProps } from '../types'
 
 // 🌙 Kechki qo'ra — soya topish (#3).
@@ -45,19 +47,33 @@ const SHADOW_LEVELS: ShadowCfg[] = [
 const shadowCfg = (level: number) => levelRow(SHADOW_LEVELS, level)
 
 const ROUNDS = 2
+/** Ferma hayvonlari yoki yangi hayvonlar (things.ts, "hayvon" turkumi) */
+type CritterId = AnimalId | ThingId
 const DISTINCT: AnimalId[] = ['sigir', 'xoroz', 'ordak', 'eshak', 'mushuk', 'it']
 const SIMILAR: AnimalId[] = ['qoy', 'echki']
+/** Qo'raga mos (yerda yuradigan) yangi hayvonlar; baliq/kapalak/ari/chumoli — yo'q */
+const WILD: ThingId[] = ['ot', 'tuya', 'quyon', 'tovuq', 'joja', 'goz', 'toshbaqa', 'ayiq', 'fil', 'jirafa', 'zebra', 'sher']
+const isFarm = (id: CritterId): id is AnimalId => (ALL_ANIMALS as string[]).includes(id)
+/** Darajaga qarab nechta yangi hayvon qo'shiladi: avval tanish hayvonlar, keyin bittadan */
+const wildCount = (level: number, count: number) => (level < 2 ? 0 : level < 6 ? 1 : Math.min(2, count - 2))
+
+function Critter({ id, shadow, flip }: { id: CritterId; shadow?: boolean; flip?: boolean }) {
+  if (isFarm(id)) return <AnimalArt id={id} shadow={shadow} flip={flip} />
+  return <ThingArt id={id} className={shadow ? 'silhouette-art' : undefined} style={flip ? { transform: 'scaleX(-1)' } : undefined} />
+}
 
 interface Spot {
-  id: AnimalId
+  id: CritterId
   x: number
   y: number
   flip: boolean
 }
 
-function makeRound(cfg: ShadowCfg): { spots: Spot[]; tray: AnimalId[] } {
-  const pool = cfg.similar ? [...SIMILAR, ...shuffle(DISTINCT)] : shuffle(DISTINCT)
-  const ids = shuffle(pool.slice(0, cfg.count))
+function makeRound(cfg: ShadowCfg, level: number): { spots: Spot[]; tray: CritterId[] } {
+  const farm: CritterId[] = cfg.similar ? [...SIMILAR, ...shuffle(DISTINCT)] : shuffle(DISTINCT)
+  const nWild = wildCount(level, cfg.count)
+  const wild = shuffle(WILD.filter(thingReady)).slice(0, nWild)
+  const ids = shuffle([...wild, ...farm.slice(0, cfg.count - wild.length)])
   const cols = Math.ceil(ids.length / 2)
   const spots = ids.map((id, i) => {
     const row = ids.length <= 3 ? 0 : i % 2
@@ -75,14 +91,14 @@ function makeRound(cfg: ShadowCfg): { spots: Spot[]; tray: AnimalId[] } {
 
 export function Shadows({ profile, level, onComplete, onExit }: GameProps) {
   const [roundIdx, setRoundIdx] = useState(0)
-  const rounds = useMemo(() => Array.from({ length: ROUNDS }, () => makeRound(shadowCfg(level))), [level])
+  const rounds = useMemo(() => Array.from({ length: ROUNDS }, () => makeRound(shadowCfg(level), level)), [level])
   const round = rounds[roundIdx]
-  const [placed, setPlaced] = useState<Set<AnimalId>>(new Set())
-  const [wrongSpot, setWrongSpot] = useState<AnimalId | null>(null)
+  const [placed, setPlaced] = useState<Set<CritterId>>(new Set())
+  const [wrongSpot, setWrongSpot] = useState<CritterId | null>(null)
   const [finished, setFinished] = useState(false)
   const [mascot, react] = useMascot()
   const mistakes = useRef(0)
-  const spotRefs = useRef<Partial<Record<AnimalId, HTMLDivElement | null>>>({})
+  const spotRefs = useRef<Partial<Record<CritterId, HTMLDivElement | null>>>({})
   /** Har joylashtirishda +1: eski ovoz ketma-ketligi yangisini bosib ketmasin */
   const speech = useRef(0)
 
@@ -97,9 +113,9 @@ export function Shadows({ profile, level, onComplete, onExit }: GameProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roundIdx])
 
-  function handleDrop(id: AnimalId, info: PanInfo) {
+  function handleDrop(id: CritterId, info: PanInfo) {
     const { x, y } = info.point
-    let best: { id: AnimalId; d: number } | null = null
+    let best: { id: CritterId; d: number } | null = null
     for (const s of round.spots) {
       if (placed.has(s.id)) continue
       const r = spotRefs.current[s.id]?.getBoundingClientRect()
@@ -120,9 +136,10 @@ export function Shadows({ profile, level, onComplete, onExit }: GameProps) {
       const my = ++speech.current
       // Hayvon o'z ovozida "javob beradi", keyin ismi aytiladi; oxirgisidan keyin "Xayrli tun"
       void (async () => {
-        await sayAnimal(id)
+        if (isFarm(id)) await sayAnimal(id)
+        else await sayCreature(id)
         if (my !== speech.current) return
-        await say(`hayvon_${id}`)
+        await say(isFarm(id) ? `hayvon_${id}` : `nom_${id}`)
         if (!last || my !== speech.current) return
         await say('qora_tun')
         await wait(600)
@@ -172,13 +189,13 @@ export function Shadows({ profile, level, onComplete, onExit }: GameProps) {
         >
           {placed.has(s.id) ? (
             <motion.div initial={{ scale: 1.3 }} animate={{ scale: 1 }} className="sleeping">
-              <AnimalArt id={s.id} flip={s.flip} />
+              <Critter id={s.id} flip={s.flip} />
               <motion.span className="zz" animate={{ opacity: [0, 1, 0], y: [0, -16] }} transition={{ repeat: Infinity, duration: 2 }}>
                 z
               </motion.span>
             </motion.div>
           ) : (
-            <AnimalArt id={s.id} shadow flip={s.flip} />
+            <Critter id={s.id} shadow flip={s.flip} />
           )}
         </motion.div>
       ))}
@@ -201,7 +218,7 @@ export function Shadows({ profile, level, onComplete, onExit }: GameProps) {
               onDragStart={() => sfx.tap()}
               onDragEnd={(_, info) => handleDrop(id, info)}
             >
-              <AnimalArt id={id} />
+              <Critter id={id} />
             </motion.div>
           ))}
       </div>
