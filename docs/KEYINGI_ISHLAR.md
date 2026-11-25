@@ -33,9 +33,12 @@ sigir, it, mushuk, o'rdak, bobo). Egasi: "eshik deraza kabi narsalar juda ko'pay
 
 ### 1c. Bog' daraxti — hovli fonidagidek (egasi so'radi, 2026-11-25)
 Hovli fonidagi daraxt (`art/bg/` hovli foni): yuzli, plastilin tanali, shaftoli/olxo'ri mevali. Bog'da xuddi shunday:
-- [ ] Mevasiz daraxt rasmi (yuzli, eski uslub) + alohida meva rasmlari (shoxda turadi, uziladi, tushadi).
-- [ ] GIF: daraxt yengil tebranadi (loop); bosilganda silkinadi (silkinish animatsiyasi/CSS), mevalar tushadi.
-- [ ] 3D bog' o'rniga (yoki tanlov sifatida) 2D bog' sahnasi shu daraxt bilan.
+- [x] 2026-11-25: `bog/daraxt` (mevasiz, yuzli, hovli fonidagi daraxtdan namuna olib), `bog/shaftoli`, `bog/olxori`
+      (yuzsiz, shoxga qo'yish uchun), daraxt GIF'i. Bog' foni (`bg/garden.jpg`) daraxtsiz qayta chizildi (eskisi:
+      `~/Downloads/rasmlar-eski-uslubsiz/bg__garden-daraxtli.jpg`).
+- [x] 2D bog' endi asosiy: daraxt doim yengil tebranadi (CSS), bosilsa silkinadi, mevalar yerga tushadi.
+      3D bog' — ota-ona panelida "3D bog'" tanlovi (standart o'chiq).
+- [ ] Shaftoli/olxo'ri hozircha o'yin mevalari (FruitKind) emas — bog'ga qo'shilsa nom, ovoz, bozor ham kerak.
 - Hovli bezaklari (quduq, ko'za, so'ri, gul, daraxtcha…) ham 1b ro'yxatiga kiradi (eshik/gumbaz olib tashlanadi).
 
 ### 2. Yangi narsalarni boshqa o'yinlarga ulash

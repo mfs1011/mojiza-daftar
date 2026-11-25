@@ -11,6 +11,9 @@ import { levelRow } from '../lib/stations'
 import { addFruit } from '../lib/economy'
 import type { FruitStore, GameProps } from '../types'
 import { Garden3D, hasWebGL } from './Garden3D'
+import { getSettings } from '../lib/settings'
+import { artUrl } from '../lib/assets'
+import { ArtImg } from '../art/ArtImg'
 
 // 🍎 Bog' — saralash (#2).
 // Har raund: daraxtni silkitish (bosish yoki telefonni silkitish) → mevalar yerga tushadi →
@@ -110,7 +113,7 @@ function makeRound(cfg: RoundCfg): { groups: Group[]; items: Item[] } {
     const tr = Math.floor(i / treeCols)
     const tc = i % treeCols
     // Shox-shabba ichida (fon rasmidagi daraxt ham, chizilgani ham shu oraliqda)
-    const fx = 0.14 + (tc + 0.5) * (0.56 / treeCols) + (Math.random() - 0.5) * 0.03
+    const fx = 0.22 + (tc + 0.5) * (0.54 / treeCols) + (Math.random() - 0.5) * 0.03
     const fy = 0.08 + (tr + 0.5) * (0.52 / treeRows) + (Math.random() - 0.5) * 0.04
     const row = i % 2
     const col = Math.floor(i / 2)
@@ -141,7 +144,8 @@ export function Garden({ level, onComplete, onExit }: GameProps) {
   const [sorted, setSorted] = useState<Set<number>>(new Set())
   const [shakeTree, setShakeTree] = useState(0)
   // 3D sahna (WebGL bo'lsa); aks holda eski 2D ko'rinish
-  const [gl] = useState(hasWebGL)
+  const [gl] = useState(() => getSettings().garden3d && hasWebGL())
+  const treeImg = artUrl('bog/daraxt')
   const [shakeBasket, setShakeBasket] = useState<string | null>(null)
   const [mascot, react] = useMascot()
   const mistakes = useRef(0)
@@ -277,7 +281,7 @@ export function Garden({ level, onComplete, onExit }: GameProps) {
 
   return (
     <GameShell
-      className="garden"
+      className={`garden ${treeImg ? 'has-tree-img' : ''}`}
       mascot={mascot}
       round={roundIdx}
       rounds={rounds.length}
@@ -295,6 +299,10 @@ export function Garden({ level, onComplete, onExit }: GameProps) {
         key={`tree-${shakeTree}`}
         aria-label="Daraxt"
       >
+        {treeImg ? (
+          // Hovli fonidagi yuzli daraxt (bog/daraxt): doim yengil tebranadi, bosilsa silkinadi
+          <ArtImg src={treeImg} alt="Daraxt" className="garden-tree" />
+        ) : (
         <svg viewBox="0 0 200 140" className="art" preserveAspectRatio="none">
           <path d="M84 140C88 120 90 104 86 90L70 74M116 140C112 120 110 104 114 90L132 72" fill="#8d5524" stroke="#3d2c1e" strokeWidth={2} />
           <path d="M84 140C90 116 90 100 88 84H112C110 100 110 116 116 140Z" fill="#8d5524" stroke="#3d2c1e" strokeWidth={2} strokeLinejoin="round" />
@@ -309,6 +317,7 @@ export function Garden({ level, onComplete, onExit }: GameProps) {
             <circle key={`h${i}`} cx={x - r * 0.25} cy={y - r * 0.3} r={r * 0.55} fill="#74c69d" opacity={0.7} />
           ))}
         </svg>
+        )}
         {phase === 'tree' && (
           <motion.span
             className="tap-hint"

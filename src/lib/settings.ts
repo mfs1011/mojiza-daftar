@@ -9,10 +9,12 @@ export interface Settings {
   night: boolean
   /** Kunlik o'yin vaqti, daqiqa. 0 — cheklovsiz */
   dailyMinutes: number
+  /** Bog' 3D (WebGL) ko'rinishda; o'chiq bo'lsa — 2D bog' (hovli fonidagi yuzli daraxt bilan) */
+  garden3d: boolean
 }
 
 const KEY = 'qishloq-settings'
-const DEFAULTS: Settings = { music: true, ambience: true, musicVol: 1, fxVol: 1, voiceVol: 1, night: false, dailyMinutes: 15 }
+const DEFAULTS: Settings = { music: true, ambience: true, musicVol: 1, fxVol: 1, voiceVol: 1, night: false, dailyMinutes: 15, garden3d: false }
 
 export function getSettings(): Settings {
   try {

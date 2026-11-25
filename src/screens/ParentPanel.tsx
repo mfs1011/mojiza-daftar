@@ -173,6 +173,17 @@ export function ParentPanel({ profiles, onBack }: Props) {
           </div>
 
           <div className="p-card">
+            <h4>🌳 Bog'</h4>
+            <label className="p-switch">
+              <span className="p-switch-text">
+                <b>3D bog'</b>
+                <small>O'chiq bo'lsa — oddiy (2D) bog': yuzli daraxt tebranib turadi, bosilsa silkinadi. 3D bog' kuchsiz telefonda sekin ishlashi mumkin.</small>
+              </span>
+              <input type="checkbox" checked={settings.garden3d} onChange={(e) => changeSettings({ garden3d: e.target.checked })} />
+            </label>
+          </div>
+
+          <div className="p-card">
             <h4>🔊 Ovozlar</h4>
             {(
               [
