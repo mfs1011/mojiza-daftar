@@ -61,7 +61,8 @@ function sayText(p) {
   const text = raw.replace(/([OoGg])['‘’`]/g, '$1ʻ').trim()
   // Harf nomi yolg'iz bo'g'in bo'lsa ("Be", "E") model uni inglizcha o'qishi mumkin: o'zbekcha gap ichida
   // o'qitiladi, keyin aligner faqat «…» ichidagi nomni kesib oladi
-  if (/^harf_(?!chiz$|top$)/.test(p.key)) return `Bu «${text}» harfi.`
+  // Talaffuz yozuvi: "Je" TTS'da ruscha "Же" bo'lib o'qiladi — o'zbekcha [dʒe] uchun "Dje"
+  if (/^harf_(?!chiz$|top$)/.test(p.key)) return `Bu «${text === 'Je' ? 'Dje' : text}» harfi.`
   return text
 }
 /** Tekshiruv uchun: kesib olinadigan qism uzunligi */
