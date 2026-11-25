@@ -18,6 +18,8 @@ import { Shadows } from './games/Shadows'
 import { Workshop } from './games/Workshop'
 import { applyMix, jingle, playAmbience, playMusic, preloadMusic, setAmbience, setMusic, stopVoice, type AmbienceId, type MusicId } from './lib/audio'
 import { addPlay, getProfiles, getProgress, saveProgress } from './lib/db'
+import { addFruit, mergeStore, type ShopItem } from './lib/economy'
+import type { FruitKind } from './lib/names'
 import { getSettings } from './lib/settings'
 import { startLevel, starsFor, worldOf, type WorldId } from './lib/stations'
 import { shuffle } from './lib/util'
@@ -32,6 +34,7 @@ import { Worlds } from './screens/Worlds'
 import { PetScreen } from './screens/PetScreen'
 import { Album } from './screens/Album'
 import { Yard } from './screens/Yard'
+import { Shop } from './screens/Shop'
 import { nextSticker, YARD_GIFT_EVERY, type Sticker } from './lib/stickers'
 
 const GAMES: Record<GameStation, ComponentType<GameProps>> = {
@@ -88,7 +91,7 @@ export default function App() {
 
   // Har ekran o'z musiqasi va muhit ovozi bilan
   const musicId: MusicId | null =
-    screen.name === 'profiles' || screen.name === 'worlds' || screen.name === 'map' || screen.name === 'album' || screen.name === 'yard'
+    screen.name === 'profiles' || screen.name === 'worlds' || screen.name === 'map' || screen.name === 'album' || screen.name === 'yard' || screen.name === 'shop'
       ? 'map'
       : screen.name === 'game' || screen.name === 'path'
         ? (STATION_MUSIC[screen.station] ?? (screen.station as MusicId))
@@ -146,7 +149,7 @@ export default function App() {
       }
       else if (sc.name === 'path') backToMap(worldOf(sc.station))
       else if (s === 'studio' || s === 'pet') backToMap('ijod')
-      else if (s === 'map' || s === 'album' || s === 'yard') backToMap()
+      else if (s === 'map' || s === 'album' || s === 'yard' || s === 'shop') backToMap()
       else if (s === 'worlds' || s === 'sleep' || s === 'parent') goHome()
       else void CapApp.minimizeApp()
     })
@@ -226,6 +229,8 @@ export default function App() {
       ...progress,
       coins: progress.coins + (r.coins ?? 0),
       fruits: progress.fruits + (r.fruits ?? 0),
+      // Ombor: bog' hosili qo'shiladi, bozorda sotilgani ayriladi
+      store: mergeStore(mergeStore(progress.store, r.harvest), r.sold, -1),
       stationsDone: firstToday ? [...progress.stationsDone, station] : progress.stationsDone,
       dayDone: progress.dayDone || (limit > 0 && (progress.playedMs ?? 0) >= limit),
       // O'tilgan daraja keyingisini ochadi (o'tilganini qayta o'ynash ochiq darajani o'zgartirmaydi)
@@ -261,6 +266,28 @@ export default function App() {
     setProgress(next)
   }
 
+  /** Do'kon: tanga to'landi — hovli narsasi kutish qutisiga, o'yinchoq/kiyim sandiqqa */
+  async function buy(item: ShopItem) {
+    if (!progress || progress.coins < item.price) return
+    const next: Progress = {
+      ...progress,
+      coins: progress.coins - item.price,
+      ...(item.decor
+        ? { yardInbox: [...(progress.yardInbox ?? []), item.decor] }
+        : { owned: [...new Set([...(progress.owned ?? []), item.thing!])] }),
+    }
+    await saveProgress(next)
+    setProgress(next)
+  }
+
+  /** Hovli: hayvonga meva yedirildi */
+  async function feed(fruit: FruitKind) {
+    if (!progress) return
+    const next = { ...progress, store: addFruit(progress.store ?? {}, fruit, -1) }
+    await saveProgress(next)
+    setProgress(next)
+  }
+
   let view = null
 
   if (screen.name === 'profiles') {
@@ -284,6 +311,7 @@ export default function App() {
           onWorld={(w) => setScreen({ name: 'map', world: w })}
           onAlbum={() => setScreen({ name: 'album' })}
           onYard={() => setScreen({ name: 'yard' })}
+          onShop={() => setScreen({ name: 'shop' })}
           onHome={goHome}
           onSleep={() => setScreen({ name: 'sleep' })}
         />
@@ -344,10 +372,15 @@ export default function App() {
           profile={profile}
           village={progress.village}
           inbox={progress.yardInbox ?? []}
+          store={progress.store ?? {}}
+          owned={progress.owned ?? []}
           onSave={(v, inbox) => void saveYard(v, inbox)}
+          onFeed={(f) => void feed(f)}
           onBack={toWorlds}
         />
       )
+    } else if (screen.name === 'shop') {
+      view = <Shop coins={progress.coins} owned={progress.owned ?? []} onBuy={(it) => void buy(it)} onBack={toWorlds} />
     } else if (screen.name === 'game') {
       const Game = GAMES[screen.station]
       const { station, level } = screen
@@ -356,6 +389,8 @@ export default function App() {
           key={`${station}-${level}`}
           profile={profile}
           level={level}
+          store={progress.store}
+          onGoto={openPath}
           onComplete={(r) => void finishStation(station, level, r)}
           onExit={() => {
             recordPlay(station, level, false)

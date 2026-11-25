@@ -1,4 +1,5 @@
 import type { DecorKind } from './art/Scenery'
+import type { FruitKind } from './lib/names'
 import type { WorldId } from './lib/stations'
 
 export type Age = 3 | 5
@@ -46,13 +47,24 @@ export interface Progress {
   stickers?: string[]
   /** Hovli uchun tanlangan, hali joylanmagan sovg'alar */
   yardInbox?: DecorKind[]
+  /** Ombor: bog'da terilgan mevalar (turi → soni). Bozorda shulardan sotiladi, hovlida hayvonlarga yediriladi */
+  store?: FruitStore
+  /** Do'kondan olingan o'yinchoq va kiyimlar (ThingId) */
+  owned?: string[]
 }
+
+/** Mevalar ombori: turi → soni */
+export type FruitStore = Partial<Record<FruitKind, number>>
 
 export interface GameResult {
   /** Jami xatolar: daraja shu bo'yicha moslashadi */
   mistakes: number
   coins?: number
   fruits?: number
+  /** Bog': terilgan mevalar (omborga qo'shiladi) */
+  harvest?: FruitStore
+  /** Bozor: sotilgan mevalar (ombordan ayriladi) */
+  sold?: FruitStore
   /** Nechta topshiriq (javob) bo'ldi: aniqlik = tasks / (tasks + mistakes) */
   tasks?: number
   /** Yozuv mashqlari: har bir yozilgan harf/raqam/chiziq */
@@ -89,6 +101,10 @@ export interface GameProps {
   level: number
   onComplete: (result: GameResult) => void
   onExit: () => void
+  /** Ombor (bozor shundan sotadi); berilmasa — cheksiz quti (eski xatti-harakat) */
+  store?: FruitStore
+  /** Boshqa bekatga o'tish (bozor → bog': "meva terib kel") */
+  onGoto?: (station: GameStation) => void
 }
 
 export type Screen =
@@ -105,3 +121,5 @@ export type Screen =
   /** Gapiradigan do'st (3D qahramon: gapni takrorlaydi, tegsa reaksiya qiladi) */
   | { name: 'pet' }
   | { name: 'yard' }
+  /** Do'kon: tangaga hovli buyumlari, hayvonlar, o'yinchoqlar, kiyimlar */
+  | { name: 'shop' }

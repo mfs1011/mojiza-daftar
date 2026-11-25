@@ -1,31 +1,48 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, type PanInfo } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
+import { FruitArt } from '../art/Fruit'
 import { Icon } from '../art/Icon'
 import { DecorArt, type DecorKind } from '../art/Scenery'
-import { burst } from '../components/Fx'
+import { ThingArt, thingReady } from '../art/Thing'
+import { burst, burstAt } from '../components/Fx'
 import { Hero } from '../components/Hero'
 import { artUrl } from '../lib/assets'
-import { objectSound, say, sfx } from '../lib/audio'
-import type { PlacedDecor, Profile } from '../types'
+import { objectSound, say, sayAnimal, sfx } from '../lib/audio'
+import { storeKinds } from '../lib/economy'
+import type { AnimalId, FruitKind } from '../lib/names'
+import type { ThingId } from '../lib/things'
+import type { FruitStore, PlacedDecor, Profile } from '../types'
 
 // 🏡 Mening hovlim: bekat yo'llarida yutilgan sovg'alar shu yerga joylanadi (qishloq xaritasi toza qoladi).
 //   • pastdagi qutidan sovg'ani tanlab, hovlining istalgan joyiga bosib qo'yadi
 //   • qo'yilgan narsani sudrab joyini o'zgartiradi
 //   • narsaga tegsa — o'z ovozini chiqaradi (hayvon — haqiqiy ovoz, quduq — suv, daraxt — barglar...)
+//   • o'ngdagi savatchadan mevani hayvonga sudrab olib borsa (yoki mevani, keyin hayvonni bossa) — yeydi:
+//     hayvon sakraydi, ovoz chiqaradi, ombordagi meva bittaga kamayadi
+//   • yuqorida do'kondan olingan o'yinchoq/kiyimlar turadi (bossa — nomi)
 
 interface Props {
   profile: Profile
   village: PlacedDecor[]
   inbox: DecorKind[]
+  store: FruitStore
+  owned: string[]
   onSave: (village: PlacedDecor[], inbox: DecorKind[]) => void
+  /** Hayvonga meva yedirildi: ombordan bitta ayriladi */
+  onFeed: (fruit: FruitKind) => void
   onBack: () => void
 }
 
-export function Yard({ profile, village, inbox, onSave, onBack }: Props) {
+export function Yard({ profile, village, inbox, store, owned, onSave, onFeed, onBack }: Props) {
   const groundRef = useRef<HTMLDivElement>(null)
   const [placing, setPlacing] = useState<number | null>(null)
   const [poked, setPoked] = useState<{ i: number; n: number } | null>(null)
   const dragged = useRef(false)
+  /** Yedirish uchun bosib tanlangan meva (sudrash o'rniga: meva → hayvon) */
+  const [feeding, setFeeding] = useState<FruitKind | null>(null)
+  const [toyPoke, setToyPoke] = useState<string | null>(null)
+  const fruits = storeKinds(store)
+  const toys = owned.filter((t): t is ThingId => thingReady(t as ThingId))
   const bg = artUrl('bg/garden')
 
   useEffect(() => {
@@ -41,6 +58,29 @@ export function Yard({ profile, village, inbox, onSave, onBack }: Props) {
       x: Math.max(4, Math.min(96, ((x - r.left) / r.width) * 100)),
       y: Math.max(42, Math.min(96, ((y - r.top) / r.height) * 100)),
     }
+  }
+
+  /** Hayvon mevani yeydi: sakraydi, yuraklar, o'z ovozi */
+  function feed(i: number, fruit: FruitKind) {
+    const d = village[i]
+    if (!d?.kind.startsWith('hayvon_') || !(store[fruit] ?? 0)) return
+    sfx.pop()
+    setPoked((p) => ({ i, n: (p?.n ?? 0) + 1 }))
+    burstAt(document.querySelector(`.yard-item[data-idx="${i}"]`), ['#ef476f', '#ff8fab', '#ffd166'], 18)
+    onFeed(fruit)
+    setFeeding(null)
+    void sayAnimal(d.kind.slice(7) as AnimalId)
+  }
+
+  /** Sudralgan meva qaysi hayvon ustiga tushdi */
+  function dropFruit(fruit: FruitKind, info: PanInfo) {
+    const x = info.point.x - window.scrollX
+    const y = info.point.y - window.scrollY
+    const hit = document
+      .elementsFromPoint(x, y)
+      .map((el) => el.closest<HTMLElement>('.yard-item.animal'))
+      .find((el) => el)
+    if (hit) feed(Number(hit.dataset.idx), fruit)
   }
 
   function place(e: React.MouseEvent) {
@@ -65,6 +105,7 @@ export function Yard({ profile, village, inbox, onSave, onBack }: Props) {
               key={`${i}-${d.x}-${d.y}`}
               className={`yard-item ${d.kind.startsWith('hayvon_') ? 'animal' : ''}`}
               data-kind={d.kind}
+              data-idx={i}
               style={{ left: `${d.x}%`, top: `${d.y}%`, zIndex: Math.round(d.y) }}
               drag={placing === null}
               dragMomentum={false}
@@ -82,6 +123,7 @@ export function Yard({ profile, village, inbox, onSave, onBack }: Props) {
                 if (placing !== null) return
                 e.stopPropagation()
                 if (dragged.current) return
+                if (feeding && d.kind.startsWith('hayvon_')) return feed(i, feeding)
                 setPoked((p) => ({ i, n: (p?.n ?? 0) + 1 }))
                 void objectSound(d.kind)
               }}
@@ -118,7 +160,64 @@ export function Yard({ profile, village, inbox, onSave, onBack }: Props) {
           </Icon>
         </button>
         <div className="lp-title yard-title">🏡 Mening hovlim</div>
+        {toys.length > 0 && (
+          <div className="yard-toys">
+            {toys.map((t) => (
+              <motion.button
+                key={t}
+                className="yard-toy"
+                data-thing={t}
+                animate={toyPoke === t ? { y: [0, -14, 0], rotate: [0, -10, 10, 0] } : { y: 0 }}
+                onClick={() => {
+                  sfx.pop()
+                  setToyPoke(null)
+                  requestAnimationFrame(() => setToyPoke(t))
+                  void say(`nom_${t}`)
+                }}
+              >
+                <ThingArt id={t} />
+              </motion.button>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Ombordan meva: hayvonga yedirish (hovlida hayvon bo'lsagina) */}
+      {fruits.length > 0 && village.some((d) => d.kind.startsWith('hayvon_')) && (
+        <div className="yard-fruits">
+          {fruits.map((k) => (
+            <motion.div
+              key={`${k}-${store[k]}`}
+              className={`yard-fruit ${feeding === k ? 'on' : ''}`}
+              data-kind={k}
+              drag
+              dragSnapToOrigin
+              dragMomentum={false}
+              dragElastic={1}
+              whileDrag={{ scale: 1.3, zIndex: 200 }}
+              animate={feeding === k ? { y: [0, -8, 0] } : { y: 0 }}
+              transition={feeding === k ? { repeat: Infinity, duration: 0.9 } : {}}
+              onDragStart={() => {
+                dragged.current = true
+                sfx.tap()
+              }}
+              onDragEnd={(_, info) => {
+                dropFruit(k, info)
+                setTimeout(() => (dragged.current = false), 50)
+              }}
+              onClick={() => {
+                if (dragged.current) return
+                sfx.tap()
+                setFeeding(feeding === k ? null : k)
+                if (feeding !== k) void say('hovli_yedir')
+              }}
+            >
+              <FruitArt kind={k} />
+              <span className="store-n">{store[k]}</span>
+            </motion.div>
+          ))}
+        </div>
+      )}
 
       <AnimatePresence>
         {inbox.length > 0 && (

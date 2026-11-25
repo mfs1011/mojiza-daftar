@@ -8,7 +8,8 @@ import { GameShell, useMascot } from '../components/GameShell'
 import { say, sfx } from '../lib/audio'
 import { pick, shuffle } from '../lib/util'
 import { levelRow } from '../lib/stations'
-import type { GameProps } from '../types'
+import { addFruit } from '../lib/economy'
+import type { FruitStore, GameProps } from '../types'
 import { Garden3D, hasWebGL } from './Garden3D'
 
 // 🍎 Bog' — saralash (#2).
@@ -145,6 +146,8 @@ export function Garden({ level, onComplete, onExit }: GameProps) {
   const [mascot, react] = useMascot()
   const mistakes = useRef(0)
   const totalFruits = useRef(0)
+  /** Terilgan mevalar turi bo'yicha: daraja tugagach omborga tushadi */
+  const harvest = useRef<FruitStore>({})
   const basketRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   // Raund boshlanishi
@@ -227,6 +230,7 @@ export function Garden({ level, onComplete, onExit }: GameProps) {
 
   function finishRound() {
     totalFruits.current += round.items.length
+    for (const it of round.items) harvest.current = addFruit(harvest.current, it.kind)
     if (roundIdx + 1 >= rounds.length) {
       setTimeout(() => setPhase('finished'), 700)
       return
@@ -265,7 +269,7 @@ export function Garden({ level, onComplete, onExit }: GameProps) {
         {phase === 'finished' && (
           <Celebration
             voice={['barakalla']}
-            onDone={() => onComplete({ mistakes: mistakes.current, fruits: totalFruits.current, tasks: totalFruits.current })}
+            onDone={() => onComplete({ mistakes: mistakes.current, fruits: totalFruits.current, tasks: totalFruits.current, harvest: harvest.current })}
           />
         )}
       </GameShell>
@@ -388,7 +392,7 @@ export function Garden({ level, onComplete, onExit }: GameProps) {
       {phase === 'finished' && (
         <Celebration
           voice={['barakalla']}
-          onDone={() => onComplete({ mistakes: mistakes.current, fruits: totalFruits.current, tasks: totalFruits.current })}
+          onDone={() => onComplete({ mistakes: mistakes.current, fruits: totalFruits.current, tasks: totalFruits.current, harvest: harvest.current })}
         />
       )}
     </GameShell>

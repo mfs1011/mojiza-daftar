@@ -5,8 +5,10 @@ import { Icon } from '../art/Icon'
 import { Mascot } from '../art/Mascot'
 import { CoinArt, StationIcon } from '../art/Scenery'
 import { Hero, useHeroUrl } from '../components/Hero'
+import { StoreView } from '../components/StoreView'
 import { artUrl } from '../lib/assets'
 import { mascotCall, say, sfx } from '../lib/audio'
+import { storeTotal } from '../lib/economy'
 import { WORLDS, worldStations, type WorldId } from '../lib/stations'
 import type { Profile, Progress } from '../types'
 
@@ -19,16 +21,18 @@ interface Props {
   onWorld: (w: WorldId) => void
   onAlbum: () => void
   onYard: () => void
+  onShop: () => void
   onHome: () => void
   onSleep: () => void
 }
 
 const WORLD_COLOR: Record<WorldId, string> = { qishloq: '#52b788', maktab: '#3a86ff', ijod: '#e76f51' }
 
-export function Worlds({ profile, progress, onWorld, onAlbum, onYard, onHome, onSleep }: Props) {
+export function Worlds({ profile, progress, onWorld, onAlbum, onYard, onShop, onHome, onSleep }: Props) {
   const heroUrl = useHeroUrl(profile.id)
   const needsHero = heroUrl === null
   const [locked, setLocked] = useState<WorldId | null>(null)
+  const [storeOpen, setStoreOpen] = useState(false)
   const bg = artUrl('bg/profiles')
   const done = new Set(progress.stationsDone)
 
@@ -111,12 +115,13 @@ export function Worlds({ profile, progress, onWorld, onAlbum, onYard, onHome, on
         </Icon>
       </button>
       <div className="hud">
-        <span>
+        {/* Ombor: bossa — mevalar rasmi va soni */}
+        <motion.button className="hud-btn" data-hud="store" whileTap={{ scale: 0.9 }} onClick={() => (sfx.tap(), setStoreOpen(true))} aria-label="Ombor">
           <span className="hud-icon">
             <FruitArt kind="olma" />
           </span>
-          {progress.fruits}
-        </span>
+          {storeTotal(progress.store)}
+        </motion.button>
         <span>
           <span className="hud-icon">
             <CoinArt />
@@ -137,7 +142,11 @@ export function Worlds({ profile, progress, onWorld, onAlbum, onYard, onHome, on
             </motion.small>
           )}
         </motion.button>
+        <motion.button className="collect-btn" data-collect="shop" whileTap={{ scale: 0.9 }} onClick={() => (sfx.tap(), onShop())} aria-label="Do'kon">
+          <span>🛍️</span>
+        </motion.button>
       </div>
+      {storeOpen && <StoreView store={progress.store ?? {}} onClose={() => setStoreOpen(false)} />}
     </div>
   )
 }

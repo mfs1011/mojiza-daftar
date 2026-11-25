@@ -1,5 +1,6 @@
 import { openDB, type DBSchema } from 'idb'
 import type { PlacedDecor, PlayRecord, Profile, Progress } from '../types'
+import { STARTER_STORE } from './economy'
 import type { Landmarks } from './landmarks'
 import { today } from './util'
 
@@ -72,6 +73,8 @@ export function emptyProgress(profileId: string): Progress {
     dayDone: false,
     levels: {},
     levelScale: 15,
+    store: { ...STARTER_STORE },
+    owned: [],
   }
 }
 
@@ -87,6 +90,9 @@ export async function getProgress(profileId: string): Promise<Progress> {
     p.levelScale = 15
   }
   p.stars ??= {}
+  // Ombor yo'q (yangi bola yoki eski yozuv): boshlang'ich meva bilan boshlanadi
+  p.store ??= { ...STARTER_STORE }
+  p.owned ??= []
   if (p.day !== today()) return { ...p, day: today(), stationsDone: [], dayDone: false, playedMs: 0 }
   return p
 }

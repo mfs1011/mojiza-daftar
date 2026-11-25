@@ -49,9 +49,13 @@ Hovli fonidagi daraxt (`art/bg/` hovli foni): yuzli, plastilin tanali, shaftoli/
 
 ### 3. Iqtisod: olmacha va tangalar (RIVOJLANISH_REJASI.md, 4b-bo'lim)
 Egasi qarori: do'konda **hammasi** sotilsin (kiyim, hayvon, o'yinchoq, cholg'u), keyinchalik boyitiladi.
-- [ ] Bog'da terilgan mevalar → ombor → bozorda shu mevadan sotiladi.
-- [ ] Do'kon ekrani: tangalarni bittalab sanab to'lash (sanash/ayirish mashqi).
-- [ ] Mevani gaplashadigan do'st / hovlidagi hayvonlarga yedirish.
+- [x] 2026-11-25: **ombor** (bog'da terilgan meva turi bo'yicha; boshlang'ich 4 olma, 3 anor, 3 nok), **bozor** faqat
+      ombordagi mevadan sotadi (kam bo'lsa — "Bog'ga borib meva terib kel!" + bog' tugmasi), **do'kon** (hayvon, hovli
+      buyumi, o'yinchoq, kiyim; narx 1–10; tangalar bittalab sanalib qo'yiladi), **hovlida hayvonlarga meva yedirish**.
+      Kod: `src/lib/economy.ts`, `src/screens/Shop.tsx`, `src/components/StoreView.tsx`. 24 ta yangi ovoz.
+- [ ] Do'ppi/kiyimni qahramon va gaplashadigan do'stga kiydirish; do'stga meva yedirish.
+- [ ] Cholg'ular hozir bepul — do'konga qo'yish uchun avval qulflash kerak (egasi qarori).
+- [ ] Hovliga yangi hayvonlarni (things.ts) ham sotish — hovli turi kengaytiriladi.
 
 ### 4. RIVOJLANISH_REJASI.md bo'yicha
 - [ ] Egasi ✍️ joylarga yozib "yozdim" deganda — har izohga 💬 javob, keyin kelishilgan tartibda ish.

@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { FruitArt, type FruitKind } from '../art/Fruit'
-import { ALL_PEOPLE, CoinArt, PersonArt, type PersonId } from '../art/Scenery'
+import { ALL_PEOPLE, BasketArt, CoinArt, PersonArt, StationIcon, type PersonId } from '../art/Scenery'
 import { Celebration } from '../components/Celebration'
 import { burstAt } from '../components/Fx'
 import { GameShell, useMascot } from '../components/GameShell'
@@ -10,13 +10,16 @@ import { hasVoice, say, sfx } from '../lib/audio'
 import { MARKET_FRUITS } from '../lib/names'
 import { pick, randInt, wait } from '../lib/util'
 import { levelRow } from '../lib/stations'
-import type { GameProps } from '../types'
+import { addFruit, storeKinds, storeTotal } from '../lib/economy'
+import type { FruitStore, GameProps } from '../types'
 import { Icon } from '../art/Icon'
 
 // 🛒 Bozor — sanash (#6).
 // Mijoz "N ta meva" so'raydi. Bola qutidan olib, 10 lik ramkaga soladi.
 // Past darajada son rasm bilan ko'rinadi va kerakli songa yetganda o'zi tugaydi;
 // yuqori darajada faqat raqam ko'rinadi va bola 🤝 bilan o'zi tekshiradi.
+// Meva ombordan sotiladi: mijozlar faqat bor mevani, bor sonidan oshirmay so'raydi.
+// Ombor bo'sh bo'lsa — "Bog'ga borib meva terib kel!" va bog'ga eltadigan katta tugma.
 
 interface MarketCfg {
   min: number
@@ -65,6 +68,35 @@ function newCustomer(cfg: MarketCfg, prev?: Customer): Customer {
   }
 }
 
+/**
+ * Uchala mijozni oldindan ombordan rejalashtiramiz (har biri o'z mevasini "band qiladi").
+ * Darajaga yetadigan meva birinchi tanlanadi; yetmasa — bor sonicha so'raydi (bola bozordan quvilmasin).
+ * Jami meva mijozlar sonidan kam bo'lsa — null (bog'ga yuboramiz).
+ */
+function planCustomers(cfg: MarketCfg, store?: FruitStore): Customer[] | null {
+  const out: Customer[] = []
+  if (!store) {
+    for (let i = 0; i < ROUNDS; i++) out.push(newCustomer(cfg, out[i - 1]))
+    return out
+  }
+  if (storeTotal(store) < ROUNDS) return null
+  let left = { ...store }
+  for (let i = 0; i < ROUNDS; i++) {
+    const prev = out[i - 1]
+    // Keyingi mijozlarga kamida bittadan qolsin
+    const cap = (k: FruitKind) => Math.min(left[k] ?? 0, storeTotal(left) - (ROUNDS - i - 1))
+    const kinds = storeKinds(left).filter((k) => cap(k) >= 1)
+    const good = kinds.filter((k) => cap(k) >= cfg.min)
+    const fresh = (l: FruitKind[]) => l.filter((k) => k !== prev?.fruit)
+    const pool = [fresh(good), good, fresh(kinds), kinds].find((l) => l.length)!
+    const fruit = pick(pool)
+    const want = randInt(Math.min(cfg.min, cap(fruit)), Math.min(cfg.max, cap(fruit)))
+    out.push({ person: pick(ALL_PEOPLE.filter((p) => p !== prev?.person)), fruit, want })
+    left = addFruit(left, fruit, -want)
+  }
+  return out
+}
+
 /** Mijoz o'z ovozida gapiradi (voices/mijoz_<kim>_<gap>); fayl bo'lmasa — umumiy ko'rsatma */
 function customerLine(person: PersonId, line: 'salom' | 'kam' | 'kop' | 'rahmat', fallback?: string): string[] {
   const key = `mijoz_${person}_${line}`
@@ -79,11 +111,14 @@ function customerOrder(person: PersonId, want: number, fruit: FruitKind): string
   return hasVoice(n) && hasVoice(f) ? [n, f] : [`son_${want}`, `meva_${fruit}`]
 }
 
-export function Market({ profile, level, onComplete, onExit }: GameProps) {
+export function Market({ profile, level, onComplete, onExit, store, onGoto }: GameProps) {
   // Endless'da tasodifiy tanlanadi: bitta o'yin davomida o'zgarmasin
   const [cfg] = useState(() => marketCfg(level))
+  const [plan] = useState(() => planCustomers(cfg, store))
   const [round, setRound] = useState(0)
-  const [customer, setCustomer] = useState(() => newCustomer(cfg))
+  const empty = !plan
+  // Ombor bo'sh bo'lsa ham hooklar tartibi o'zgarmasin: soxta mijoz (ko'rinmaydi)
+  const customer = plan?.[round] ?? { person: ALL_PEOPLE[0], fruit: 'olma' as FruitKind, want: 1 }
   const [given, setGiven] = useState(0)
   const [tries, setTries] = useState(0)
   const [happy, setHappy] = useState(false)
@@ -102,12 +137,18 @@ export function Market({ profile, level, onComplete, onExit }: GameProps) {
   const bagRef = useRef<HTMLDivElement>(null)
   const showPictures = cfg.auto || tries >= cfg.hintAfter
   const { want, fruit } = customer
+  // Qutida shu mijoz uchun nechta meva bor (ombor bo'lmasa — eski cheksiz quti)
+  const crateMax = store && plan
+    ? (store[fruit] ?? 0) - plan.filter((c, i) => i !== round && c.fruit === fruit).reduce((a, c) => a + c.want, 0)
+    : Infinity
+  const inCrate = Math.min(9, crateMax - given)
 
   // "Qanday bajariladi?": kam bo'lsa — mevani bosadi, ko'p bo'lsa — savatdan qaytaradi, teng bo'lsa — "Berish"
   const howto = useHowTo(profile.id, 'bozor', () =>
     howto.tap(given < want ? '.crate-fruit' : given > want ? '.cell-fruit:last-of-type' : '.give-btn'),
   )
   useEffect(() => {
+    if (empty) return void say('bozor_meva_yoq')
     void say(...howto.arm(cfg.auto ? 'oddiy' : 'sana'), ...(round === 0 ? ['bozor_intro'] : []), ...customerLine(customer.person, 'salom'), ...customerOrder(customer.person, want, fruit))
     // Har yangi mijoz kelganda
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,7 +171,6 @@ export function Market({ profile, level, onComplete, onExit }: GameProps) {
       }
       sfx.whoosh()
       setRound(round + 1)
-      setCustomer(newCustomer(cfg, customer))
       setGiven(0)
       setTries(0)
       setHappy(false)
@@ -139,7 +179,7 @@ export function Market({ profile, level, onComplete, onExit }: GameProps) {
 
   function give() {
     if (happy || finished) return
-    if (given >= (cfg.auto ? want : 10)) return
+    if (given >= Math.min(cfg.auto ? want : 10, crateMax)) return
     const n = given + 1
     setGiven(n)
     sfx.pop()
@@ -242,7 +282,7 @@ export function Market({ profile, level, onComplete, onExit }: GameProps) {
 
       <div className="market-col">
         <div className="crate">
-          {Array.from({ length: 9 }, (_, i) => (
+          {Array.from({ length: Math.max(0, inCrate) }, (_, i) => (
             <motion.button key={`${round}-${i}`} className="crate-fruit" whileTap={{ scale: 0.7 }} onClick={give}>
               <FruitArt kind={fruit} />
             </motion.button>
@@ -275,8 +315,39 @@ export function Market({ profile, level, onComplete, onExit }: GameProps) {
         </div>
       )}
 
-      {!happy && !finished && howto.overlay}
-      {finished && <Celebration voice={['barakalla']} onDone={() => onComplete({ mistakes: mistakes.current, coins: earned, tasks: ROUNDS })} />}
+      {!happy && !finished && !empty && howto.overlay}
+      {finished && (
+        <Celebration
+          voice={['barakalla']}
+          onDone={() => {
+            // Sotilgan mevalar ombordan ayriladi (cheksiz qutida — hech narsa)
+            const sold = store && plan ? plan.reduce<FruitStore>((s, c) => addFruit(s, c.fruit, c.want), {}) : undefined
+            onComplete({ mistakes: mistakes.current, coins: earned, tasks: ROUNDS, sold })
+          }}
+        />
+      )}
+      {empty && (
+        <div className="market-empty">
+          <motion.button className="market-empty-basket" whileTap={{ scale: 0.92 }} onClick={() => void say('bozor_meva_yoq')} aria-label="Ombor bo'sh">
+            <BasketArt />
+          </motion.button>
+          <motion.button
+            className="market-empty-go"
+            data-goto="bog"
+            animate={{ scale: [1, 1.08, 1] }}
+            transition={{ repeat: Infinity, duration: 1.4 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => {
+              sfx.tap()
+              if (onGoto) onGoto('bog')
+              else onExit()
+            }}
+            aria-label="Bog'ga borish"
+          >
+            <StationIcon id="bog" />
+          </motion.button>
+        </div>
+      )}
     </GameShell>
   )
 }
