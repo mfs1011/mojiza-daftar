@@ -137,9 +137,11 @@ export function Market({ profile, level, onComplete, onExit, store, onGoto }: Ga
   const bagRef = useRef<HTMLDivElement>(null)
   const showPictures = cfg.auto || tries >= cfg.hintAfter
   const { want, fruit } = customer
-  // Quti doim to'la ko'rinadi va bosilganda KAMAYMAYDI: aks holda bola sanamay, quti bo'shaguncha bosaveradi.
-  // Ortiqcha berish ham mumkin (mijoz "ko'p bo'ldi" deydi) — ombordan faqat to'g'ri berilgan son ayiriladi.
-  const inCrate = 9
+  // Qutida shu mijoz uchun nechta meva bor (ombor bo'lmasa — eski cheksiz quti)
+  const crateMax = store && plan
+    ? (store[fruit] ?? 0) - plan.filter((c, i) => i !== round && c.fruit === fruit).reduce((a, c) => a + c.want, 0)
+    : Infinity
+  const inCrate = Math.min(9, crateMax - given)
 
   // "Qanday bajariladi?": kam bo'lsa — mevani bosadi, ko'p bo'lsa — savatdan qaytaradi, teng bo'lsa — "Berish"
   const howto = useHowTo(profile.id, 'bozor', () =>
@@ -177,7 +179,7 @@ export function Market({ profile, level, onComplete, onExit, store, onGoto }: Ga
 
   function give() {
     if (happy || finished) return
-    if (given >= (cfg.auto ? want : 10)) return
+    if (given >= Math.min(cfg.auto ? want : 10, crateMax)) return
     const n = given + 1
     setGiven(n)
     sfx.pop()
