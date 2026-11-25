@@ -56,12 +56,29 @@
 4. Har 5–10 rasmdan keyin **kontakt varaq** (hammasi yonma-yon, kulrang fonda) bilan eski rasmlarga solishtiriladi.
    Uslubdan chiqqani qayta yaratiladi.
 
+### 1.6 Eski rasmni tuzatish (eshik/gumbazni olib tashlash) — saboqlar (2026-11-25)
+- Promptga albatta: *"keep every natural body part exactly: horns, ears, tail, udder, hooves, mane, beard…;
+  if a dome sits between the horns, the horns stay"* — aks holda Gemini gumbaz bilan **shoxni ham** o'chiradi
+  (sigir, echki).
+- "No trace remains: no outline, no arch shape, no smooth patch…" — aks holda eshik o'rnida **iz** qoladi (qovun).
+- Odamlar: "keep the small round grass base" + "clothing stripes continue where the plaque was" + "same face,
+  age, proportions". Buyumlar: "do NOT add ground, grass, base" (aks holda tandir tagiga o't qo'shiladi).
+- Katta gumbaz (quduq tomi) — oddiy yog'och tomga almashtiriladi. Mayda qoldiq qolsa, Gemini'da qayta so'rash
+  boshqa joyni buzadi — o'sha piksellarni lokal (numpy) fon rangiga bo'yash afzal.
+- Solishtirish varag'ida **proportsiyani saqlab** (`scale=-1:H`) qo'yiladi — kvadratga cho'zilsa, noto'g'ri
+  "ozg'in bo'lib qolgan" xulosasi chiqadi.
+- Tuzatilgan rasmning eski GIF varag'i (`<nom>@…png`) o'chiriladi va GIF yangi rasmdan qayta yaratiladi.
+
 ## 2. Animatsiya (GIF)
 - Faqat tayyor va tasdiqlangan rasmdan: rasm biriktiriladi + `motionPrompt` (art.config.mjs).
 - 2–3 soniyalik **uzluksiz halqa**: oxirgi kadr birinchisiga teng; kamera qimirlamaydi, zoom yo'q.
 - Personaj dizayni, rangi, o'lchami, joyi o'zgarmaydi; fon (xroma) har kadrda bir xil.
 - Harakat — yumshoq va xarakterga mos (hayvon: dum, quloq, bosh; odam: nafas, ko'z qisish, yengil chayqalish).
 - Fayl nomi rasm bilan bir xil, `.gif`: `animal__ot.gif` → `art-inbox/`.
+- ⚠️ Gemini GIF'ni **16:9 (640×360)** chiqaradi: kvadrat rasm berilsa, tepasi/pasti kesiladi (tuya boshi, quyon qulog'i).
+  Shuning uchun manba avval **1280×720 xroma fonga, personaj balandligi ~70%** qilib joylanadi (`/tmp/gifsrc.sh <nom>`
+  yoki ffmpeg `scale=500:500` + `overlay` markazga) va promptda "do NOT zoom in or crop, whole character visible" deyiladi.
+- Bir vaqtda faqat **bitta** GIF; tayyor bo'lgach sahifa yangilanmaydi — chat qayta ochilib "Скачать GIF" bosiladi.
 
 ## 3. Ovozlar
 - **Usul:** Gemini TTS, **Interactions API** (`scripts/gen-voices-inter.mjs`). Uslub `speech_metadata` maydonida —

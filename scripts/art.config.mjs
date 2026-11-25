@@ -281,8 +281,10 @@ export const inboxName = (a) => a.path.replace(/\//g, '__')
 export function motionPrompt(a) {
   const k = KEYS[keyOf(a)]
   return [
-    `Animate the attached image as a short seamless looping GIF (2-3 seconds): ${a.motion}.`,
+    // Manba rasm 16:9 (1280x720) fonga, personaj ~70% balandlikda joylanadi — Gemini GIF'i 16:9, kvadrat kesiladi
+    `Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: ${a.motion}.`,
     'Keep exactly the same character, design, colors, size and position.',
+    'Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame.',
     'The camera does not move, no zoom, no cuts.',
     `Keep the solid flat ${k.name} background (${k.hex}) completely unchanged in every frame.`,
     'The character always stays fully inside the frame.',

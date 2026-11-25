@@ -35,7 +35,7 @@ Popishak, an adorable cartoon hoopoe bird mascot: orange-peach body, fan-shaped 
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `mascot__idle.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): gentle idle: slow breathing, the crest feathers softly sway, blinks once, a small curious head tilt. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: gentle idle: slow breathing, the crest feathers softly sway, blinks once, a small curious head tilt. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `mascot__happy.png`  ·  1:1 (kvadrat)
@@ -47,7 +47,7 @@ Popishak the cartoon hoopoe bird mascot, jumping with joy, crest fully raised li
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `mascot__happy.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): jumps up joyfully twice, the crest fans fully open, wings flap happily. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: jumps up joyfully twice, the crest fans fully open, wings flap happily. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `mascot__oops.png`  ·  1:1 (kvadrat)
@@ -59,7 +59,7 @@ Popishak the cartoon hoopoe bird mascot, puzzled and confused, head tilted, cres
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `mascot__oops.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): tilts head from side to side confused, the crest droops, scratches head with a wing. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: tilts head from side to side confused, the crest droops, scratches head with a wing. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `mascot__sleep.png`  ·  1:1 (kvadrat)
@@ -71,7 +71,7 @@ Popishak the cartoon hoopoe bird mascot, sleeping peacefully while standing, eye
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `mascot__sleep.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): sleeping: slow deep breathing, the crest gently bobs, a tiny sleepy head nod. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: sleeping: slow deep breathing, the crest gently bobs, a tiny sleepy head nod. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ## 🏞️ Fonlar (16:9, landshaft)
@@ -215,7 +215,7 @@ a white cow with black spots, pink nose, small horns, full body, side view facin
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__sigir.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): chews slowly, swishes its tail, blinks and flicks an ear. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: chews slowly, swishes its tail, blinks and flicks an ear. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__qoy.png`  ·  1:1 (kvadrat)
@@ -227,7 +227,7 @@ a fluffy white sheep with a dark face, full body, side view facing RIGHT, cute b
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__qoy.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): bobs its fluffy head, wiggles its ears, blinks. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: bobs its fluffy head, wiggles its ears, blinks. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__echki.png`  ·  1:1 (kvadrat)
@@ -239,7 +239,7 @@ a light brown goat with small curved horns and a little beard, full body, side v
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__echki.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): nods its head, the little beard sways, swishes its short tail. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: nods its head, the little beard sways, swishes its short tail. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__xoroz.png`  ·  1:1 (kvadrat)
@@ -251,7 +251,7 @@ a colorful rooster with red comb and a big teal-green tail, full body, side view
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__xoroz.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): flaps its wings and crows proudly with the beak open, tail feathers bounce. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: flaps its wings and crows proudly with the beak open, tail feathers bounce. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__it.png`  ·  1:1 (kvadrat)
@@ -263,7 +263,7 @@ a brown puppy with floppy ears, full body, side view facing RIGHT, cute baby pro
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__it.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): wags its tail fast, pants happily with tongue out, ears bounce. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: wags its tail fast, pants happily with tongue out, ears bounce. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__mushuk.png`  ·  1:1 (kvadrat)
@@ -275,7 +275,7 @@ an orange tabby kitten, full body, side view facing RIGHT, cute baby proportions
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__mushuk.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): slowly swishes its tail, blinks slowly, ears twitch. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: slowly swishes its tail, blinks slowly, ears twitch. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__ordak.png`  ·  1:1 (kvadrat)
@@ -287,7 +287,7 @@ a yellow duck, full body, side view facing RIGHT, cute baby proportions, big exp
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__ordak.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): waddles in place, flaps its small wings, bobs its head. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: waddles in place, flaps its small wings, bobs its head. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__eshak.png`  ·  1:1 (kvadrat)
@@ -299,7 +299,7 @@ a grey donkey with long ears, full body, side view facing RIGHT, cute baby propo
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__eshak.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): wiggles its long ears, swishes its tail, nods. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: wiggles its long ears, swishes its tail, nods. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__ot.png`  ·  1:1 (kvadrat)
@@ -311,7 +311,7 @@ a brown horse with a dark mane and tail, full body, side view facing RIGHT, cute
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__ot.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): shakes its mane, swishes its tail, lifts one front hoof. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: shakes its mane, swishes its tail, lifts one front hoof. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__tuya.png`  ·  1:1 (kvadrat)
@@ -323,7 +323,7 @@ a light brown two-humped Bactrian camel, full body, side view facing RIGHT, cute
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__tuya.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): chews slowly, blinks with long lashes, sways its neck. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: chews slowly, blinks with long lashes, sways its neck. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__quyon.png`  ·  1:1 (kvadrat)
@@ -335,7 +335,7 @@ a fluffy grey-white bunny rabbit with long ears, sitting, full body, side view f
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__quyon.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): twitches its nose, ears flop, small hop in place. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: twitches its nose, ears flop, small hop in place. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__tovuq.png`  ·  1:1 (kvadrat)
@@ -347,7 +347,7 @@ a plump brown hen with a small red comb, full body, side view facing RIGHT, cute
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__tovuq.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): pecks the ground, bobs its head, fluffs its feathers. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: pecks the ground, bobs its head, fluffs its feathers. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__joja.png`  ·  1:1 (kvadrat)
@@ -359,7 +359,7 @@ a tiny fluffy yellow baby chick, full body, side view facing RIGHT, cute baby pr
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__joja.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): hops in place, flaps tiny wings, opens its little beak. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: hops in place, flaps tiny wings, opens its little beak. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__goz.png`  ·  1:1 (kvadrat)
@@ -371,7 +371,7 @@ a white goose with an orange beak and orange feet, full body, side view facing R
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__goz.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): stretches its neck, flaps its wings, waddles. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: stretches its neck, flaps its wings, waddles. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__baliq.png`  ·  1:1 (kvadrat)
@@ -383,7 +383,7 @@ a bright orange fish with big fins, side view (not standing), full body, side vi
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__baliq.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): swims in place: tail and fins wave, bubbles rise. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: swims in place: tail and fins wave, bubbles rise. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__kapalak.png`  ·  1:1 (kvadrat)
@@ -395,7 +395,7 @@ a colorful butterfly with big orange-blue wings, top view (not standing), full b
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__kapalak.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): flaps its wings slowly, antennae wiggle. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: flaps its wings slowly, antennae wiggle. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__ari.png`  ·  1:1 (kvadrat)
@@ -407,7 +407,7 @@ a cute round honeybee with yellow-black stripes and small wings (not standing), 
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__ari.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): buzzes in place, wings blur, bobs up and down. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: buzzes in place, wings blur, bobs up and down. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__toshbaqa.png`  ·  1:1 (kvadrat)
@@ -419,7 +419,7 @@ a small turtle with a brown patterned shell, full body, side view facing RIGHT, 
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__toshbaqa.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): pokes its head out, blinks, slow step in place. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: pokes its head out, blinks, slow step in place. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__ayiq.png`  ·  1:1 (kvadrat)
@@ -431,7 +431,7 @@ a brown bear cub, full body, side view facing RIGHT, cute baby proportions, big 
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__ayiq.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): waves a paw, rocks side to side, blinks. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: waves a paw, rocks side to side, blinks. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__fil.png`  ·  1:1 (kvadrat)
@@ -443,7 +443,7 @@ a small grey elephant calf with big ears, full body, side view facing RIGHT, cut
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__fil.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): raises its trunk, flaps its big ears, sways. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: raises its trunk, flaps its big ears, sways. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__hakka.png`  ·  1:1 (kvadrat)
@@ -455,7 +455,7 @@ a black-and-white magpie bird with a long tail, full body, side view facing RIGH
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__hakka.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): hops, tilts its head, flicks its long tail. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: hops, tilts its head, flicks its long tail. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__ilon.png`  ·  1:1 (kvadrat)
@@ -467,7 +467,7 @@ a friendly green-and-yellow cartoon snake coiled with its head raised (no legs),
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__ilon.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): sways its head side to side, flicks its tongue, blinks. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: sways its head side to side, flicks its tongue, blinks. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__jirafa.png`  ·  1:1 (kvadrat)
@@ -479,7 +479,7 @@ a baby giraffe with a long neck and brown spots, full body, side view facing RIG
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__jirafa.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): bends its long neck, blinks, twitches its ears. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: bends its long neck, blinks, twitches its ears. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__laylak.png`  ·  1:1 (kvadrat)
@@ -491,7 +491,7 @@ a white stork with black wing tips, long red beak and long red legs, full body, 
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__laylak.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): stands on one leg, flaps its wings, nods. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: stands on one leg, flaps its wings, nods. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__zebra.png`  ·  1:1 (kvadrat)
@@ -503,7 +503,7 @@ a baby zebra with black and white stripes, full body, side view facing RIGHT, cu
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__zebra.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): swishes its tail, nods, flicks its ears. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: swishes its tail, nods, flicks its ears. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__chumoli.png`  ·  1:1 (kvadrat)
@@ -515,7 +515,7 @@ a cute red-brown ant with six small legs and antennae, full body, side view faci
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__chumoli.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): wiggles its antennae, taps its legs, bobs. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: wiggles its antennae, taps its legs, bobs. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `animal__sher.png`  ·  1:1 (kvadrat)
@@ -527,7 +527,7 @@ a friendly lion cub with a small fluffy golden mane, full body, side view facing
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `animal__sher.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): shakes its little mane, yawns, swishes its tail. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: shakes its little mane, yawns, swishes its tail. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key green background (#00FF00) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ## 🧕 Odamlar (bozor mijozlari, kasblar)
@@ -541,7 +541,7 @@ a kind Uzbek grandfather with white beard, black-and-white doppi skullcap, strip
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__bobo.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__bobo-happy.png`  ·  1:1 (kvadrat)
@@ -553,7 +553,7 @@ a kind Uzbek grandfather with white beard, black-and-white doppi skullcap, strip
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__bobo-happy.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__buvi.png`  ·  1:1 (kvadrat)
@@ -565,7 +565,7 @@ a sweet Uzbek grandmother with a white headscarf and purple dress, full body, fr
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__buvi.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key blue background (#0000FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key blue background (#0000FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__buvi-happy.png`  ·  1:1 (kvadrat)
@@ -577,7 +577,7 @@ a sweet Uzbek grandmother with a white headscarf and purple dress, full body, fr
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__buvi-happy.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key blue background (#0000FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key blue background (#0000FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__aka.png`  ·  1:1 (kvadrat)
@@ -589,7 +589,7 @@ a young Uzbek man with a doppi skullcap and white shirt with dark vest, full bod
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__aka.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__aka-happy.png`  ·  1:1 (kvadrat)
@@ -601,7 +601,7 @@ a young Uzbek man with a doppi skullcap and white shirt with dark vest, full bod
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__aka-happy.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__opa.png`  ·  1:1 (kvadrat)
@@ -613,7 +613,7 @@ a young Uzbek woman with long braids in a colorful atlas ikat dress, full body, 
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__opa.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__opa-happy.png`  ·  1:1 (kvadrat)
@@ -625,7 +625,7 @@ a young Uzbek woman with long braids in a colorful atlas ikat dress, full body, 
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__opa-happy.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__bola.png`  ·  1:1 (kvadrat)
@@ -637,7 +637,7 @@ a cheerful little Uzbek boy with a blue cap and green t-shirt, full body, front 
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__bola.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__bola-happy.png`  ·  1:1 (kvadrat)
@@ -649,7 +649,7 @@ a cheerful little Uzbek boy with a blue cap and green t-shirt, full body, front 
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__bola-happy.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__shifokor.png`  ·  1:1 (kvadrat)
@@ -661,7 +661,7 @@ a kind Uzbek woman doctor in a white coat with a stethoscope, full body, front v
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__shifokor.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__shifokor-happy.png`  ·  1:1 (kvadrat)
@@ -673,7 +673,7 @@ a kind Uzbek woman doctor in a white coat with a stethoscope, full body, front v
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__shifokor-happy.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__oshpaz.png`  ·  1:1 (kvadrat)
@@ -685,7 +685,7 @@ a cheerful Uzbek cook with a white chef hat and apron, holding a ladle, full bod
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__oshpaz.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__oshpaz-happy.png`  ·  1:1 (kvadrat)
@@ -697,7 +697,7 @@ a cheerful Uzbek cook with a white chef hat and apron, holding a ladle, full bod
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__oshpaz-happy.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__haydovchi.png`  ·  1:1 (kvadrat)
@@ -709,7 +709,7 @@ a friendly Uzbek driver with a cap and blue uniform, full body, front view, stan
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__haydovchi.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__haydovchi-happy.png`  ·  1:1 (kvadrat)
@@ -721,7 +721,7 @@ a friendly Uzbek driver with a cap and blue uniform, full body, front view, stan
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__haydovchi-happy.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__dehqon.png`  ·  1:1 (kvadrat)
@@ -733,7 +733,7 @@ a smiling Uzbek farmer with a doppi skullcap and a small hoe, full body, front v
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__dehqon.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: gentle idle: breathing, blinks, a small friendly sway and a slight nod. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ### - [ ] `person__dehqon-happy.png`  ·  1:1 (kvadrat)
@@ -745,7 +745,7 @@ a smiling Uzbek farmer with a doppi skullcap and a small hoe, full body, front v
 🎬 **Animatsiya (ixtiyoriy):** tayyor rasmni biriktirib, shu promptni yuboring → `person__dehqon-happy.gif` nomi bilan saqlang
 
 ```text
-Animate the attached image as a short seamless looping GIF (2-3 seconds): laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
+Animate the attached image as a short seamless looping GIF (2-3 seconds), wide 16:9 frame exactly like the attached image: laughs happily and claps hands twice, a small joyful bounce. Keep exactly the same character, design, colors, size and position. Do NOT zoom in or crop: the whole character including head, ears, tail and feet must stay fully visible with the same empty margin around it in every frame. The camera does not move, no zoom, no cuts. Keep the solid flat pure chroma-key magenta background (#FF00FF) completely unchanged in every frame. The character always stays fully inside the frame. The last frame must match the first frame for a perfect loop.
 ```
 
 ## 🥕 Sabzavotlar
