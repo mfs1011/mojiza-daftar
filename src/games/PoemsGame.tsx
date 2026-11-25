@@ -109,7 +109,7 @@ export function PoemsGame({ profile, level, onComplete, onExit }: GameProps) {
       void (async () => {
         // Hayvon bo'lsa — o'z ovozi bilan "javob beradi"
         if (a.k === 'animal') await sayAnimal(a.id)
-        await say(a.k === 'animal' ? `hayvon_${a.id}` : `meva_${a.id}`, 'barakalla')
+        await say(a.k === 'animal' ? `hayvon_${a.id}` : a.k === 'thing' ? `nom_${a.id}` : `meva_${a.id}`, 'barakalla')
       })()
       setTimeout(() => {
         if (idx + 1 >= rounds.length) setFinished(true)
