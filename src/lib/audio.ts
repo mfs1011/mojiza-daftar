@@ -777,7 +777,7 @@ function synthAnimal(id: AnimalId): number {
 
 /** Haqiqiy hayvon yozuvi: <id>, <id>-2, <id>-3 (bo'lganlari) */
 function animalVariants(id: string): string[] {
-  return [id, `${id}-2`, `${id}-3`].map((n) => audioUrl(`sfx/animals/${n}`)).filter((u): u is string => !!u)
+  return [id, `${id}-2`, `${id}-3`, `${id}-4`].map((n) => audioUrl(`sfx/animals/${n}`)).filter((u): u is string => !!u)
 }
 
 /**
