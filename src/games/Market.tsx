@@ -138,10 +138,13 @@ export function Market({ profile, level, onComplete, onExit, store, onGoto }: Ga
   const showPictures = cfg.auto || tries >= cfg.hintAfter
   const { want, fruit } = customer
   // Qutida shu mijoz uchun nechta meva bor (ombor bo'lmasa — eski cheksiz quti)
+  // Qutida — ombordagi shu mevaning HAMMASI (oldingi mijozlarga sotilganidan tashqari), so'ralgani emas:
+  // bola nechta kerakligini o'zi sanab beradi. 9 tadan ko'p bo'lsa — qutida 9 ta rasm + son.
   const crateMax = store && plan
-    ? (store[fruit] ?? 0) - plan.filter((c, i) => i !== round && c.fruit === fruit).reduce((a, c) => a + c.want, 0)
+    ? (store[fruit] ?? 0) - plan.slice(0, round).filter((c) => c.fruit === fruit).reduce((a, c) => a + c.want, 0)
     : Infinity
-  const inCrate = Math.min(9, crateMax - given)
+  const left = crateMax - given
+  const inCrate = Math.min(9, left)
 
   // "Qanday bajariladi?": kam bo'lsa — mevani bosadi, ko'p bo'lsa — savatdan qaytaradi, teng bo'lsa — "Berish"
   const howto = useHowTo(profile.id, 'bozor', () =>
@@ -287,6 +290,11 @@ export function Market({ profile, level, onComplete, onExit, store, onGoto }: Ga
               <FruitArt kind={fruit} />
             </motion.button>
           ))}
+          {Number.isFinite(left) && left > 9 && (
+            <span className="crate-count" aria-label={`${left}`}>
+              {left}
+            </span>
+          )}
         </div>
       </div>
 

@@ -20,7 +20,7 @@ const DECOR_NAMES = {
   quduq: 'Quduq',
   koza: "Ko'za",
 }
-import { ALL_ANIMALS, ALL_FRUITS, ANIMAL_NAMES, ANIMAL_SOUNDS, FRUIT_NAMES, MARKET_FRUITS } from './names.ts'
+import { ALL_ANIMALS, ALL_FRUITS, ANIMAL_NAMES, ANIMAL_SOUNDS, FRUIT_NAMES } from './names.ts'
 
 export interface VoicePrompt {
   key: string
@@ -155,7 +155,7 @@ export function voicePrompts(profiles: Profile[]): VoicePrompt[] {
     // Buyurtmani mijozning o'zi aytadi: "Menga beshta" + "olma bering!"
     ...(Object.keys(CUSTOMER_LINES) as CustomerId[]).flatMap((c) => [
       ...COUNT_WORDS.map((w, i) => ({ key: `mijoz_${c}_son_${i + 1}`, text: `Menga ${w}`, group: 'Bozor mijozlari', voice: CUSTOMER_VOICES[c] })),
-      ...MARKET_FRUITS.map((f) => ({
+      ...ALL_FRUITS.map((f) => ({
         key: `mijoz_${c}_meva_${f}`,
         text: `${FRUIT_NAMES[f].toLowerCase()} bering!`,
         group: 'Bozor mijozlari',
