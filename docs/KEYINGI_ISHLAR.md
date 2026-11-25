@@ -11,11 +11,9 @@ Oxirgi yangilanish: 2026-11-25. Branch: `feat/audio-impl` (PR #6 → `dev`). Oxi
 ## ⬜ Ochiq ishlar (ustuvorlik tartibida)
 
 ### 1. GIF animatsiyalar (yangi personajlar) — DAVOM ETADI
-✅ ot (2026-11-24); ✅ tuya, quyon, tovuq, jo'ja, g'oz, baliq (2026-11-25, 16:9 manba bilan — kesilmagan).
-Qolgani **20 ta** (ro'yxat: `/tmp/gif-list.json`): kapalak (yaratilmoqda), ari, toshbaqa, ayiq, fil, hakka, ilon,
-jirafa, laylak, zebra, chumoli, sher; shifokor, oshpaz, haydovchi, dehqon (har biri oddiy + `-happy`).
-+ 1b dan keyin GIF'i o'chirilganlar (**11 ta**): sigir, qo'y, echki, it, mushuk, o'rdak, eshak, bobo, bobo-happy,
-aka, aka-happy — yangi toza rasmdan qayta yaratiladi (hozircha o'yinda statik).
+✅ Yangi 18 hayvonning hammasi (2026-11-25, 16:9 manba — kesilmagan) + bog' daraxti.
+Qolgani (navbat: `/tmp/gif-queue.txt`): 1b dan keyin GIF'i o'chirilgan 11 ta — sigir, qo'y, echki, it, mushuk, o'rdak,
+eshak, bobo, bobo-happy, aka, aka-happy; kasblar 8 ta — shifokor, oshpaz, haydovchi, dehqon (oddiy + `-happy`).
 - ⚠️ Gemini **bir vaqtda faqat bitta GIF** yaratadi (parallel so'rovlar "capacity error" bilan rad etiladi) va kunlik
   GIF limiti bor (2026-11-24 da ~2 ta GIF'dan keyin tugadi). Ketma-ket: bittasi tayyor → yuklab olinadi → keyingisi.
 - Qanday: asl **yashil/magenta fonli** rasm (`~/Downloads/<nom>.png`; hakka uchun fonini yashilga almashtirilgani)
