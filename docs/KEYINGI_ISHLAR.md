@@ -56,6 +56,27 @@ Egasi qarori: do'konda **hammasi** sotilsin (kiyim, hayvon, o'yinchoq, cholg'u),
 - [ ] Cholg'ular hozir bepul — do'konga qo'yish uchun avval qulflash kerak (egasi qarori).
 - [ ] Hovliga yangi hayvonlarni (things.ts) ham sotish — hovli turi kengaytiriladi.
 
+### 3b. Valyuta (tanga) nima uchun kerak — reja (2026-11-25, egasi bilan muhokama uchun)
+**Maqsad (maktabgacha bola uchun):** tanga — "mehnat → natija → tanlov → g'amxo'rlik" zanjirining ko'rinadigan qismi.
+Har sarflash — sanash va solishtirish mashqi ("3 tanga kerak, sende 5 ta — yetadimi? nechta qoladi?").
+Qoidalar: narx faqat 1–10 (bola sanay oladigan son); tanga doim bittalab sanab to'lanadi; "sandiq/omad qutisi",
+taymer, "tezroq ol" bosimi — YO'Q; hamma xarid darhol ko'rinadigan, o'ynasa bo'ladigan narsa bo'lsin.
+Bolalarga **robotcha** (Ijod → 3D qahramon) eng yoqdi → valyutani avvalo unga bog'laymiz:
+- [ ] **Robotcha uchun do'kon bo'limi:** shlyapa, do'ppi, ko'zoynak, bo'yoq rangi, ryukzak — sotib olingach robot kiyib,
+      quvonib raqsga tushadi. (3D modelga aksessuar biriktirish; rasm/model kerak.)
+- [ ] **Robotcha yangi harakat "o'rganadi":** tanga bilan yangi raqs/hazil harakati ochiladi (modelda tayyor kliplar bor).
+- [ ] **Robotcha — butun o'yin bo'ylab do'st:** uy ekranida turadi, bekatdan qaytganda kutib oladi, xaridni maqtaydi.
+- [ ] **Robot bilan o'quv o'yinlari:** "Robotga yo'l ko'rsat" (oldinga/burilish strelkalari — dasturlashga ilk qadam,
+      4–5 yosh), "Robot nima his qilyapti?" (his-tuyg'ular), ovoz bilan buyruq ("sakra!", "raqs tush!").
+**Hayvonga meva bergandan keyin nima bo'ladi:**
+- [ ] Hayvon kuniga bir marta och bo'ladi (ustida kichik "och" belgisi). To'ydirilsa — xursand, va **mahsulot beradi**:
+      tovuq → tuxum, sigir/echki → sut, qo'y → jun. Mahsulot omborga tushadi va bozorda sotiladi (yangi mijoz buyurtmalari).
+      Sabab-oqibat va g'amxo'rlikni o'rgatadi; bir kunda cheksiz takrorlab bo'lmaydi.
+**Cholg'ular:**
+- [ ] Musiqa uyida 3 ta cholg'u bepul qoladi; qolganlari (doira, rubob, nay, …) do'konda 5–10 tanga — sotib olingach
+      Musiqa uyida paydo bo'ladi.
+**Ota-ona paneli:** xaridlar tarixi va "bugun nechta tanga topdi/sarfladi" ko'rinadi.
+
 ### 4. RIVOJLANISH_REJASI.md bo'yicha
 - [ ] Egasi ✍️ joylarga yozib "yozdim" deganda — har izohga 💬 javob, keyin kelishilgan tartibda ish.
 - [ ] O'quv dasturi (harf/son tartibi, egallash, takrorlash) — egasining qaroriga bog'liq ("Alifbe" tartibi).
