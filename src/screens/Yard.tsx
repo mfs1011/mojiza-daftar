@@ -216,7 +216,8 @@ export function Yard({ profile, village, inbox, store, owned, onSave, onFeed, on
 
       {/* Ombordan meva: hayvonga yedirish (hovlida hayvon bo'lsagina) */}
       {fruits.length > 0 && village.some((d) => d.kind.startsWith('hayvon_')) && (
-        <div className="yard-fruits">
+        // 4 tadan ko'p tur bo'lsa — 2 ustun (10 turgacha ekranga sig'adi)
+        <div className="yard-fruits" style={{ ['--cols' as string]: fruits.length > 4 ? 2 : 1 }}>
           {fruits.map((k) => (
             <motion.div
               key={`${k}-${store[k]}`}
